@@ -1,5 +1,5 @@
 import { styled, keyframes } from '@mui/material';
-import { Box, Container, Paper, Button } from '@mui/material';
+import { Box, Container, Paper, Button, Card } from '@mui/material';
 
 const fadeIn = keyframes`
   from {
@@ -50,11 +50,11 @@ export const IconWrapper = styled(Box)`
 `;
 
 export const HeroSection = styled(Box)`
-  background-image: linear-gradient(135deg, rgba(37, 99, 235, 0.85), rgba(29, 78, 216, 0.85)), 
+  background-image: linear-gradient(135deg, rgba(37, 99, 235, 0.9), rgba(29, 78, 216, 0.9)), 
     url('https://images.unsplash.com/photo-1590674899484-d5640e854abe?ixlib=rb-4.0.3');
   background-size: cover;
   background-position: center;
-  min-height: calc(100vh - 70px);
+  min-height: 80vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -99,6 +99,87 @@ export const HeroSection = styled(Box)`
     margin: 0 auto;
     opacity: 0.9;
     animation: ${fadeIn} 1s ease-out;
+  }
+`;
+
+export const SearchSection = styled(Box)`
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+
+  .MuiTextField-root {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    
+    .MuiOutlinedInput-root {
+      color: white;
+      
+      .MuiOutlinedInput-notchedOutline {
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+      
+      &:hover .MuiOutlinedInput-notchedOutline {
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+      
+      &.Mui-focused .MuiOutlinedInput-notchedOutline {
+        border-color: white;
+      }
+
+      .MuiSvgIcon-root {
+        color: rgba(255, 255, 255, 0.8);
+      }
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+  }
+
+  .MuiIconButton-root {
+    color: white;
+    margin-left: 8px;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+`;
+
+export const MapContainer = styled(Box)`
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  background: white;
+  height: 600px;
+`;
+
+export const ParqueaderoCard = styled(Card)`
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: white;
+  height: 100%;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.1);
+  }
+
+  .MuiCardContent-root {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .MuiChip-root {
+    &.MuiChip-colorPrimary {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+    }
+    &.MuiChip-colorSuccess {
+      background: linear-gradient(135deg, #10b981, #059669);
+    }
   }
 `;
 

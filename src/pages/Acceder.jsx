@@ -1,198 +1,197 @@
 import React, { useState } from 'react';
 import {
-  Container,
   Typography,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Divider,
-  Stepper,
-  Step,
-  StepLabel
+  IconButton,
+  InputAdornment,
+  Link as MuiLink,
 } from '@mui/material';
-import GoogleIcon from '@mui/icons-material/Google';
+import { Link } from 'react-router-dom';
+import { Google as GoogleIcon } from '@mui/icons-material';
 import FacebookIcon from '@mui/icons-material/Facebook';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import PaymentForm from '../components/payment/PaymentForm';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import PersonIcon from '@mui/icons-material/Person';
+import EmailIcon from '@mui/icons-material/Email';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 import {
-  StyledPaper,
-  IconContainer,
-  FormContainer,
-  GoogleButton,
-  FacebookButton,
-  ConfirmButton,
-  SocialButtonsContainer,
-  BackgroundSquares,
-  StyledStepper
+  AuthContainer,
+  AuthPaper,
+  AuthHeader,
+  AuthForm,
+  StyledTextField,
+  AuthButton,
+  SocialButton,
+  Divider,
+  AuthFooter,
 } from '../styles/pages/Acceder.styles';
 
 const Acceder = () => {
-  const [activeStep, setActiveStep] = useState(0);
+  const [isLogin, setIsLogin] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    tipoUsuario: '',
     nombre: '',
-    contacto: '',
+    email: '',
     ubicacion: '',
     password: '',
-    confirmPassword: ''
   });
-
-  const steps = ['Registro', 'Pago'];
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setFormData(prevState => ({
-      ...prevState,
+    setFormData(prev => ({
+      ...prev,
       [name]: value
     }));
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    setActiveStep(1);
+    // Aquí iría la lógica de autenticación
+    console.log('Form submitted:', formData);
   };
 
-  const handlePaymentSubmit = (paymentData) => {
-    console.log('Datos de registro:', formData);
-    console.log('Datos de pago:', paymentData);
-  };
-
-  const renderStepContent = (step) => {
-    switch (step) {
-      case 0:
-        return (
-          <>
-            <IconContainer>
-              <AccountCircleIcon sx={{ fontSize: 64, color: '#2B6CA3' }} />
-            </IconContainer>
-
-            <Typography variant="h4" align="center" gutterBottom>
-              Registrarse
-            </Typography>
-
-            <FormContainer component="form" onSubmit={handleSubmit}>
-              <FormControl fullWidth>
-                <InputLabel>TIPO DE USUARIO</InputLabel>
-                <Select
-                  name="tipoUsuario"
-                  value={formData.tipoUsuario}
-                  onChange={handleChange}
-                  label="TIPO DE USUARIO"
-                >
-                  <MenuItem value="administrador">ADMINISTRADOR</MenuItem>
-                  <MenuItem value="cliente">CLIENTE</MenuItem>
-                </Select>
-              </FormControl>
-
-              <TextField
-                fullWidth
-                label="NOMBRE"
-                name="nombre"
-                value={formData.nombre}
-                onChange={handleChange}
-                required
-              />
-
-              <TextField
-                fullWidth
-                label="CORREO/TELÉFONO"
-                name="contacto"
-                value={formData.contacto}
-                onChange={handleChange}
-                required
-              />
-
-              <FormControl fullWidth>
-                <InputLabel>UBICACIÓN</InputLabel>
-                <Select
-                  name="ubicacion"
-                  value={formData.ubicacion}
-                  onChange={handleChange}
-                  label="UBICACIÓN"
-                  required
-                >
-                  <MenuItem value="bogota">Bogotá</MenuItem>
-                  <MenuItem value="medellin">Medellín</MenuItem>
-                  <MenuItem value="cali">Cali</MenuItem>
-                </Select>
-              </FormControl>
-
-              <TextField
-                fullWidth
-                type="password"
-                label="CONTRASEÑA"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
-
-              <TextField
-                fullWidth
-                type="password"
-                label="CONFIRMAR CONTRASEÑA"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-              />
-
-              <ConfirmButton
-                fullWidth
-                variant="contained"
-                type="submit"
-              >
-                Continuar al Pago
-              </ConfirmButton>
-
-              <Divider>o</Divider>
-
-              <SocialButtonsContainer>
-                <GoogleButton variant="outlined">
-                  <GoogleIcon />
-                  Registro con Google
-                </GoogleButton>
-                <FacebookButton variant="contained">
-                  <FacebookIcon />
-                  Registro con Facebook
-                </FacebookButton>
-              </SocialButtonsContainer>
-            </FormContainer>
-          </>
-        );
-      case 1:
-        return (
-          <>
-            <Typography variant="h4" align="center" gutterBottom>
-              Información de Pago
-            </Typography>
-            <PaymentForm onSubmit={handlePaymentSubmit} />
-          </>
-        );
-      default:
-        return null;
-    }
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
-    <Container>
-      <StyledPaper elevation={3}>
-        <BackgroundSquares sx={{ top: -50, right: -50 }} />
-        <BackgroundSquares sx={{ bottom: -50, left: -50 }} />
-        
-        <StyledStepper activeStep={activeStep} alternativeLabel>
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </StyledStepper>
+    <AuthContainer maxWidth={false}>
+      <AuthPaper elevation={0}>
+        <AuthHeader>
+          <Typography variant="h4">
+            {isLogin ? 'Iniciar Sesión' : 'Crear Cuenta'}
+          </Typography>
+          <Typography variant="body1">
+            {isLogin 
+              ? 'Bienvenido de nuevo a Parqueaderos M.C.K.A.Z' 
+              : 'Únete a la red de parqueaderos más innovadora'}
+          </Typography>
+        </AuthHeader>
 
-        {renderStepContent(activeStep)}
-      </StyledPaper>
-    </Container>
+        <AuthForm onSubmit={handleSubmit}>
+          {!isLogin && (
+            <StyledTextField
+              fullWidth
+              name="nombre"
+              label="Nombre completo"
+              value={formData.nombre}
+              onChange={handleChange}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PersonIcon color="action" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          )}
+
+          <StyledTextField
+            fullWidth
+            name="email"
+            label="Correo electrónico o teléfono"
+            value={formData.email}
+            onChange={handleChange}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <EmailIcon color="action" />
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          {!isLogin && (
+            <StyledTextField
+              fullWidth
+              name="ubicacion"
+              label="Ubicación"
+              value={formData.ubicacion}
+              onChange={handleChange}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LocationOnIcon color="action" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          )}
+
+          <StyledTextField
+            fullWidth
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            label="Contraseña"
+            value={formData.password}
+            onChange={handleChange}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={togglePasswordVisibility} edge="end">
+                    {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <AuthButton
+            type="submit"
+            variant="contained"
+            fullWidth
+          >
+            {isLogin ? 'Iniciar Sesión' : 'Crear Cuenta'}
+          </AuthButton>
+        </AuthForm>
+
+        <Divider>
+          <span>o continúa con</span>
+        </Divider>
+
+        <SocialButton
+          fullWidth
+          variant="outlined"
+          startIcon={<GoogleIcon />}
+          onClick={() => console.log('Google sign in')}
+          sx={{ mb: 2 }}
+        >
+          Google
+        </SocialButton>
+
+        <SocialButton
+          fullWidth
+          variant="outlined"
+          startIcon={<FacebookIcon />}
+          onClick={() => console.log('Facebook sign in')}
+        >
+          Facebook
+        </SocialButton>
+
+        <AuthFooter>
+          {isLogin ? (
+            <>
+              ¿No tienes una cuenta?
+              <MuiLink 
+                component="button" 
+                onClick={() => setIsLogin(false)}
+              >
+                Regístrate
+              </MuiLink>
+            </>
+          ) : (
+            <>
+              ¿Ya tienes una cuenta?
+              <MuiLink 
+                component="button" 
+                onClick={() => setIsLogin(true)}
+              >
+                Inicia sesión
+              </MuiLink>
+            </>
+          )}
+        </AuthFooter>
+      </AuthPaper>
+    </AuthContainer>
   );
 };
 
