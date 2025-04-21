@@ -155,45 +155,29 @@ export const MapContainer = styled(Box)`
   height: 600px;
 `;
 
-export const ParqueaderoCard = styled(Card)`
-  border-radius: 16px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  background: white;
-  height: 100%;
+export const ParqueaderoCard = styled(Card)(({ theme }) => ({
+  width: '100%',
+  maxWidth: '280px',
+  borderRadius: '12px',
+  transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
+  '&:hover': {
+    transform: 'translateY(-5px)',
+    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+  },
+  '& .MuiCardContent-root': {
+    padding: theme.spacing(3),
+  },
+}));
 
-  &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.1);
-  }
-
-  .MuiCardContent-root {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .MuiChip-root {
-    &.MuiChip-colorPrimary {
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-    }
-    &.MuiChip-colorSuccess {
-      background: linear-gradient(135deg, #10b981, #059669);
-    }
-  }
-`;
-
-export const StyledContainer = styled(Container)`
-  padding: 0 24px;
-  max-width: 100% !important;
-  width: 100%;
-  position: relative;
-  z-index: 1;
-  
-  @media (min-width: 1200px) {
-    max-width: 1400px !important;
-  }
-`;
+export const StyledContainer = styled(Container)(({ theme }) => ({
+  width: '100%',
+  maxWidth: '1200px',
+  margin: '0 auto',
+  padding: theme.spacing(0, 3),
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(0, 2),
+  },
+}));
 
 export const StyledPaper = styled(Paper)`
   padding: 40px;

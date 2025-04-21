@@ -39,6 +39,7 @@ import {
   ParqueaderoCard
 } from '../styles/pages/Home.styles';
 import MapaParqueaderos from '../components/maps/MapaParqueaderos';
+import WhyChooseUs from '../components/WhyChooseUs';
 
 const Home = () => {
   const [searchView, setSearchView] = useState('map'); // 'map' o 'list'
@@ -118,10 +119,36 @@ const Home = () => {
                   <MapaParqueaderos parqueaderos={fetchParqueaderos()} />
                 </MapContainer>
               ) : (
-                <Grid container spacing={2}>
+                <Grid 
+                  container 
+                  spacing={3} 
+                  justifyContent="center"
+                  sx={{ 
+                    width: '100%',
+                    margin: '0 auto',
+                    px: 2 
+                  }}
+                >
                   {[1, 2, 3, 4].map((item) => (
-                    <Grid item xs={12} sm={6} md={4} key={item}>
-                      <ParqueaderoCard elevation={1}>
+                    <Grid 
+                      item 
+                      xs={12} 
+                      sm={6} 
+                      md={3} 
+                      key={item}
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <ParqueaderoCard 
+                        elevation={1}
+                        sx={{
+                          width: '100%',
+                          maxWidth: '280px',
+                          m: 1
+                        }}
+                      >
                         <CardContent>
                           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
                             <Typography variant="h6">Parqueadero {item}</Typography>
@@ -183,61 +210,7 @@ const Home = () => {
         </StyledContainer>
       </Box>
 
-      <FeatureSection>
-        <StyledContainer>
-          <Typography variant="h2" component="h2" gutterBottom>
-            ¿Por qué elegirnos?
-          </Typography>
-          <Typography variant="subtitle1" align="center" sx={{ mb: 6, maxWidth: 700, mx: 'auto', color: 'text.secondary' }}>
-            Ofrecemos una experiencia de estacionamiento superior con tecnología de punta
-            y un servicio excepcional para tu tranquilidad.
-          </Typography>
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={4}>
-              <StyledPaper elevation={0}>
-                <IconWrapper>
-                  <DirectionsCarIcon />
-                </IconWrapper>
-                <Typography variant="h5" component="h3" gutterBottom>
-                  Espacios Amplios
-                </Typography>
-                <Typography>
-                  Espacios diseñados pensando en tu comodidad, con dimensiones
-                  optimizadas para todo tipo de vehículos y fácil acceso.
-                </Typography>
-              </StyledPaper>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <StyledPaper elevation={0}>
-                <IconWrapper>
-                  <SecurityIcon />
-                </IconWrapper>
-                <Typography variant="h5" component="h3" gutterBottom>
-                  Seguridad 24/7
-                </Typography>
-                <Typography>
-                  Vigilancia permanente con tecnología avanzada y personal
-                  altamente capacitado para proteger tu vehículo.
-                </Typography>
-              </StyledPaper>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <StyledPaper elevation={0}>
-                <IconWrapper>
-                  <AccessTimeIcon />
-                </IconWrapper>
-                <Typography variant="h5" component="h3" gutterBottom>
-                  Horarios Flexibles
-                </Typography>
-                <Typography>
-                  Adaptamos nuestros servicios a tu rutina con opciones
-                  flexibles de estacionamiento y tarifas competitivas.
-                </Typography>
-              </StyledPaper>
-            </Grid>
-          </Grid>
-        </StyledContainer>
-      </FeatureSection>
+      <WhyChooseUs />
 
       <CTASection>
         <StyledContainer>

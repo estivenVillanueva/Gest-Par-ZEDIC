@@ -1,87 +1,72 @@
 import React from 'react';
-import { Container, Grid, Typography, Box } from '@mui/material';
+import { Typography, Link as MuiLink } from '@mui/material';
+import { Link } from 'react-router-dom';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import TelegramIcon from '@mui/icons-material/Telegram';
-import PhoneIcon from '@mui/icons-material/Phone';
-import ChatIcon from '@mui/icons-material/Chat';
 import {
-  StyledFooter,
+  FooterWrapper,
+  FooterContainer,
   FooterSection,
-  SocialIconButton
-} from '../../styles/components/Layout.styles';
+  SocialIconsContainer,
+  BottomFooter
+} from '../../styles/components/Footer.styles';
 
 const Footer = () => {
   return (
-    <StyledFooter>
-      <Container>
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={4}>
-            <FooterSection>
-              <Typography variant="h6" gutterBottom>
-                Eficiencia
-              </Typography>
-              <Typography>
-                Automatización completa para agilizar tus operaciones
-              </Typography>
-            </FooterSection>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <FooterSection>
-              <Typography variant="h6" gutterBottom>
-                Precisión
-              </Typography>
-              <Typography>
-                Gestión exacta de pagos y registros sin margen de error
-              </Typography>
-            </FooterSection>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <FooterSection>
-              <Typography variant="h6" gutterBottom>
-                Satisfacción del cliente
-              </Typography>
-              <Typography>
-                Una experiencia sin igual para ti y tus clientes
-              </Typography>
-            </FooterSection>
-          </Grid>
-        </Grid>
-
-        <Box mt={4}>
-          <Typography variant="body2" align="center" gutterBottom>
-            Seguridad, confiabilidad y rentabilidad son nuestras garantías. Con Parqueadero M.C.K.A.Z obtendrás un servicio de calidad que se adapta a las necesidades del mercado moderno.
+    <FooterWrapper>
+      <FooterContainer>
+        <FooterSection>
+          <Typography variant="h6">Parqueaderos M.C.K.A.Z</Typography>
+          <Typography component="p">
+            Red de parqueaderos seguros con ubicaciones estratégicas en toda la ciudad.
           </Typography>
-        </Box>
+          <SocialIconsContainer>
+            <MuiLink href="https://facebook.com" target="_blank" aria-label="Facebook">
+              <FacebookIcon />
+            </MuiLink>
+            <MuiLink href="https://twitter.com" target="_blank" aria-label="Twitter">
+              <TwitterIcon />
+            </MuiLink>
+            <MuiLink href="https://t.me" target="_blank" aria-label="Telegram">
+              <TelegramIcon />
+            </MuiLink>
+          </SocialIconsContainer>
+        </FooterSection>
 
-        <Box mt={3} display="flex" justifyContent="center">
-          <Box mr={4} display="flex" alignItems="center">
-            <PhoneIcon sx={{ mr: 1 }} />
-            <Typography>Teléfono:</Typography>
-          </Box>
-          <Box display="flex" alignItems="center">
-            <ChatIcon sx={{ mr: 1 }} />
-            <Typography>Chat</Typography>
-          </Box>
-        </Box>
+        <FooterSection>
+          <Typography variant="h6">Enlaces Rápidos</Typography>
+          <Link to="/parqueaderos">Buscar Parqueaderos</Link>
+          <Link to="/reservas">Mis Reservas</Link>
+          <Link to="/tarifas">Tarifas</Link>
+          <Link to="/beneficios">Beneficios</Link>
+        </FooterSection>
 
-        <Box mt={2} display="flex" justifyContent="center">
-          <SocialIconButton>
-            <FacebookIcon />
-          </SocialIconButton>
-          <SocialIconButton>
-            <TwitterIcon />
-          </SocialIconButton>
-          <SocialIconButton>
-            <TelegramIcon />
-          </SocialIconButton>
-        </Box>
+        <FooterSection>
+          <Typography variant="h6">Servicios</Typography>
+          <Link to="/registro-parqueadero">Registra tu Parqueadero</Link>
+          <Link to="/planes">Planes y Precios</Link>
+          <Link to="/soporte">Soporte Técnico</Link>
+          <Link to="/faq">Preguntas Frecuentes</Link>
+        </FooterSection>
 
-        <Typography variant="body2" align="center" mt={2}>
-          © 2024 | Tema de parqueadero M.C.K.A.Z
+        <FooterSection>
+          <Typography variant="h6">Contacto</Typography>
+          <Typography component="p">Teléfono: +57 300 123 4567</Typography>
+          <Typography component="p">Email: info@parqueaderos.com</Typography>
+          <Typography component="p">
+            Dirección: Calle Principal #123
+            Bogotá, Colombia
+          </Typography>
+        </FooterSection>
+      </FooterContainer>
+
+      <BottomFooter>
+        <Typography component="p">
+          © {new Date().getFullYear()} | Tema de parqueadero M.C.K.A.Z | Todos los derechos reservados
         </Typography>
-      </Container>
-    </StyledFooter>
+      </BottomFooter>
+    </FooterWrapper>
   );
 };
 
