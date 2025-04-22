@@ -1,18 +1,14 @@
 import React, { useState } from 'react';
-import {
-  Typography,
-  IconButton,
-  InputAdornment,
-  Link as MuiLink,
-} from '@mui/material';
-import { Link } from 'react-router-dom';
-import { Google as GoogleIcon } from '@mui/icons-material';
-import FacebookIcon from '@mui/icons-material/Facebook';
+import { InputAdornment, IconButton } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
+
+// Importar iconos
+import GoogleIcon from '../assets/icons/google.svg';
+import FacebookIcon from '../assets/icons/facebook.svg';
+
 import {
   AuthContainer,
   AuthPaper,
@@ -26,108 +22,69 @@ import {
 } from '../styles/pages/Acceder.styles';
 
 const Acceder = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    nombre: '',
     email: '',
-    ubicacion: '',
     password: '',
   });
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // Aquí iría la lógica de autenticación
-    console.log('Form submitted:', formData);
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Datos de inicio de sesión:', formData);
+    navigate('/dashboard/parqueadero');
   };
 
   return (
-    <AuthContainer maxWidth={false}>
+    <AuthContainer>
       <AuthPaper elevation={0}>
         <AuthHeader>
-          <Typography variant="h4">
-            {isLogin ? 'Iniciar Sesión' : 'Crear Cuenta'}
-          </Typography>
-          <Typography variant="body1">
-            {isLogin 
-              ? 'Bienvenido de nuevo a Parqueaderos M.C.K.A.Z' 
-              : 'Únete a la red de parqueaderos más innovadora'}
-          </Typography>
+          <h4>Iniciar Sesión</h4>
+          <p>Bienvenido de nuevo a Parqueaderos M.C.K.A.Z</p>
         </AuthHeader>
 
         <AuthForm onSubmit={handleSubmit}>
-          {!isLogin && (
-            <StyledTextField
-              fullWidth
-              name="nombre"
-              label="Nombre completo"
-              value={formData.nombre}
-              onChange={handleChange}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <PersonIcon color="action" />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          )}
-
           <StyledTextField
             fullWidth
             name="email"
-            label="Correo electrónico o teléfono"
+            type="email"
+            placeholder="Correo electrónico o teléfono"
             value={formData.email}
             onChange={handleChange}
+            required
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <EmailIcon color="action" />
+                  <EmailIcon sx={{ color: '#9CA3AF', fontSize: '1.2rem' }} />
                 </InputAdornment>
               ),
             }}
           />
 
-          {!isLogin && (
-            <StyledTextField
-              fullWidth
-              name="ubicacion"
-              label="Ubicación"
-              value={formData.ubicacion}
-              onChange={handleChange}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <LocationOnIcon color="action" />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          )}
-
           <StyledTextField
             fullWidth
             name="password"
             type={showPassword ? 'text' : 'password'}
-            label="Contraseña"
+            placeholder="Contraseña"
             value={formData.password}
             onChange={handleChange}
+            required
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={togglePasswordVisibility} edge="end">
+                  <IconButton
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                    sx={{ color: '#9CA3AF' }}
+                  >
                     {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
                   </IconButton>
                 </InputAdornment>
@@ -135,12 +92,25 @@ const Acceder = () => {
             }}
           />
 
+          <Link
+            to="/recuperar-contrasena"
+            style={{
+              textDecoration: 'none',
+              color: '#3b82f6',
+              fontSize: '0.875rem',
+              alignSelf: 'flex-end',
+              marginTop: '-8px',
+              marginBottom: '16px',
+            }}
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
+
           <AuthButton
             type="submit"
-            variant="contained"
             fullWidth
           >
-            {isLogin ? 'Iniciar Sesión' : 'Crear Cuenta'}
+            Iniciar Sesión
           </AuthButton>
         </AuthForm>
 
@@ -150,49 +120,36 @@ const Acceder = () => {
 
         <SocialButton
           fullWidth
-          variant="outlined"
-          startIcon={<GoogleIcon />}
           onClick={() => console.log('Google sign in')}
           sx={{ mb: 2 }}
         >
+          <img src={GoogleIcon} alt="Google" style={{ width: 20, height: 20 }} />
           Google
         </SocialButton>
-
         <SocialButton
           fullWidth
-          variant="outlined"
-          startIcon={<FacebookIcon />}
           onClick={() => console.log('Facebook sign in')}
         >
+          <img src={FacebookIcon} alt="Facebook" style={{ width: 20, height: 20 }} />
           Facebook
         </SocialButton>
 
         <AuthFooter>
-          {isLogin ? (
-            <>
-              ¿No tienes una cuenta?
-              <MuiLink 
-                component="button" 
-                onClick={() => setIsLogin(false)}
-              >
-                Regístrate
-              </MuiLink>
-            </>
-          ) : (
-            <>
-              ¿Ya tienes una cuenta?
-              <MuiLink 
-                component="button" 
-                onClick={() => setIsLogin(true)}
-              >
-                Inicia sesión
-              </MuiLink>
-            </>
-          )}
+          ¿No tienes una cuenta?
+          <Link 
+            to="/registro" 
+            style={{ 
+              textDecoration: 'none', 
+              color: '#3b82f6',
+              fontWeight: 500 
+            }}
+          >
+            Regístrate
+          </Link>
         </AuthFooter>
       </AuthPaper>
     </AuthContainer>
   );
 };
 
-export default Acceder; 
+export default Acceder;
