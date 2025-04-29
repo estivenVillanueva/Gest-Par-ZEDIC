@@ -73,7 +73,7 @@ const theme = createTheme({
         root: {
           boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
           backdropFilter: 'blur(10px)',
-          backgroundColor: 'rgba(43, 108, 163, 0.95)',
+          backgroundColor: 'rgba(49, 129, 194, 0.95)',
         },
       },
     },
