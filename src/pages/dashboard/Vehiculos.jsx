@@ -12,32 +12,91 @@ import {
   DialogActions,
   InputAdornment,
   Container,
+  Chip,
+  Box,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import LocalParkingIcon from '@mui/icons-material/LocalParking';
+import TimeToLeaveIcon from '@mui/icons-material/TimeToLeave';
+import TwoWheelerIcon from '@mui/icons-material/TwoWheeler';
+import PedalBikeIcon from '@mui/icons-material/PedalBike';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import {
   VehiculoCardStyled,
   CardImageContainer,
   CardActionContainer,
+  CardInfoContainer,
   AddVehiculoCard,
   SearchContainer,
   ContentContainer
 } from '../../styles/pages/Vehiculos.styles';
 
+const getVehiculoIcon = (tipo) => {
+  switch (tipo?.toLowerCase()) {
+    case 'moto':
+      return <TwoWheelerIcon sx={{ fontSize: 80, color: 'white' }} />;
+    case 'carro':
+      return <TimeToLeaveIcon sx={{ fontSize: 80, color: 'white' }} />;
+    case 'bicicleta':
+      return <PedalBikeIcon sx={{ fontSize: 80, color: 'white' }} />;
+    case 'camion':
+      return <LocalShippingIcon sx={{ fontSize: 80, color: 'white' }} />;
+    default:
+      return <DirectionsCarIcon sx={{ fontSize: 80, color: 'white' }} />;
+  }
+};
+
 const VehiculoCard = ({ vehiculo, onVerInfo }) => (
   <VehiculoCardStyled>
     <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', p: 0 }}>
       <CardImageContainer>
-        <DirectionsCarIcon sx={{ fontSize: 100, color: 'white' }} />
+        {getVehiculoIcon(vehiculo.tipoVehiculo)}
       </CardImageContainer>
+      <CardInfoContainer>
+        <Typography variant="h6">
+          {vehiculo.placa}
+        </Typography>
+        <Typography variant="body2">
+          {vehiculo.propietario}
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+            Puesto:
+          </Typography>
+          <Chip 
+            label={vehiculo.puesto || 'No asignado'} 
+            size="small"
+            sx={{ 
+              bgcolor: 'rgba(43, 108, 163, 0.08)',
+              color: '#2B6CA3',
+              fontWeight: 600
+            }}
+          />
+        </Box>
+        {vehiculo.tipoServicio && (
+          <Chip
+            label={vehiculo.tipoServicio}
+            size="small"
+            sx={{
+              bgcolor: 'rgba(43, 108, 163, 0.08)',
+              color: '#2B6CA3',
+              alignSelf: 'flex-start',
+              mt: 1,
+              textTransform: 'capitalize'
+            }}
+          />
+        )}
+      </CardInfoContainer>
       <CardActionContainer>
         <Button 
           fullWidth 
           variant="text"
           onClick={() => onVerInfo(vehiculo)}
+          startIcon={<LocalParkingIcon />}
         >
-          Ver Info
+          Ver Información
         </Button>
       </CardActionContainer>
     </CardContent>
@@ -202,8 +261,24 @@ const Vehiculos = () => {
   const [selectedVehiculo, setSelectedVehiculo] = useState(null);
 
   const [vehiculos, setVehiculos] = useState([
-    { id: 1, placa: 'ABC123', propietario: 'Juan Pérez' },
-    { id: 2, placa: 'XYZ789', propietario: 'María García' },
+    { 
+      id: 1, 
+      placa: 'ABC123', 
+      propietario: 'Juan Pérez',
+      tipoVehiculo: 'carro',
+      color: 'Rojo',
+      puesto: 'A1',
+      tipoServicio: 'mensual'
+    },
+    { 
+      id: 2, 
+      placa: 'XYZ789', 
+      propietario: 'María García',
+      tipoVehiculo: 'moto',
+      color: 'Negro',
+      puesto: 'B2',
+      tipoServicio: 'diario'
+    },
   ]);
 
   const handleVerInfo = (vehiculo) => {
