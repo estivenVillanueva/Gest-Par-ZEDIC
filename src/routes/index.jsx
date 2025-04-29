@@ -9,7 +9,8 @@ import Vehiculos from '../pages/dashboard/Vehiculos';
 import Pagos from '../pages/dashboard/Pagos';
 import Parqueadero from '../pages/dashboard/Parqueadero';
 import Reportes from '../pages/dashboard/Reportes';
-import ParkingProfile from '../components/profile/ParkingProfile';
+import Solicitudes from '../pages/dashboard/Solicitudes';
+import ParqueaderoProfile from '../components/profile/ParqueaderoProfile';
 
 const AppRoutes = () => {
   return (
@@ -28,9 +29,9 @@ const AppRoutes = () => {
         <Route path="vehiculos" element={<Vehiculos />} />
         <Route path="pagos" element={<Pagos />} />
         <Route path="reportes" element={<Reportes />} />
-        <Route path="solicitudes" element={<Parqueadero />} />
+        <Route path="solicitudes" element={<Solicitudes />} />
         <Route path="ingresos" element={<Parqueadero />} />
-        <Route path="perfil" element={<ParkingProfile />} />
+        <Route path="perfil" element={<ParqueaderoProfile />} />
       </Route>
 
       {/* Ruta para manejar URLs no encontradas */}

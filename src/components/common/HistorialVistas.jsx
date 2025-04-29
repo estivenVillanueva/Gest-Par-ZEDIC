@@ -56,7 +56,7 @@ const HistorialVistas = () => {
       case '/dashboard/solicitudes':
         return 'Solicitudes';
       case '/dashboard/ingresos':
-        return 'Ingresos de vehículos';
+        return 'Ingresos de parqueaderos';
       default:
         return path;
     }

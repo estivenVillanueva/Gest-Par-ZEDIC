@@ -24,7 +24,7 @@ const DashboardLayout = () => {
     { text: 'Pagos', path: '/dashboard/pagos', icon: <PaymentIcon /> },
     { text: 'Reportes', path: '/dashboard/reportes', icon: <AssessmentIcon /> },
     { text: 'Solicitudes', path: '/dashboard/solicitudes', icon: <ListAltIcon /> },
-    { text: 'Ingresos de vehiculos', path: '/dashboard/ingresos', icon: <LoginIcon /> },
+    { text: 'Ingresos de parqueaderos', path: '/dashboard/ingresos', icon: <LoginIcon /> },
   ];
 
   return (

@@ -1,63 +1,44 @@
 import React from 'react';
-import { AppBar, Toolbar, Button, Box, IconButton } from '@mui/material';
 import { Link } from 'react-router-dom';
+import {
+  AppBar,
+  Toolbar,
+  Box,
+  IconButton,
+  Tooltip,
+  Button,
+  Avatar,
+} from '@mui/material';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import PaymentIcon from '@mui/icons-material/Payment';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import PaymentIcon from '@mui/icons-material/Payment';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import { styled } from '@mui/material/styles';
-
-const StyledAppBar = styled(AppBar)({
-  backgroundColor: '#2563EB',
-  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-});
-
-const StyledToolbar = styled(Toolbar)({
-  display: 'flex',
-  justifyContent: 'space-between',
-  padding: '0.5rem 1rem',
-});
-
-const NavButton = styled(Button)({
-  color: '#ffffff',
-  textTransform: 'none',
-  fontSize: '0.95rem',
-  padding: '0.5rem 1rem',
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  },
-});
-
-const Logo = styled(Link)({
-  color: '#ffffff',
-  textDecoration: 'none',
-  fontSize: '1.5rem',
-  fontWeight: 'bold',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.5rem',
-});
+import LoginIcon from '@mui/icons-material/Login';
+import { StyledAppBar, StyledToolbar, NavButton, LogoButton } from '../../styles/components/Navbar.styles';
 
 const Navbar = () => {
   return (
-    <StyledAppBar position="sticky">
+    <StyledAppBar position="fixed">
       <StyledToolbar>
-        <Logo to="/dashboard">
-          <DirectionsCarIcon sx={{ fontSize: '2rem' }} />
-          M.C.K.A.Z
-        </Logo>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <LogoButton
+            component={Link}
+            to="/dashboard/perfil"
+            sx={{ mr: 2 }}
+          >
+            M.C.K.A.Z
+          </LogoButton>
 
-        <Box sx={{ display: 'flex', gap: 2 }}>
           <NavButton
             component={Link}
             to="/dashboard/vehiculos"
             startIcon={<DirectionsCarIcon />}
           >
-            Vehículos
+            Vehiculos
           </NavButton>
-          
+
           <NavButton
             component={Link}
             to="/dashboard/pagos"
@@ -81,24 +62,53 @@ const Navbar = () => {
           >
             Solicitudes
           </NavButton>
+
+          <NavButton
+            component={Link}
+            to="/dashboard/ingresos"
+            startIcon={<LoginIcon />}
+          >
+            Ingresos de parqueaderos
+          </NavButton>
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <IconButton
-            component={Link}
-            to="/dashboard/perfil"
-            sx={{ color: '#ffffff' }}
-            title="Perfil del Parqueadero"
-          >
-            <AccountCircleIcon />
-          </IconButton>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+          <Tooltip title="Perfil del Parqueadero">
+            <IconButton
+              component={Link}
+              to="/dashboard/perfil"
+              sx={{ color: '#ffffff' }}
+            >
+              <AccountCircleIcon />
+            </IconButton>
+          </Tooltip>
           
-          <IconButton
-            sx={{ color: '#ffffff' }}
-            title="Cerrar Sesión"
-          >
-            <ExitToAppIcon />
-          </IconButton>
+          <Tooltip title="Perfil del Parqueadero">
+            <Avatar
+              component={Link}
+              to="/dashboard/perfil"
+              sx={{ 
+                width: 35, 
+                height: 35, 
+                bgcolor: 'rgba(255, 255, 255, 0.2)',
+                color: '#ffffff',
+                cursor: 'pointer',
+                '&:hover': {
+                  bgcolor: 'rgba(255, 255, 255, 0.3)',
+                }
+              }}
+            >
+              U
+            </Avatar>
+          </Tooltip>
+          
+          <Tooltip title="Cerrar Sesión">
+            <IconButton
+              sx={{ color: '#ffffff' }}
+            >
+              <ExitToAppIcon />
+            </IconButton>
+          </Tooltip>
         </Box>
       </StyledToolbar>
     </StyledAppBar>
