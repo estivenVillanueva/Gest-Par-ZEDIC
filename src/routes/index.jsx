@@ -11,6 +11,8 @@ import Parqueadero from '../pages/dashboard/Parqueadero';
 import Reportes from '../pages/dashboard/Reportes';
 import Solicitudes from '../pages/dashboard/Solicitudes';
 import ParqueaderoProfile from '../components/profile/ParqueaderoProfile';
+import Contacto from '../pages/Contacto';
+import Servicios from '../pages/Servicios';
 
 const AppRoutes = () => {
   return (
@@ -20,6 +22,8 @@ const AppRoutes = () => {
         <Route index element={<Home />} />
         <Route path="acceder" element={<Acceder />} />
         <Route path="registro" element={<Registro />} />
+        <Route path="contacto" element={<Contacto />} />
+        <Route path="servicios" element={<Servicios />} />
       </Route>
 
       {/* Rutas del dashboard */}
@@ -32,6 +36,7 @@ const AppRoutes = () => {
         <Route path="solicitudes" element={<Solicitudes />} />
         <Route path="ingresos" element={<Parqueadero />} />
         <Route path="perfil" element={<ParqueaderoProfile />} />
+        <Route path="contacto" element={<Contacto />} />
       </Route>
 
       {/* Ruta para manejar URLs no encontradas */}

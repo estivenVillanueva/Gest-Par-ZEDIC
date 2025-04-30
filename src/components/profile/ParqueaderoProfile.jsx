@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Paper,
@@ -15,6 +15,8 @@ import {
   MenuItem,
   IconButton,
   Divider,
+  Alert,
+  Snackbar,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import InfoIcon from '@mui/icons-material/Info';
@@ -26,6 +28,7 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
+import { useNavigate } from 'react-router-dom';
 
 const InfoItem = ({ icon, title, value, onEdit }) => (
   <Box sx={{ mb: 3, p: 2, bgcolor: 'background.paper', borderRadius: 2 }}>
@@ -47,28 +50,59 @@ const InfoItem = ({ icon, title, value, onEdit }) => (
 );
 
 const ParqueaderoProfile = () => {
+  const navigate = useNavigate();
   const [openEdit, setOpenEdit] = useState(false);
   const [editField, setEditField] = useState('');
   const [editValue, setEditValue] = useState('');
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [parqueaderoInfo, setParqueaderoInfo] = useState({
-    nombre: 'Mi Parqueadero',
-    direccion: 'Calle Principal #123',
-    capacidad: '50 vehículos',
-    horarios: 'Lunes a Domingo 24/7',
-    telefono: '+1234567890',
-    email: 'contacto@parqueadero.com',
-    descripcion: 'Ofrecemos servicios de parqueadero seguros y confiables para todo tipo de vehículos. Contamos con vigilancia 24/7 y personal capacitado.',
-    servicios: [
-      { tipo: 'Por hora', tarifa: '$5.000' },
-      { tipo: 'Mensual', tarifa: '$150.000' },
-      { tipo: 'Quincenal', tarifa: '$80.000' }
-    ],
-    beneficios: [
-      'Eficiencia en la gestión del parqueadero',
-      'Precisión en el control de vehículos',
-      'Alta satisfacción del cliente'
-    ]
+    nombre: '',
+    direccion: '',
+    capacidad: '',
+    horarios: '',
+    telefono: '',
+    email: '',
+    descripcion: '',
+    servicios: [],
+    beneficios: []
   });
+
+  useEffect(() => {
+    // Aquí se cargarían los datos del parqueadero desde el backend
+    const cargarDatosParqueadero = async () => {
+      try {
+        // Simulación de carga de datos
+        const datosSimulados = {
+          nombre: 'Mi Parqueadero',
+          direccion: 'Calle Principal #123',
+          capacidad: '50 vehículos',
+          horarios: 'Lunes a Domingo 24/7',
+          telefono: '+1234567890',
+          email: 'contacto@parqueadero.com',
+          descripcion: 'Ofrecemos servicios de parqueadero seguros y confiables para todo tipo de vehículos. Contamos con vigilancia 24/7 y personal capacitado.',
+          servicios: [
+            { tipo: 'Por hora', tarifa: '$5.000' },
+            { tipo: 'Mensual', tarifa: '$150.000' },
+            { tipo: 'Quincenal', tarifa: '$80.000' }
+          ],
+          beneficios: [
+            'Eficiencia en la gestión del parqueadero',
+            'Precisión en el control de vehículos',
+            'Alta satisfacción del cliente'
+          ]
+        };
+        setParqueaderoInfo(datosSimulados);
+      } catch (error) {
+        setSnackbar({
+          open: true,
+          message: 'Error al cargar los datos del parqueadero',
+          severity: 'error'
+        });
+      }
+    };
+
+    cargarDatosParqueadero();
+  }, []);
 
   const handleEdit = (field, value) => {
     setEditField(field);
@@ -76,12 +110,31 @@ const ParqueaderoProfile = () => {
     setOpenEdit(true);
   };
 
-  const handleSave = () => {
-    setParqueaderoInfo(prev => ({
-      ...prev,
-      [editField]: editValue
-    }));
-    setOpenEdit(false);
+  const handleSave = async () => {
+    try {
+      // Aquí se enviarían los cambios al backend
+      setParqueaderoInfo(prev => ({
+        ...prev,
+        [editField]: editValue
+      }));
+      
+      setSnackbar({
+        open: true,
+        message: 'Cambios guardados exitosamente',
+        severity: 'success'
+      });
+      setOpenEdit(false);
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: 'Error al guardar los cambios',
+        severity: 'error'
+      });
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
   };
 
   return (
@@ -246,6 +299,21 @@ const ParqueaderoProfile = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
