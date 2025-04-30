@@ -15,6 +15,7 @@ import PaymentIcon from '@mui/icons-material/Payment';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import LoginIcon from '@mui/icons-material/Login';
 import Logo from '../../assets/logo';
+import DashboardHeader from './DashboardHeader';
 
 const DashboardLayout = () => {
   const location = useLocation();
@@ -28,50 +29,16 @@ const DashboardLayout = () => {
   ];
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <AppBar position="static" sx={{ backgroundColor: '#2B6CA3' }}>
-        <Toolbar>
-          <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-            <Box sx={{ mr: 2 }}>
-              <Logo />
-            </Box>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              M.C.K.A.Z
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            {navigationItems.map((item) => (
-              <Button
-                key={item.path}
-                component={Link}
-                to={item.path}
-                startIcon={item.icon}
-                sx={{
-                  color: 'white',
-                  textTransform: 'none',
-                  borderRadius: '8px',
-                  padding: '8px 16px',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  },
-                  ...(location.pathname === item.path && {
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    fontWeight: 'bold',
-                  }),
-                }}
-              >
-                {item.text}
-              </Button>
-            ))}
-          </Box>
-          <Avatar sx={{ ml: 2, bgcolor: '#1a4971' }}>U</Avatar>
-        </Toolbar>
-      </AppBar>
-
-      <Box component="main" sx={{ flexGrow: 1, bgcolor: 'background.default' }}>
-        <Container maxWidth={false} sx={{ py: 3 }}>
-          <Outlet />
-        </Container>
+    <Box sx={{ 
+      minHeight: '100vh',
+      backgroundColor: '#F8FAFC'
+    }}>
+      <DashboardHeader />
+      <Box sx={{ 
+        p: { xs: 2, sm: 3 },
+        pt: { xs: 3, sm: 4 }
+      }}>
+        <Outlet />
       </Box>
 
       <Box component="footer" sx={{ py: 3, bgcolor: '#f5f5f5' }}>

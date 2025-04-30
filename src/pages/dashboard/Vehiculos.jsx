@@ -288,7 +288,10 @@ const Vehiculos = () => {
 
   const handleGuardar = (datos) => {
     if (selectedVehiculo) {
-      // Lógica para actualizar
+      const updatedVehiculos = vehiculos.map(v => 
+        v.id === selectedVehiculo.id ? { ...v, ...datos } : v
+      );
+      setVehiculos(updatedVehiculos);
     } else {
       setVehiculos([...vehiculos, { id: vehiculos.length + 1, ...datos }]);
     }
