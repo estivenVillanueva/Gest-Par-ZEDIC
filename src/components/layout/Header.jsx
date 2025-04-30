@@ -57,7 +57,7 @@ const Header = () => {
                   display: { xs: 'none', sm: 'block' }
                 }}
               >
-                Parqueaderos M.C.K.A.Z
+                 Gest-Par ZEDIC
               </Typography>
             </Link>
           </LogoContainer>

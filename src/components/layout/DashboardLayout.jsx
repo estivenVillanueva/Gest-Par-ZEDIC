@@ -77,7 +77,7 @@ const DashboardLayout = () => {
       <Box component="footer" sx={{ py: 3, bgcolor: '#f5f5f5' }}>
         <Container>
           <Typography variant="body2" color="text.secondary" align="center">
-            © 2024 | Tema de parqueadero M.C.K.A.Z
+            © 2024 | Tema de Gest-Par ZEDIC
           </Typography>
         </Container>
       </Box>

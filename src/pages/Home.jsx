@@ -73,7 +73,7 @@ const Home = () => {
       <HeroSection>
         <StyledContainer>
           <Typography variant="h1" component="h1" gutterBottom>
-            Parqueaderos M.C.K.A.Z
+           Gest-Par ZEDIC
           </Typography>
           <Typography variant="h5" gutterBottom>
             Encuentra el mejor lugar para tu vehículo

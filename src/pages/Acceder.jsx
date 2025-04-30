@@ -48,7 +48,7 @@ const Acceder = () => {
       <AuthPaper elevation={0}>
         <AuthHeader>
           <h4>Iniciar Sesión</h4>
-          <p>Bienvenido de nuevo a Parqueaderos M.C.K.A.Z</p>
+          <p>Bienvenido de nuevo a  Gest-Par ZEDIC</p>
         </AuthHeader>
 
         <AuthForm onSubmit={handleSubmit}>

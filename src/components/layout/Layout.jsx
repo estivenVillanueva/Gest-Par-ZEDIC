@@ -22,7 +22,7 @@ const Layout = () => {
       <FooterContainer>
         <Container>
           <Typography variant="body2" color="text.secondary" align="center">
-            © 2024 | Tema de parqueadero M.C.K.A.Z
+            © 2024 | Tema de  Gest-Par ZEDIC
           </Typography>
         </Container>
       </FooterContainer>

@@ -17,7 +17,7 @@ const Footer = () => {
     <FooterWrapper>
       <FooterContainer>
         <FooterSection>
-          <Typography variant="h6">Parqueaderos M.C.K.A.Z</Typography>
+          <Typography variant="h6">Gest-Par ZEDIC</Typography>
           <Typography component="p">
             Red de parqueaderos seguros con ubicaciones estratégicas en toda la ciudad.
           </Typography>
@@ -63,7 +63,7 @@ const Footer = () => {
 
       <BottomFooter>
         <Typography component="p">
-          © {new Date().getFullYear()} | Tema de parqueadero M.C.K.A.Z | Todos los derechos reservados
+          © {new Date().getFullYear()} | Tema de  Gest-Par ZEDIC | Todos los derechos reservados
         </Typography>
       </BottomFooter>
     </FooterWrapper>
