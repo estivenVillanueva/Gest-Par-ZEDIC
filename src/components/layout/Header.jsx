@@ -9,6 +9,7 @@ import {
   MenuItem,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import HomeIcon from '@mui/icons-material/Home';
 import safeparkingLogo from '../../assets/safeparking.png';
 import {
   StyledAppBar,

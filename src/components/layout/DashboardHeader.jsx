@@ -23,6 +23,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import safeparkingLogo from '../../assets/safeparking.png';
+import HomeIcon from '@mui/icons-material/Home';
 
 const navigationItems = [
   { 
@@ -178,6 +179,18 @@ const DashboardHeader = () => {
                 >
                   <PersonIcon />
                 </Avatar>
+              </IconButton>
+            </Tooltip>
+            {/* Icono de casa para ir al home */}
+            <Tooltip title="Ir al inicio">
+              <IconButton
+                component={Link}
+                to="/"
+                color="primary"
+                sx={{ ml: 1 }}
+                aria-label="Ir al inicio"
+              >
+                <HomeIcon sx={{ fontSize: 28 }} />
               </IconButton>
             </Tooltip>
           </Box>
