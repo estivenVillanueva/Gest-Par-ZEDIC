@@ -238,11 +238,8 @@ const DashboardHeader = () => {
               }
             }}
           >
-            <MenuItem onClick={handleClose}>
+            <MenuItem component={Link} to="/dashboard/perfil" onClick={handleClose}>
               <PersonIcon sx={{ mr: 1 }} /> Perfil
-            </MenuItem>
-            <MenuItem onClick={handleClose}>
-              <SettingsIcon sx={{ mr: 1 }} /> Configuración
             </MenuItem>
             <Divider />
             <MenuItem 
