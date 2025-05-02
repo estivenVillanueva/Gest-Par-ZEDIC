@@ -250,51 +250,147 @@ const ParqueaderoProfile = () => {
             <Grid container spacing={2} sx={{ mb: 3 }}>
               {parqueaderoInfo.servicios.map((servicio, index) => (
                 <Grid item xs={12} sm={4} key={index}>
-                  <Paper variant="outlined" sx={{ p: 2 }}>
-                    <Typography variant="subtitle1" gutterBottom>
-                      {servicio.tipo}
-                    </Typography>
-                    <Typography variant="h6" color="primary">
-                      {servicio.tarifa}
-                    </Typography>
+                  <Paper
+                    variant="outlined"
+                    sx={{
+                      p: 2,
+                      minHeight: 100,
+                      borderRadius: 3,
+                      boxShadow: '0 2px 8px rgba(43,108,163,0.04)',
+                      position: 'relative',
+                      transition: 'box-shadow 0.2s',
+                      '&:hover': {
+                        boxShadow: '0 4px 16px rgba(43,108,163,0.10)',
+                        '.servicio-actions': { opacity: 1 }
+                      }
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
+                        {servicio.tipo}
+                      </Typography>
+                      <Typography variant="h6" color="primary" sx={{ fontWeight: 700 }}>
+                        {servicio.tarifa}
+                      </Typography>
+                    </Box>
+                    <Box
+                      className="servicio-actions"
+                      sx={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        display: 'flex',
+                        gap: 1,
+                        opacity: 0,
+                        transition: 'opacity 0.2s',
+                      }}
+                    >
+                      <IconButton
+                        size="small"
+                        onClick={() => handleEdit('servicio', { ...servicio, index })}
+                        aria-label="Editar servicio"
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          setParqueaderoInfo(prev => ({
+                            ...prev,
+                            servicios: prev.servicios.filter((_, i) => i !== index)
+                          }));
+                          setSnackbar({ open: true, message: 'Servicio eliminado', severity: 'success' });
+                        }}
+                        aria-label="Eliminar servicio"
+                      >
+                        <span style={{ fontWeight: 'bold', fontSize: 18, lineHeight: 1 }}>×</span>
+                      </IconButton>
+                    </Box>
                   </Paper>
                 </Grid>
               ))}
-            </Grid>
-
-            <Typography variant="h6" gutterBottom>
-              Beneficios
-            </Typography>
-            <Grid container spacing={2}>
-              {parqueaderoInfo.beneficios.map((beneficio, index) => (
-                <Grid item xs={12} sm={4} key={index}>
-                  <Paper variant="outlined" sx={{ p: 2 }}>
-                    <Typography variant="body1">
-                      {beneficio}
+              <Grid item xs={12} sm={4}>
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    p: 2,
+                    minHeight: 100,
+                    borderRadius: 3,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'primary.main',
+                    border: '1.5px dashed #2B6CA3',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s',
+                    '&:hover': {
+                      background: 'rgba(43,108,163,0.04)',
+                    }
+                  }}
+                  onClick={() => handleEdit('servicio', { tipo: '', tarifa: '', index: -1 })}
+                >
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <Typography variant="h4" sx={{ fontWeight: 400, mb: 0.5 }}>+</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                      Agregar servicio
                     </Typography>
-                  </Paper>
-                </Grid>
-              ))}
+                  </Box>
+                </Paper>
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
       </Paper>
 
       <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
-        <DialogTitle>Editar {editField}</DialogTitle>
+        <DialogTitle>Editar {editField === 'servicio' ? 'servicio' : editField}</DialogTitle>
         <DialogContent>
-          <TextField
-            fullWidth
-            multiline={editField === 'descripcion'}
-            rows={editField === 'descripcion' ? 4 : 1}
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            sx={{ mt: 2 }}
-          />
+          {editField === 'servicio' ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+              <TextField
+                fullWidth
+                label="Tipo de servicio"
+                value={editValue.tipo}
+                onChange={e => setEditValue({ ...editValue, tipo: e.target.value })}
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                fullWidth
+                label="Tarifa"
+                value={editValue.tarifa}
+                onChange={e => setEditValue({ ...editValue, tarifa: e.target.value })}
+              />
+            </Box>
+          ) : (
+            <TextField
+              fullWidth
+              multiline={editField === 'descripcion'}
+              rows={editField === 'descripcion' ? 4 : 1}
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              sx={{ mt: 2 }}
+            />
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEdit(false)}>Cancelar</Button>
-          <Button onClick={handleSave} variant="contained">
+          <Button onClick={() => {
+            if (editField === 'servicio') {
+              setParqueaderoInfo(prev => {
+                const servicios = [...prev.servicios];
+                if (editValue.index === -1) {
+                  servicios.push({ tipo: editValue.tipo, tarifa: editValue.tarifa });
+                } else {
+                  servicios[editValue.index] = { tipo: editValue.tipo, tarifa: editValue.tarifa };
+                }
+                return { ...prev, servicios };
+              });
+              setSnackbar({ open: true, message: 'Servicio guardado', severity: 'success' });
+              setOpenEdit(false);
+            } else {
+              handleSave();
+            }
+          }} variant="contained">
             Guardar
           </Button>
         </DialogActions>

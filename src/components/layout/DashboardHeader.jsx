@@ -84,18 +84,10 @@ const DashboardHeader = () => {
               display: 'flex', 
               alignItems: 'center',
               textDecoration: 'none',
-              gap: 2
+              gap: 1
             }}
           >
-            <img 
-              src={safeparkingLogo} 
-              alt="Gest-Par ZEDIC Logo"
-              style={{
-                height: '40px',
-                width: 'auto',
-                transition: 'transform 0.2s',
-              }}
-            />
+          
             <Typography 
               variant="h6" 
               sx={{ 
