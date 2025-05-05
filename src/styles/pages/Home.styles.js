@@ -50,7 +50,7 @@ export const IconWrapper = styled(Box)`
 `;
 
 export const HeroSection = styled(Box)`
-  background-image: linear-gradient(135deg, rgba(37, 99, 235, 0.9), rgba(29, 78, 216, 0.9)), 
+  background-image: linear-gradient(135deg, rgba(120, 180, 255, 0.85), rgba(180, 220, 255, 0.85)), 
     url('https://images.unsplash.com/photo-1590674899484-d5640e854abe?ixlib=rb-4.0.3');
   background-size: cover;
   background-position: center;
@@ -73,7 +73,7 @@ export const HeroSection = styled(Box)`
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.3) 100%);
+    background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.15) 100%);
   }
 
   h1 {
