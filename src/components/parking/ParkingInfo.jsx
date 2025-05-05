@@ -179,58 +179,6 @@ const ParkingInfo = ({ parkingData }) => {
         </InfoContainer>
       </Fade>
 
-      <FooterContainer>
-        <FooterContent>
-          <FooterSection>
-            <Typography variant="h6">Contacto</Typography>
-            <ContactInfo>
-              <Box>
-                <PhoneIcon />
-                <Typography>+1234567890</Typography>
-              </Box>
-              <Box>
-                <WhatsAppIcon />
-                <Typography>+1234567890</Typography>
-              </Box>
-              <Box>
-                <EmailIcon />
-                <Typography>contacto@parqueadero.com</Typography>
-              </Box>
-              <Box>
-                <LocationOnIcon />
-                <Typography>Calle Principal #123</Typography>
-              </Box>
-            </ContactInfo>
-          </FooterSection>
-
-          <FooterSection>
-            <Typography variant="h6">Características</Typography>
-            <ServicesList>
-              {services.map((service, index) => (
-                <Typography key={index}>
-                  {service.title}
-                </Typography>
-              ))}
-            </ServicesList>
-          </FooterSection>
-
-          <FooterSection>
-            <Typography variant="h6">Síguenos</Typography>
-            <SocialLinks>
-              <IconButton href="#" aria-label="Facebook">
-                <FacebookIcon />
-              </IconButton>
-              <IconButton href="#" aria-label="Twitter">
-                <TwitterIcon />
-              </IconButton>
-              <IconButton href="#" aria-label="WhatsApp">
-                <WhatsAppIcon />
-              </IconButton>
-            </SocialLinks>
-          </FooterSection>
-        </FooterContent>
-      </FooterContainer>
-
       <InfoDialog
         open={openDialog}
         onClose={handleCloseDialog}
