@@ -63,10 +63,13 @@ const PagoCard = ({ pago }) => (
 
 const FormularioPago = ({ open, onClose, onGuardar }) => {
   const [formData, setFormData] = useState({
-    informacionPago: '',
-    mensualidad: '',
-    informacionGasto: '',
-    total: ''
+    placa: '',
+    nombreCliente: '',
+    tipoVehiculo: '',
+    puesto: '',
+    color: '',
+    tipoServicio: '',
+    entradas: '',
   });
 
   const handleChange = (e) => {
@@ -104,9 +107,57 @@ const FormularioPago = ({ open, onClose, onGuardar }) => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Información del pago"
-                name="informacionPago"
-                value={formData.informacionPago}
+                label="nombre cliente"
+                name="nombreCliente"
+                value={formData.nombreCliente}
+                onChange={handleChange}
+                required
+                variant="outlined"
+                sx={{ backgroundColor: 'white', borderRadius: '8px' }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="tipo de vehiculo"
+                name="tipoVehiculo"
+                value={formData.tipoVehiculo}
+                onChange={handleChange}
+                required
+                variant="outlined"
+                sx={{ backgroundColor: 'white', borderRadius: '8px' }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="puesto"
+                name="puesto"
+                value={formData.puesto}
+                onChange={handleChange}
+                required
+                variant="outlined"
+                sx={{ backgroundColor: 'white', borderRadius: '8px' }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="placa"
+                name="placa"
+                value={formData.placa}
+                onChange={handleChange}
+                required
+                variant="outlined"
+                sx={{ backgroundColor: 'white', borderRadius: '8px' }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="color"
+                name="color"
+                value={formData.color}
                 onChange={handleChange}
                 required
                 variant="outlined"
@@ -116,36 +167,24 @@ const FormularioPago = ({ open, onClose, onGuardar }) => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Mensualidad"
-                name="mensualidad"
-                value={formData.mensualidad}
+                label="tipo de servicio"
+                name="tipoServicio"
+                value={formData.tipoServicio}
                 onChange={handleChange}
                 required
                 variant="outlined"
-                sx={{ backgroundColor: 'white', borderRadius: '8px' }}
+                sx={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #b39ddb' }}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Información del gasto"
-                name="informacionGasto"
-                value={formData.informacionGasto}
+                label="entras y salidas registradas"
+                name="entradas"
+                value={formData.entradas}
                 onChange={handleChange}
                 multiline
-                rows={3}
-                variant="outlined"
-                sx={{ backgroundColor: 'white', borderRadius: '8px' }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Total"
-                name="total"
-                value={formData.total}
-                onChange={handleChange}
-                required
+                rows={2}
                 variant="outlined"
                 sx={{ backgroundColor: 'white', borderRadius: '8px' }}
               />
@@ -156,15 +195,17 @@ const FormularioPago = ({ open, onClose, onGuardar }) => {
           <Button 
             onClick={onClose}
             color="primary"
+            variant="outlined"
           >
-            Cancelar
+            guardar pago
           </Button>
           <Button 
             type="submit"
             variant="contained"
             color="primary"
+            sx={{ minWidth: 180 }}
           >
-            Guardar Pago
+            generar factura
           </Button>
         </DialogActions>
       </form>

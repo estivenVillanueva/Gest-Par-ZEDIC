@@ -7,7 +7,6 @@ const Reportes = () => {
       <Typography variant="h4" component="h1" gutterBottom fontWeight="600">
         Reportes
       </Typography>
-      
       <Box sx={{ mt: 4 }}>
         <Paper sx={{ p: 3, borderRadius: '12px' }}>
           {/* Aquí irá el contenido de los reportes */}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { InputAdornment, IconButton } from '@mui/material';
+import { InputAdornment, IconButton, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -19,12 +19,11 @@ import {
   HeaderSubtitle,
   AuthForm,
   FormField,
-  InputLabel,
-  StyledTextField,
   RegisterButton,
   StyledDivider,
   SocialButton,
   AuthFooter,
+  StyledTextField,
 } from '../styles/pages/Registro.styles';
 
 const Registro = () => {
@@ -35,6 +34,7 @@ const Registro = () => {
     email: '',
     ubicacion: '',
     password: '',
+    tipoUsuario: '',
   });
 
   const handleChange = (e) => {
@@ -48,7 +48,11 @@ const Registro = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Datos de registro:', formData);
-    navigate('/dashboard/parqueadero');
+    if (formData.tipoUsuario === 'admin') {
+      navigate('/dashboard/parqueadero');
+    } else if (formData.tipoUsuario === 'dueno') {
+      navigate('/vehiculo/inicio'); // Cambia esta ruta por la vista del dueño del vehículo
+    }
   };
 
   return (
@@ -126,6 +130,24 @@ const Registro = () => {
                 ),
               }}
             />
+          </FormField>
+
+          <FormField>
+            <InputLabel>
+              Tipo de usuario
+            </InputLabel>
+            <FormControl fullWidth required>
+              <Select
+                name="tipoUsuario"
+                value={formData.tipoUsuario}
+                onChange={handleChange}
+                displayEmpty
+              >
+                <MenuItem value="" disabled>Selecciona el tipo de usuario</MenuItem>
+                <MenuItem value="admin">Administrador Parqueadero</MenuItem>
+                <MenuItem value="dueno">Dueño del Vehículo</MenuItem>
+              </Select>
+            </FormControl>
           </FormField>
 
           <FormField>

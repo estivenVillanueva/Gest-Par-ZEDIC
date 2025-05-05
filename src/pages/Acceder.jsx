@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { InputAdornment, IconButton } from '@mui/material';
+import { InputAdornment, IconButton, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -27,6 +27,7 @@ const Acceder = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    tipoUsuario: '',
   });
 
   const handleChange = (e) => {
@@ -40,7 +41,11 @@ const Acceder = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Datos de inicio de sesión:', formData);
-    navigate('/dashboard/parqueadero');
+    if (formData.tipoUsuario === 'admin') {
+      navigate('/dashboard/parqueadero');
+    } else if (formData.tipoUsuario === 'dueno') {
+      navigate('/vehiculo/inicio'); // Cambia esta ruta por la vista del dueño del vehículo
+    }
   };
 
   return (
@@ -91,6 +96,20 @@ const Acceder = () => {
               ),
             }}
           />
+
+          <FormControl fullWidth sx={{ mt: 2, mb: 2 }} required>
+            <InputLabel id="tipo-usuario-label">Tipo de usuario</InputLabel>
+            <Select
+              labelId="tipo-usuario-label"
+              name="tipoUsuario"
+              value={formData.tipoUsuario}
+              label="Tipo de usuario"
+              onChange={handleChange}
+            >
+              <MenuItem value="admin">Administrador Parqueadero</MenuItem>
+              <MenuItem value="dueno">Dueño del Vehículo</MenuItem>
+            </Select>
+          </FormControl>
 
           <Link
             to="/recuperar-contrasena"
