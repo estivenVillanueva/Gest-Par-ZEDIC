@@ -50,7 +50,7 @@ export const IconWrapper = styled(Box)`
 `;
 
 export const HeroSection = styled(Box)`
-  background-image: linear-gradient(135deg, rgba(120, 180, 255, 0.85), rgba(180, 220, 255, 0.85)), 
+  background-image: linear-gradient(135deg, rgba(37, 112, 204, 0.85), rgba(39, 130, 209, 0.85)), 
     url('https://images.unsplash.com/photo-1590674899484-d5640e854abe?ixlib=rb-4.0.3');
   background-size: cover;
   background-position: center;
