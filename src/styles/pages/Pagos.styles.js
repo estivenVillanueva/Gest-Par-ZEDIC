@@ -13,7 +13,14 @@ export const StyledPaper = styled(Paper)`
 
 export const StyledCard = styled(Card)`
   margin-bottom: 16px;
-  border-radius: 12px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px 0 rgba(43, 108, 163, 0.08);
+  border: 1px solid #e3e8ee;
+  transition: box-shadow 0.2s, border 0.2s;
+  &:hover {
+    box-shadow: 0 8px 24px 0 rgba(43, 108, 163, 0.16);
+    border: 1.5px solid #b8d4e8;
+  }
 `;
 
 export const TabsContainer = styled(Box)`
@@ -56,6 +63,6 @@ export const SearchContainer = styled(Box)`
 `;
 
 export const ContentContainer = styled(Box)`
-  padding: 24px;
-  background-color: #f5f5f7;
+  padding: 32px 24px 24px 24px;
+  background-color: #f8fafc;
 `; 
