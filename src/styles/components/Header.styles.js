@@ -26,22 +26,29 @@ const shine = `
   }
 `;
 
-export const StyledAppBar = styled(AppBar)(({ theme }) => ({
-  background: 'rgba(255, 255, 255, 0.95)',
-  backdropFilter: 'blur(8px)',
-  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+export const StyledAppBar = styled(AppBar)(({ theme, scrolled, visible }) => ({
+  background: 'rgba(255, 255, 255, 0.98)',
+  backdropFilter: 'blur(10px)',
+  boxShadow: scrolled ? '0 1px 3px rgba(0, 0, 0, 0.05)' : 'none',
   color: theme.palette.text.primary,
   position: 'fixed',
   top: 0,
   left: 0,
   right: 0,
   zIndex: theme.zIndex.appBar,
+  borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
+  transform: visible ? 'translateY(0)' : 'translateY(-100%)',
+  transition: 'transform 0.2s ease-in-out, background 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+  willChange: 'transform',
 }));
 
 export const HeaderContainer = styled(Container)(({ theme }) => ({
-  padding: theme.spacing(1, 2),
+  padding: theme.spacing(0, 3),
   width: '100%',
   maxWidth: '100%',
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(0, 2),
+  },
 }));
 
 export const HeaderToolbar = styled(Box)(({ theme }) => ({
@@ -49,8 +56,8 @@ export const HeaderToolbar = styled(Box)(({ theme }) => ({
   justifyContent: 'space-between',
   alignItems: 'center',
   width: '100%',
-  padding: theme.spacing(1, 0),
-  minHeight: '64px',
+  padding: theme.spacing(1.5, 0),
+  minHeight: '70px',
 }));
 
 export const LogoContainer = styled(Box)(({ theme }) => ({
@@ -58,7 +65,7 @@ export const LogoContainer = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   gap: theme.spacing(2),
   '& img': {
-    height: '100px',
+    height: '85px',
     width: 'auto',
     objectFit: 'contain',
   },
@@ -67,35 +74,62 @@ export const LogoContainer = styled(Box)(({ theme }) => ({
     color: 'inherit',
     display: 'flex',
     alignItems: 'center',
-    gap: theme.spacing(1),
+    gap: theme.spacing(1.5),
+  },
+  '& h6': {
+    fontSize: '1.25rem',
+    fontWeight: 600,
+    color: theme.palette.primary.main,
   },
 }));
 
 export const NavContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
-  gap: theme.spacing(3),
+  gap: theme.spacing(4),
 }));
 
 export const NavButton = styled(Button)(({ theme }) => ({
   textTransform: 'none',
   fontWeight: 500,
+  fontSize: '1rem',
+  padding: theme.spacing(1, 1.5),
+  borderRadius: theme.spacing(1),
+  color: theme.palette.text.primary,
+  position: 'relative',
   '&:hover': {
-    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+    backgroundColor: 'rgba(43, 108, 163, 0.04)',
+  },
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    bottom: 0,
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: 0,
+    height: '2px',
+    backgroundColor: theme.palette.primary.main,
+    transition: 'width 0.3s ease',
+  },
+  '&:hover::after': {
+    width: '80%',
   },
 }));
 
 export const ActionButton = styled(Button)(({ theme }) => ({
   textTransform: 'none',
   fontWeight: 600,
-  padding: theme.spacing(1, 3),
-  borderRadius: '8px',
-  '&.MuiButton-containedPrimary': {
-    backgroundColor: theme.palette.primary.main,
-    color: '#fff',
-    '&:hover': {
-      backgroundColor: theme.palette.primary.dark,
-    },
+  fontSize: '1rem',
+  padding: theme.spacing(1, 2.5),
+  borderRadius: theme.spacing(1),
+  backgroundColor: theme.palette.primary.main,
+  color: '#fff',
+  boxShadow: '0 2px 8px rgba(43, 108, 163, 0.15)',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    backgroundColor: theme.palette.primary.dark,
+    transform: 'translateY(-1px)',
+    boxShadow: '0 4px 12px rgba(43, 108, 163, 0.2)',
   },
 }));
 
@@ -178,43 +212,38 @@ export const MobileMenuButton = styled(Button)`
   }
 `;
 
-export const MobileMenu = styled(Box)`
-  padding: 24px;
-  width: 300px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+export const MobileMenu = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(2),
+  width: '280px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: theme.spacing(1),
+  '& .mobile-nav-link': {
+    width: '100%',
+    textAlign: 'left',
+    padding: theme.spacing(1.5, 2),
+    borderRadius: theme.spacing(1),
+    color: theme.palette.text.secondary,
+    transition: 'all 0.3s ease',
+    '&:hover, &.active': {
+      backgroundColor: 'rgba(43, 108, 163, 0.04)',
+      color: theme.palette.primary.main,
+    },
+  },
+}));
 
-  .mobile-nav-link {
-    width: 100%;
-    text-align: left;
-    padding: 12px;
-    border-radius: 8px;
-    color: #64748b;
-    transition: all 0.3s ease;
-
-    &:hover, &.active {
-      background: rgba(37, 99, 235, 0.05);
-      color: #2563eb;
-    }
-  }
-`;
-
-export const UserMenu = styled(Box)`
-  min-width: 200px;
-  padding: 8px;
-
-  .menu-item {
-    padding: 12px 16px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background: rgba(37, 99, 235, 0.05);
-    }
-
-    .MuiListItemIcon-root {
-      color: #64748b;
-    }
-  }
-`; 
+export const UserMenu = styled(Box)(({ theme }) => ({
+  minWidth: '220px',
+  padding: theme.spacing(1),
+  '& .menu-item': {
+    padding: theme.spacing(1.5, 2),
+    borderRadius: theme.spacing(1),
+    transition: 'all 0.3s ease',
+    '&:hover': {
+      backgroundColor: 'rgba(43, 108, 163, 0.04)',
+    },
+    '& .MuiListItemIcon-root': {
+      color: theme.palette.text.secondary,
+    },
+  },
+})); 

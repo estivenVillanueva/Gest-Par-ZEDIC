@@ -4,7 +4,7 @@ import { Box, Card, Paper } from '@mui/material';
 export const ServiciosSection = styled(Box)`
   min-height: 100vh;
   background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
-  padding: 64px 0;
+  padding: 120px 0 64px 0;
 `;
 
 export const ServiciosGrid = styled(Box)`

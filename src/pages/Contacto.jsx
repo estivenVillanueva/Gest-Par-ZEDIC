@@ -2,16 +2,10 @@ import React, { useState } from 'react';
 import {
   Container,
   Grid,
-  Paper,
   Typography,
-  TextField,
-  Button,
   Box,
-  IconButton,
   Snackbar,
   Alert,
-  Card,
-  CardContent,
 } from '@mui/material';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
@@ -20,6 +14,17 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import InstagramIcon from '@mui/icons-material/Instagram';
+import {
+  ContactContainer,
+  ContactHeader,
+  ContactCard,
+  ContactInfoCard,
+  ContactForm,
+  StyledTextField,
+  SubmitButton,
+  SocialButton,
+  ContactIcon,
+} from '../styles/pages/Contacto.styles';
 
 const Contacto = () => {
   const [formData, setFormData] = useState({
@@ -65,25 +70,25 @@ const Contacto = () => {
 
   const contactInfo = [
     {
-      icon: <EmailIcon fontSize="large" sx={{ color: '#2B6CA3' }} />,
+      icon: <EmailIcon />,
       title: 'Email',
       content: 'contacto@mckaz.com',
       action: 'mailto:contacto@mckaz.com'
     },
     {
-      icon: <PhoneIcon fontSize="large" sx={{ color: '#2B6CA3' }} />,
+      icon: <PhoneIcon />,
       title: 'Teléfono',
       content: '+57 300 123 4567',
       action: 'tel:+573001234567'
     },
     {
-      icon: <WhatsAppIcon fontSize="large" sx={{ color: '#2B6CA3' }} />,
+      icon: <WhatsAppIcon />,
       title: 'WhatsApp',
       content: '+57 300 123 4567',
       action: 'https://wa.me/573001234567'
     },
     {
-      icon: <LocationOnIcon fontSize="large" sx={{ color: '#2B6CA3' }} />,
+      icon: <LocationOnIcon />,
       title: 'Dirección',
       content: 'Calle Principal #123, Ciudad',
       action: 'https://maps.google.com'
@@ -91,191 +96,157 @@ const Contacto = () => {
   ];
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 8, mb: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ color: '#2B6CA3', fontWeight: 'bold', mb: 4 }}>
-        Contáctanos
-      </Typography>
-      <Grid container spacing={4}>
-        <Grid item xs={12}>
-          <Grid container spacing={3}>
-            {contactInfo.map((info, index) => (
-              <Grid item xs={12} sm={6} md={3} key={index}>
-                <Card 
-                  sx={{ 
-                    height: '100%',
-                    transition: 'transform 0.2s',
-                    '&:hover': {
-                      transform: 'translateY(-5px)',
-                      boxShadow: 5
-                    }
-                  }}
-                >
-                  <CardContent sx={{ 
-                    textAlign: 'center',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: 1
-                  }}>
-                    {info.icon}
-                    <Typography variant="h6" component="h2">
+    <ContactContainer>
+      <Container maxWidth="lg">
+        <ContactHeader>
+          <Typography variant="h3" component="h1" gutterBottom>
+            Contáctanos
+          </Typography>
+          <Typography variant="subtitle1">
+            Estamos aquí para ayudarte. Envíanos un mensaje y te responderemos lo antes posible.
+          </Typography>
+        </ContactHeader>
+
+        <Grid container spacing={4}>
+          {/* Información de contacto */}
+          <Grid item xs={12} md={4}>
+            <Grid container spacing={3}>
+              {contactInfo.map((info, index) => (
+                <Grid item xs={12} key={index}>
+                  <ContactInfoCard>
+                    <ContactIcon>
+                      {info.icon}
+                    </ContactIcon>
+                    <Typography variant="h6" gutterBottom>
                       {info.title}
                     </Typography>
                     <Typography 
-                      variant="body1" 
                       component="a" 
                       href={info.action}
                       sx={{ 
-                        color: 'text.secondary',
+                        color: 'white',
                         textDecoration: 'none',
                         '&:hover': {
-                          color: '#2B6CA3',
                           textDecoration: 'underline'
                         }
                       }}
                     >
                       {info.content}
                     </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
+                  </ContactInfoCard>
+                </Grid>
+              ))}
+            </Grid>
+          </Grid>
+
+          {/* Formulario de contacto */}
+          <Grid item xs={12} md={8}>
+            <ContactCard>
+              <Typography variant="h5" gutterBottom sx={{ color: 'primary.main', mb: 4 }}>
+                Envíanos un mensaje
+              </Typography>
+              <ContactForm onSubmit={handleSubmit}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={6}>
+                    <StyledTextField
+                      fullWidth
+                      label="Nombre"
+                      name="nombre"
+                      value={formData.nombre}
+                      onChange={handleChange}
+                      required
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <StyledTextField
+                      fullWidth
+                      label="Email"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <StyledTextField
+                      fullWidth
+                      label="Asunto"
+                      name="asunto"
+                      value={formData.asunto}
+                      onChange={handleChange}
+                      required
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <StyledTextField
+                      fullWidth
+                      label="Mensaje"
+                      name="mensaje"
+                      value={formData.mensaje}
+                      onChange={handleChange}
+                      required
+                      multiline
+                      rows={4}
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                      <SubmitButton
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        size="large"
+                      >
+                        Enviar Mensaje
+                      </SubmitButton>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </ContactForm>
+            </ContactCard>
+          </Grid>
+
+          {/* Redes sociales */}
+          <Grid item xs={12}>
+            <ContactCard>
+              <Typography variant="h5" gutterBottom sx={{ color: 'primary.main', mb: 4 }}>
+                Síguenos en redes sociales
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+                <SocialButton
+                  startIcon={<FacebookIcon />}
+                  variant="outlined"
+                  href="https://facebook.com"
+                  target="_blank"
+                >
+                  Facebook
+                </SocialButton>
+                <SocialButton
+                  startIcon={<TwitterIcon />}
+                  variant="outlined"
+                  href="https://twitter.com"
+                  target="_blank"
+                >
+                  Twitter
+                </SocialButton>
+                <SocialButton
+                  startIcon={<InstagramIcon />}
+                  variant="outlined"
+                  href="https://instagram.com"
+                  target="_blank"
+                >
+                  Instagram
+                </SocialButton>
+              </Box>
+            </ContactCard>
           </Grid>
         </Grid>
-
-        {/* Formulario de contacto */}
-        <Grid item xs={12} md={8} sx={{ mt: 4 }}>
-          <Paper 
-            elevation={3} 
-            sx={{ 
-              p: 4,
-              borderRadius: 2,
-              backgroundColor: '#ffffff'
-            }}
-          >
-            <Typography variant="h5" gutterBottom sx={{ color: '#2B6CA3', mb: 3 }}>
-              Envíanos un mensaje
-            </Typography>
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Nombre"
-                    name="nombre"
-                    value={formData.nombre}
-                    onChange={handleChange}
-                    required
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Asunto"
-                    name="asunto"
-                    value={formData.asunto}
-                    onChange={handleChange}
-                    required
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Mensaje"
-                    name="mensaje"
-                    value={formData.mensaje}
-                    onChange={handleChange}
-                    required
-                    multiline
-                    rows={4}
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    size="large"
-                    sx={{
-                      bgcolor: '#2B6CA3',
-                      '&:hover': {
-                        bgcolor: '#1a4971'
-                      },
-                      px: 4,
-                      py: 1.5
-                    }}
-                  >
-                    Enviar Mensaje
-                  </Button>
-                </Grid>
-              </Grid>
-            </form>
-          </Paper>
-        </Grid>
-
-        {/* Redes sociales */}
-        <Grid item xs={12} md={4} sx={{ mt: 4 }}>
-          <Paper 
-            elevation={3} 
-            sx={{ 
-              p: 4,
-              borderRadius: 2,
-              backgroundColor: '#ffffff',
-              height: '100%'
-            }}
-          >
-            <Typography variant="h5" gutterBottom sx={{ color: '#2B6CA3', mb: 3 }}>
-              Síguenos en redes sociales
-            </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Button
-                startIcon={<FacebookIcon />}
-                fullWidth
-                variant="outlined"
-                sx={{ justifyContent: 'flex-start', py: 1.5 }}
-                href="https://facebook.com"
-                target="_blank"
-              >
-                Facebook
-              </Button>
-              <Button
-                startIcon={<TwitterIcon />}
-                fullWidth
-                variant="outlined"
-                sx={{ justifyContent: 'flex-start', py: 1.5 }}
-                href="https://twitter.com"
-                target="_blank"
-              >
-                Twitter
-              </Button>
-              <Button
-                startIcon={<InstagramIcon />}
-                fullWidth
-                variant="outlined"
-                sx={{ justifyContent: 'flex-start', py: 1.5 }}
-                href="https://instagram.com"
-                target="_blank"
-              >
-                Instagram
-              </Button>
-            </Box>
-          </Paper>
-        </Grid>
-      </Grid>
+      </Container>
 
       <Snackbar
         open={snackbar.open}
@@ -291,7 +262,7 @@ const Contacto = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Container>
+    </ContactContainer>
   );
 };
 

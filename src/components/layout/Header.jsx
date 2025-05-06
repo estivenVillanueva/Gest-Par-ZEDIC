@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Typography,
@@ -7,9 +7,11 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Box,
+  Tooltip,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import HomeIcon from '@mui/icons-material/Home';
+import LoginIcon from '@mui/icons-material/Login';
 import safeparkingLogo from '../../assets/safeparking.png';
 import {
   StyledAppBar,
@@ -19,13 +21,39 @@ import {
   NavContainer,
   NavButton,
   ActionButton,
+  MobileMenu,
 } from '../../styles/components/Header.styles';
 
 const Header = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const location = useLocation();
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [scrolled, setScrolled] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const prevScrollPos = useRef(0);
+  const hideAt = useRef(0);
+
+  useEffect(() => {
+    const root = document.getElementById('root');
+    if (!root) return;
+
+    const handleRootScroll = () => {
+      const currentScrollPos = root.scrollTop;
+      setScrolled(currentScrollPos > 10);
+
+      if (currentScrollPos > prevScrollPos.current && currentScrollPos > 50) {
+        setVisible(false);
+        hideAt.current = currentScrollPos;
+      } else if (currentScrollPos < prevScrollPos.current && hideAt.current - currentScrollPos > 30) {
+        setVisible(true);
+      }
+      prevScrollPos.current = currentScrollPos;
+    };
+
+    root.addEventListener('scroll', handleRootScroll);
+    return () => root.removeEventListener('scroll', handleRootScroll);
+  }, []);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -42,38 +70,44 @@ const Header = () => {
   ];
 
   return (
-    <StyledAppBar position="fixed">
+    <StyledAppBar 
+      position="fixed"
+      scrolled={scrolled}
+      visible={visible}
+    >
       <HeaderContainer maxWidth="xl">
         <HeaderToolbar>
           <LogoContainer>
             <Link to="/">
               <img 
                 src={safeparkingLogo}
-                alt="Parqueaderos M.C.K.A.Z Logo" 
+                alt="Gest-Par ZEDIC Logo" 
               />
-              <Typography 
-                variant="h6" 
-                sx={{ 
-                  fontWeight: 600,
-                  display: { xs: 'none', sm: 'block' }
-                }}
-              >
-                 Gest-Par ZEDIC
+              <Typography variant="h6">
+                Gest-Par ZEDIC
               </Typography>
             </Link>
           </LogoContainer>
 
           {isMobile ? (
             <>
-              <IconButton
-                size="large"
-                edge="end"
-                color="inherit"
-                aria-label="menu"
-                onClick={handleMenu}
-              >
-                <MenuIcon />
-              </IconButton>
+              <Tooltip title="Menú">
+                <IconButton
+                  size="large"
+                  edge="end"
+                  color="inherit"
+                  aria-label="menu"
+                  onClick={handleMenu}
+                  sx={{
+                    color: theme.palette.text.primary,
+                    '&:hover': {
+                      backgroundColor: 'rgba(43, 108, 163, 0.04)',
+                    },
+                  }}
+                >
+                  <MenuIcon />
+                </IconButton>
+              </Tooltip>
               <Menu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
@@ -86,25 +120,43 @@ const Header = () => {
                   vertical: 'top',
                   horizontal: 'right',
                 }}
+                PaperProps={{
+                  sx: {
+                    mt: 1.5,
+                    borderRadius: 2,
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                  },
+                }}
               >
-                {navigationItems.map((item) => (
-                  <MenuItem 
-                    key={item.path}
-                    component={Link}
-                    to={item.path}
-                    onClick={handleClose}
-                    selected={location.pathname === item.path}
-                  >
-                    {item.label}
-                  </MenuItem>
-                ))}
-                <MenuItem 
-                  component={Link} 
-                  to="/acceder"
-                  onClick={handleClose}
-                >
-                  Acceder
-                </MenuItem>
+                <MobileMenu>
+                  {navigationItems.map((item) => (
+                    <MenuItem 
+                      key={item.path}
+                      component={Link}
+                      to={item.path}
+                      onClick={handleClose}
+                      selected={location.pathname === item.path}
+                      className="mobile-nav-link"
+                    >
+                      {item.label}
+                    </MenuItem>
+                  ))}
+                  <Box sx={{ pt: 1, mt: 1, borderTop: '1px solid rgba(0, 0, 0, 0.05)' }}>
+                    <MenuItem 
+                      component={Link} 
+                      to="/acceder"
+                      onClick={handleClose}
+                      className="mobile-nav-link"
+                      sx={{
+                        color: theme.palette.primary.main,
+                        fontWeight: 600,
+                      }}
+                    >
+                      <LoginIcon sx={{ mr: 1 }} />
+                      Acceder
+                    </MenuItem>
+                  </Box>
+                </MobileMenu>
               </Menu>
             </>
           ) : (
@@ -128,6 +180,7 @@ const Header = () => {
                 to="/acceder"
                 variant="contained"
                 color="primary"
+                startIcon={<LoginIcon />}
               >
                 Acceder
               </ActionButton>
