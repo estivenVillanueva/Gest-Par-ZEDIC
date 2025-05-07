@@ -231,7 +231,7 @@ export const FeatureSection = styled(Box)`
 `;
 
 export const CTASection = styled(Box)`
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg,rgb(54, 96, 187) 0%,rgb(53, 96, 216) 100%);
   color: white;
   padding: 80px 0;
   width: 100%;

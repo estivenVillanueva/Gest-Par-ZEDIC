@@ -233,17 +233,9 @@ const Home = () => {
               Registra tu Parqueadero
             </StyledButton>
             <StyledButton 
-              variant="outlined"
+              variant="contained"
               component={Link}
               to="/beneficios"
-              sx={{ 
-                color: 'white', 
-                borderColor: 'white',
-                '&:hover': {
-                  borderColor: 'white',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                }
-              }}
             >
               Ver Beneficios
             </StyledButton>
