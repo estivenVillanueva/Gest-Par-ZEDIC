@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import EmailIcon from '@mui/icons-material/Email';
+import { useAuth } from '../context/AuthContext';
 
 // Importar iconos
 import GoogleIcon from '../assets/icons/google.svg';
@@ -23,7 +24,9 @@ import {
 
 const Acceder = () => {
   const navigate = useNavigate();
+  const { login, loginWithGoogle, loginWithFacebook, error, setError } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -38,13 +41,49 @@ const Acceder = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Datos de inicio de sesión:', formData);
-    if (formData.tipoUsuario === 'admin') {
+    try {
+      setError('');
+      setLoading(true);
+      await login(formData.email, formData.password);
+      if (formData.tipoUsuario === 'admin') {
+        navigate('/dashboard/parqueadero');
+      } else if (formData.tipoUsuario === 'dueno') {
+        navigate('/vehiculo/inicio');
+      }
+    } catch (error) {
+      // El error ya se maneja en el contexto
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      setError('');
+      setLoading(true);
+      const result = await loginWithGoogle();
+      // Aquí podrías verificar el tipo de usuario en la base de datos
       navigate('/dashboard/parqueadero');
-    } else if (formData.tipoUsuario === 'dueno') {
-      navigate('/vehiculo/inicio'); // Cambia esta ruta por la vista del dueño del vehículo
+    } catch (error) {
+      // El error ya se maneja en el contexto
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFacebookLogin = async () => {
+    try {
+      setError('');
+      setLoading(true);
+      const result = await loginWithFacebook();
+      // Aquí podrías verificar el tipo de usuario en la base de datos
+      navigate('/dashboard/parqueadero');
+    } catch (error) {
+      // El error ya se maneja en el contexto
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -53,8 +92,20 @@ const Acceder = () => {
       <AuthPaper elevation={0}>
         <AuthHeader>
           <h4>Iniciar Sesión</h4>
-          <p>Bienvenido de nuevo a  Gest-Par ZEDIC</p>
+          <p>Bienvenido de nuevo a Gest-Par ZEDIC</p>
         </AuthHeader>
+
+        {error && (
+          <div style={{ 
+            color: '#DC2626', 
+            backgroundColor: '#FEE2E2', 
+            padding: '12px', 
+            borderRadius: '6px',
+            marginBottom: '16px'
+          }}>
+            {error}
+          </div>
+        )}
 
         <AuthForm onSubmit={handleSubmit}>
           <StyledTextField
@@ -128,8 +179,9 @@ const Acceder = () => {
           <AuthButton
             type="submit"
             fullWidth
+            disabled={loading}
           >
-            Iniciar Sesión
+            {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
           </AuthButton>
         </AuthForm>
 
@@ -139,7 +191,8 @@ const Acceder = () => {
 
         <SocialButton
           fullWidth
-          onClick={() => console.log('Google sign in')}
+          onClick={handleGoogleLogin}
+          disabled={loading}
           sx={{ mb: 2 }}
         >
           <img src={GoogleIcon} alt="Google" style={{ width: 20, height: 20 }} />
@@ -147,7 +200,8 @@ const Acceder = () => {
         </SocialButton>
         <SocialButton
           fullWidth
-          onClick={() => console.log('Facebook sign in')}
+          onClick={handleFacebookLogin}
+          disabled={loading}
         >
           <img src={FacebookIcon} alt="Facebook" style={{ width: 20, height: 20 }} />
           Facebook

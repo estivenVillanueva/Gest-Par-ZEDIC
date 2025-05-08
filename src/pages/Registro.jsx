@@ -6,6 +6,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import { useAuth } from '../context/AuthContext';
 
 // Importar iconos
 import GoogleIcon from '../assets/icons/google.svg';
@@ -28,7 +29,9 @@ import {
 
 const Registro = () => {
   const navigate = useNavigate();
+  const { register, loginWithGoogle, loginWithFacebook, error, setError } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
@@ -45,13 +48,64 @@ const Registro = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const validatePassword = (password) => {
+    if (password.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres.');
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Datos de registro:', formData);
-    if (formData.tipoUsuario === 'admin') {
+    if (!validatePassword(formData.password)) return;
+
+    try {
+      setError('');
+      setLoading(true);
+      const userCredential = await register(formData.email, formData.password, {
+        nombre: formData.nombre,
+        ubicacion: formData.ubicacion,
+        tipoUsuario: formData.tipoUsuario
+      });
+
+      if (formData.tipoUsuario === 'admin') {
+        navigate('/dashboard/parqueadero');
+      } else if (formData.tipoUsuario === 'dueno') {
+        navigate('/vehiculo/inicio');
+      }
+    } catch (error) {
+      // El error ya se maneja en el contexto
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignUp = async () => {
+    try {
+      setError('');
+      setLoading(true);
+      const result = await loginWithGoogle();
+      // Aquí podrías guardar los datos adicionales del usuario en la base de datos
       navigate('/dashboard/parqueadero');
-    } else if (formData.tipoUsuario === 'dueno') {
-      navigate('/vehiculo/inicio'); // Cambia esta ruta por la vista del dueño del vehículo
+    } catch (error) {
+      // El error ya se maneja en el contexto
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFacebookSignUp = async () => {
+    try {
+      setError('');
+      setLoading(true);
+      const result = await loginWithFacebook();
+      // Aquí podrías guardar los datos adicionales del usuario en la base de datos
+      navigate('/dashboard/parqueadero');
+    } catch (error) {
+      // El error ya se maneja en el contexto
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -66,6 +120,18 @@ const Registro = () => {
             Únete a la red de parqueaderos más innovadora
           </HeaderSubtitle>
         </AuthHeader>
+
+        {error && (
+          <div style={{ 
+            color: '#DC2626', 
+            backgroundColor: '#FEE2E2', 
+            padding: '12px', 
+            borderRadius: '6px',
+            marginBottom: '16px'
+          }}>
+            {error}
+          </div>
+        )}
 
         <AuthForm onSubmit={handleSubmit}>
           <FormField>
@@ -181,8 +247,9 @@ const Registro = () => {
           <RegisterButton
             type="submit"
             fullWidth
+            disabled={loading}
           >
-            Crear Cuenta
+            {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
           </RegisterButton>
         </AuthForm>
 
@@ -192,14 +259,16 @@ const Registro = () => {
 
         <SocialButton
           fullWidth
-          onClick={() => console.log('Google sign up')}
+          onClick={handleGoogleSignUp}
+          disabled={loading}
         >
           <img src={GoogleIcon} alt="Google" style={{ width: 20, height: 20 }} />
           Google
         </SocialButton>
         <SocialButton
           fullWidth
-          onClick={() => console.log('Facebook sign up')}
+          onClick={handleFacebookSignUp}
+          disabled={loading}
         >
           <img src={FacebookIcon} alt="Facebook" style={{ width: 20, height: 20 }} />
           Facebook
