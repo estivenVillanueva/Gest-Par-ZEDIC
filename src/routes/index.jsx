@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import Home from '../pages/Home';
@@ -14,6 +14,7 @@ import ParqueaderoProfile from '../components/profile/ParqueaderoProfile';
 import Contacto from '../pages/Contacto';
 import Servicios from '../pages/Servicios';
 import UserTypeSelection from '../components/UserTypeSelection';
+import { useAuth } from '../context/AuthContext';
 
 const VehiculoNoDisponible = () => (
   <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -21,6 +22,14 @@ const VehiculoNoDisponible = () => (
     <p>La interfaz para dueños de vehículo estará disponible en una futura actualización.</p>
   </div>
 );
+
+const ProtectedRoute = () => {
+  const { currentUser } = useAuth();
+  if (!currentUser) {
+    return <Navigate to="/acceder" replace />;
+  }
+  return <Outlet />;
+};
 
 const AppRoutes = () => {
   return (
@@ -37,16 +46,18 @@ const AppRoutes = () => {
       </Route>
 
       {/* Rutas del dashboard */}
-      <Route path="/dashboard" element={<DashboardLayout />}>
-        <Route index element={<Navigate to="/dashboard/parqueadero" />} />
-        <Route path="parqueadero" element={<Parqueadero />} />
-        <Route path="vehiculos" element={<Vehiculos />} />
-        <Route path="pagos" element={<Pagos />} />
-        <Route path="reportes" element={<Reportes />} />
-        <Route path="solicitudes" element={<Solicitudes />} />
-        <Route path="ingresos" element={<Parqueadero />} />
-        <Route path="perfil" element={<ParqueaderoProfile />} />
-        <Route path="contacto" element={<Contacto />} />
+      <Route path="/dashboard" element={<ProtectedRoute />}>
+        <Route element={<DashboardLayout />}>
+          <Route index element={<Navigate to="/dashboard/parqueadero" />} />
+          <Route path="parqueadero" element={<Parqueadero />} />
+          <Route path="vehiculos" element={<Vehiculos />} />
+          <Route path="pagos" element={<Pagos />} />
+          <Route path="reportes" element={<Reportes />} />
+          <Route path="solicitudes" element={<Solicitudes />} />
+          <Route path="ingresos" element={<Parqueadero />} />
+          <Route path="perfil" element={<ParqueaderoProfile />} />
+          <Route path="contacto" element={<Contacto />} />
+        </Route>
       </Route>
 
       {/* Ruta para manejar URLs no encontradas */}

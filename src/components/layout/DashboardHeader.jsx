@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
@@ -24,6 +24,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import safeparkingLogo from '../../assets/safeparking.png';
 import HomeIcon from '@mui/icons-material/Home';
+import { useAuth } from '../../context/AuthContext';
 
 const navigationItems = [
   { 
@@ -52,6 +53,8 @@ const DashboardHeader = () => {
   const location = useLocation();
   const [anchorEl, setAnchorEl] = useState(null);
   const [notificationsAnchor, setNotificationsAnchor] = useState(null);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleProfileClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -64,6 +67,16 @@ const DashboardHeader = () => {
   const handleClose = () => {
     setAnchorEl(null);
     setNotificationsAnchor(null);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      handleClose();
+      navigate('/acceder');
+    } catch (error) {
+      // Puedes mostrar un mensaje de error si lo deseas
+    }
   };
 
   return (
@@ -235,7 +248,7 @@ const DashboardHeader = () => {
             </MenuItem>
             <Divider />
             <MenuItem 
-              onClick={handleClose}
+              onClick={handleLogout}
               sx={{ color: 'error.main' }}
             >
               <ExitToAppIcon sx={{ mr: 1 }} /> Cerrar Sesión

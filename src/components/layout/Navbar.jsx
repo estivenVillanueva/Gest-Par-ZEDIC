@@ -24,11 +24,13 @@ import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 import EditIcon from '@mui/icons-material/Edit';
 import { StyledAppBar, StyledToolbar, NavButton, LogoButton } from '../../styles/components/Navbar.styles';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const { logout } = useAuth();
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -38,10 +40,14 @@ const Navbar = () => {
     setAnchorEl(null);
   };
 
-  const handleLogout = () => {
-    // Aquí se implementaría la lógica de cierre de sesión
-    handleClose();
-    navigate('/acceder');
+  const handleLogout = async () => {
+    try {
+      await logout();
+      handleClose();
+      navigate('/acceder');
+    } catch (error) {
+      // Puedes mostrar un mensaje de error si lo deseas
+    }
   };
 
   return (
