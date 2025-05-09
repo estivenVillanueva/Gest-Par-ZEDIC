@@ -10,6 +10,7 @@ import {
   sendPasswordResetEmail
 } from 'firebase/auth';
 import { auth } from '../firebase/config';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 
@@ -21,13 +22,15 @@ export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   // Registrar usuario con email y contraseña
   const register = async (email, password, userData) => {
     try {
       setError('');
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      // Aquí podrías guardar los datos adicionales del usuario en Firestore
+      // Guardar el tipo de usuario en localStorage
+      localStorage.setItem('userType', userData.tipoUsuario);
       return userCredential;
     } catch (error) {
       handleAuthError(error);
@@ -53,6 +56,8 @@ export const AuthProvider = ({ children }) => {
       setError('');
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
+      // Redirigir a la página de selección de tipo de usuario
+      navigate('/seleccion-tipo-usuario');
       return result;
     } catch (error) {
       handleAuthError(error);
@@ -66,6 +71,8 @@ export const AuthProvider = ({ children }) => {
       setError('');
       const provider = new FacebookAuthProvider();
       const result = await signInWithPopup(auth, provider);
+      // Redirigir a la página de selección de tipo de usuario
+      navigate('/seleccion-tipo-usuario');
       return result;
     } catch (error) {
       handleAuthError(error);
@@ -78,6 +85,8 @@ export const AuthProvider = ({ children }) => {
     try {
       setError('');
       await signOut(auth);
+      // Limpiar el tipo de usuario al cerrar sesión
+      localStorage.removeItem('userType');
     } catch (error) {
       handleAuthError(error);
       throw error;

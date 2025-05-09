@@ -1,6 +1,6 @@
 // Dependencias de React y paquetes externos
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+// import { BrowserRouter } from 'react-router-dom'; // Eliminado
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import theme from './theme';
@@ -12,9 +12,9 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <BrowserRouter>
+      {/* <BrowserRouter> */}
         <AppRoutes />
-      </BrowserRouter>
+      {/* </BrowserRouter> */}
     </ThemeProvider>
   );
 }

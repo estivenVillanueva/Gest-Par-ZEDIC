@@ -13,6 +13,14 @@ import Solicitudes from '../pages/dashboard/Solicitudes';
 import ParqueaderoProfile from '../components/profile/ParqueaderoProfile';
 import Contacto from '../pages/Contacto';
 import Servicios from '../pages/Servicios';
+import UserTypeSelection from '../components/UserTypeSelection';
+
+const VehiculoNoDisponible = () => (
+  <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+    <h2>¡Próximamente!</h2>
+    <p>La interfaz para dueños de vehículo estará disponible en una futura actualización.</p>
+  </div>
+);
 
 const AppRoutes = () => {
   return (
@@ -24,6 +32,8 @@ const AppRoutes = () => {
         <Route path="registro" element={<Registro />} />
         <Route path="contacto" element={<Contacto />} />
         <Route path="servicios" element={<Servicios />} />
+        <Route path="seleccion-tipo-usuario" element={<UserTypeSelection />} />
+        <Route path="vehiculo/no-disponible" element={<VehiculoNoDisponible />} />
       </Route>
 
       {/* Rutas del dashboard */}

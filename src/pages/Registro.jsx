@@ -86,8 +86,8 @@ const Registro = () => {
       setError('');
       setLoading(true);
       const result = await loginWithGoogle();
-      // Aquí podrías guardar los datos adicionales del usuario en la base de datos
-      navigate('/dashboard/parqueadero');
+      // Redirigir a la página de selección de tipo de usuario
+      navigate('/seleccion-tipo-usuario');
     } catch (error) {
       // El error ya se maneja en el contexto
     } finally {
@@ -100,8 +100,8 @@ const Registro = () => {
       setError('');
       setLoading(true);
       const result = await loginWithFacebook();
-      // Aquí podrías guardar los datos adicionales del usuario en la base de datos
-      navigate('/dashboard/parqueadero');
+      // Redirigir a la página de selección de tipo de usuario
+      navigate('/seleccion-tipo-usuario');
     } catch (error) {
       // El error ya se maneja en el contexto
     } finally {
