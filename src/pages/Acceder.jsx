@@ -148,20 +148,6 @@ const Acceder = () => {
             }}
           />
 
-          <FormControl fullWidth sx={{ mt: 2, mb: 2 }} required>
-            <InputLabel id="tipo-usuario-label">Tipo de usuario</InputLabel>
-            <Select
-              labelId="tipo-usuario-label"
-              name="tipoUsuario"
-              value={formData.tipoUsuario}
-              label="Tipo de usuario"
-              onChange={handleChange}
-            >
-              <MenuItem value="admin">Administrador Parqueadero</MenuItem>
-              <MenuItem value="dueno">Dueño del Vehículo</MenuItem>
-            </Select>
-          </FormControl>
-
           <Link
             to="/recuperar-contrasena"
             style={{
@@ -197,14 +183,6 @@ const Acceder = () => {
         >
           <img src={GoogleIcon} alt="Google" style={{ width: 20, height: 20 }} />
           Google
-        </SocialButton>
-        <SocialButton
-          fullWidth
-          onClick={handleFacebookLogin}
-          disabled={loading}
-        >
-          <img src={FacebookIcon} alt="Facebook" style={{ width: 20, height: 20 }} />
-          Facebook
         </SocialButton>
 
         <AuthFooter>

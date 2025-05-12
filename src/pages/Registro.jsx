@@ -265,14 +265,6 @@ const Registro = () => {
           <img src={GoogleIcon} alt="Google" style={{ width: 20, height: 20 }} />
           Google
         </SocialButton>
-        <SocialButton
-          fullWidth
-          onClick={handleFacebookSignUp}
-          disabled={loading}
-        >
-          <img src={FacebookIcon} alt="Facebook" style={{ width: 20, height: 20 }} />
-          Facebook
-        </SocialButton>
 
         <AuthFooter>
           ¿Ya tienes una cuenta?{' '}

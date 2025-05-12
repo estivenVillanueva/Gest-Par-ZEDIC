@@ -227,7 +227,7 @@ const Home = () => {
             <StyledButton 
               variant="contained" 
               component={Link} 
-              to="/acceder"
+              to="/registro"
               startIcon={<LocalParkingIcon />}
             >
               Registra tu Parqueadero

@@ -257,6 +257,10 @@ const FormularioVehiculo = ({ open, onClose, onGuardar, isEdit = false }) => {
 
 const Vehiculos = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchNombre, setSearchNombre] = useState('');
+  const [searchPlaca, setSearchPlaca] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [openForm, setOpenForm] = useState(false);
   const [selectedVehiculo, setSelectedVehiculo] = useState(null);
 
@@ -268,7 +272,9 @@ const Vehiculos = () => {
       tipoVehiculo: 'carro',
       color: 'Rojo',
       puesto: 'A1',
-      tipoServicio: 'mensual'
+      tipoServicio: 'mensual',
+      fecha: '2024-06-01',
+      entradas: '2024-06-01,2024-06-10'
     },
     { 
       id: 2, 
@@ -277,7 +283,9 @@ const Vehiculos = () => {
       tipoVehiculo: 'moto',
       color: 'Negro',
       puesto: 'B2',
-      tipoServicio: 'diario'
+      tipoServicio: 'diario',
+      fecha: '2024-06-05',
+      entradas: '2024-06-05,2024-06-12'
     },
   ]);
 
@@ -297,27 +305,69 @@ const Vehiculos = () => {
     }
   };
 
+  // Filtrado avanzado
+  const filteredVehiculos = vehiculos.filter((vehiculo) => {
+    const matchGeneral = searchTerm === '' ||
+      vehiculo.placa.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      vehiculo.propietario.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchNombre = searchNombre === '' || vehiculo.propietario.toLowerCase().includes(searchNombre.toLowerCase());
+    const matchPlaca = searchPlaca === '' || vehiculo.placa.toLowerCase().includes(searchPlaca.toLowerCase());
+    let matchFecha = true;
+    if (dateFrom) {
+      matchFecha = vehiculo.fecha >= dateFrom;
+    }
+    if (dateTo && matchFecha) {
+      matchFecha = vehiculo.fecha <= dateTo;
+    }
+    return matchGeneral && matchNombre && matchPlaca && matchFecha;
+  });
+
   return (
     <Container maxWidth="xl">
       <ContentContainer>
         <SearchContainer>
-          <TextField
-            fullWidth
-            placeholder="Buscar"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
+          <Grid container spacing={2} sx={{ mb: 2 }}>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                fullWidth
+                label="Filtrar por nombre"
+                value={searchNombre}
+                onChange={(e) => setSearchNombre(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                fullWidth
+                label="Filtrar por placa"
+                value={searchPlaca}
+                onChange={(e) => setSearchPlaca(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={6} sm={2}>
+              <TextField
+                fullWidth
+                label="Desde"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={6} sm={2}>
+              <TextField
+                fullWidth
+                label="Hasta"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+              />
+            </Grid>
+          </Grid>
         </SearchContainer>
 
         <Grid container spacing={3}>
-          {vehiculos.map((vehiculo) => (
+          {filteredVehiculos.map((vehiculo) => (
             <Grid item xs={12} sm={6} md={3} key={vehiculo.id}>
               <VehiculoCard vehiculo={vehiculo} onVerInfo={handleVerInfo} />
             </Grid>
