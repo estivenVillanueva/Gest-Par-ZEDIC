@@ -28,6 +28,9 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
+import PersonIcon from '@mui/icons-material/Person';
+import BadgeIcon from '@mui/icons-material/Badge';
+import WorkIcon from '@mui/icons-material/Work';
 import { useNavigate } from 'react-router-dom';
 
 const InfoItem = ({ icon, title, value, onEdit }) => (
@@ -55,6 +58,7 @@ const ParqueaderoProfile = () => {
   const [editField, setEditField] = useState('');
   const [editValue, setEditValue] = useState('');
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [openAdminModal, setOpenAdminModal] = useState(false);
   const [parqueaderoInfo, setParqueaderoInfo] = useState({
     nombre: '',
     direccion: '',
@@ -64,14 +68,21 @@ const ParqueaderoProfile = () => {
     email: '',
     descripcion: '',
     servicios: [],
-    beneficios: []
+    beneficios: [],
+    administrador: {
+      nombre: '',
+      cargo: '',
+      identificacion: '',
+      telefono: '',
+      email: '',
+      experiencia: '',
+      fechaInicio: ''
+    }
   });
 
   useEffect(() => {
-    // Aquí se cargarían los datos del parqueadero desde el backend
     const cargarDatosParqueadero = async () => {
       try {
-        // Simulación de carga de datos
         const datosSimulados = {
           nombre: 'Mi Parqueadero',
           direccion: 'Calle Principal #123',
@@ -89,7 +100,16 @@ const ParqueaderoProfile = () => {
             'Eficiencia en la gestión del parqueadero',
             'Precisión en el control de vehículos',
             'Alta satisfacción del cliente'
-          ]
+          ],
+          administrador: {
+            nombre: 'Juan Pérez',
+            cargo: 'Administrador Principal',
+            identificacion: '1234567890',
+            telefono: '+1234567891',
+            email: 'juan.perez@parqueadero.com',
+            experiencia: '5 años en gestión de parqueaderos',
+            fechaInicio: '01/01/2020'
+          }
         };
         setParqueaderoInfo(datosSimulados);
       } catch (error) {
@@ -113,10 +133,21 @@ const ParqueaderoProfile = () => {
   const handleSave = async () => {
     try {
       // Aquí se enviarían los cambios al backend
-      setParqueaderoInfo(prev => ({
-        ...prev,
-        [editField]: editValue
-      }));
+      if (editField.includes('administrador.')) {
+        const field = editField.split('.')[1];
+        setParqueaderoInfo(prev => ({
+          ...prev,
+          administrador: {
+            ...prev.administrador,
+            [field]: editValue
+          }
+        }));
+      } else {
+        setParqueaderoInfo(prev => ({
+          ...prev,
+          [editField]: editValue
+        }));
+      }
       
       setSnackbar({
         open: true,
@@ -140,25 +171,34 @@ const ParqueaderoProfile = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-          <Avatar
-            sx={{ 
-              width: 100, 
-              height: 100, 
-              bgcolor: 'primary.main',
-              mr: 3
-            }}
-          >
-            <LocalParkingIcon sx={{ fontSize: 50 }} />
-          </Avatar>
-          <Box>
-            <Typography variant="h4" gutterBottom>
-              {parqueaderoInfo.nombre}
-            </Typography>
-            <Typography variant="subtitle1" color="text.secondary">
-              Perfil del Parqueadero
-            </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar
+              sx={{ 
+                width: 100, 
+                height: 100, 
+                bgcolor: 'primary.main',
+                mr: 3
+              }}
+            >
+              <LocalParkingIcon sx={{ fontSize: 50 }} />
+            </Avatar>
+            <Box>
+              <Typography variant="h4" gutterBottom>
+                {parqueaderoInfo.nombre}
+              </Typography>
+              <Typography variant="subtitle1" color="text.secondary">
+                Perfil del Parqueadero
+              </Typography>
+            </Box>
           </Box>
+          <Button
+            variant="outlined"
+            startIcon={<PersonIcon />}
+            onClick={() => setOpenAdminModal(true)}
+          >
+            Ver información del administrador
+          </Button>
         </Box>
 
         <Grid container spacing={3}>
@@ -393,6 +433,75 @@ const ParqueaderoProfile = () => {
           }} variant="contained">
             Guardar
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* MODAL ADMINISTRADOR */}
+      <Dialog open={openAdminModal} onClose={() => setOpenAdminModal(false)} maxWidth="md" fullWidth>
+        <DialogTitle>Información del Administrador</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <InfoItem
+                icon={<PersonIcon color="primary" />}
+                title="Nombre del Administrador"
+                value={parqueaderoInfo.administrador.nombre}
+                onEdit={() => handleEdit('administrador.nombre', parqueaderoInfo.administrador.nombre)}
+              />
+              <InfoItem
+                icon={<BadgeIcon color="primary" />}
+                title="Identificación"
+                value={parqueaderoInfo.administrador.identificacion}
+                onEdit={() => handleEdit('administrador.identificacion', parqueaderoInfo.administrador.identificacion)}
+              />
+              <InfoItem
+                icon={<WorkIcon color="primary" />}
+                title="Cargo"
+                value={parqueaderoInfo.administrador.cargo}
+                onEdit={() => handleEdit('administrador.cargo', parqueaderoInfo.administrador.cargo)}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <InfoItem
+                icon={<PhoneIcon color="primary" />}
+                title="Teléfono"
+                value={parqueaderoInfo.administrador.telefono}
+                onEdit={() => handleEdit('administrador.telefono', parqueaderoInfo.administrador.telefono)}
+              />
+              <InfoItem
+                icon={<EmailIcon color="primary" />}
+                title="Email"
+                value={parqueaderoInfo.administrador.email}
+                onEdit={() => handleEdit('administrador.email', parqueaderoInfo.administrador.email)}
+              />
+              <InfoItem
+                icon={<AccessTimeIcon color="primary" />}
+                title="Fecha de Inicio"
+                value={parqueaderoInfo.administrador.fechaInicio}
+                onEdit={() => handleEdit('administrador.fechaInicio', parqueaderoInfo.administrador.fechaInicio)}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Box sx={{ mt: 3, p: 2, bgcolor: 'background.paper', borderRadius: 2 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                  Experiencia
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  {parqueaderoInfo.administrador.experiencia}
+                </Typography>
+                <Button
+                  startIcon={<EditIcon />}
+                  onClick={() => handleEdit('administrador.experiencia', parqueaderoInfo.administrador.experiencia)}
+                  sx={{ mt: 1 }}
+                >
+                  Editar experiencia
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenAdminModal(false)}>Cerrar</Button>
         </DialogActions>
       </Dialog>
 
