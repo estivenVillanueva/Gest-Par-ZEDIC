@@ -1,13 +1,10 @@
 import React from 'react';
-import { Container, Paper, Box } from '@mui/material';
-import InfoPanel from '../../components/parqueadero/InfoPanel';
-import ServiciosPanel from '../../components/parqueadero/ServiciosPanel';
-import InfoAdicional from '../../components/parqueadero/InfoAdicional';
+import { Container } from '@mui/material';
 
 const Parqueadero = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-    
+      {/* Vista vacía, la información del parqueadero está en el perfil */}
     </Container>
   );
 };
