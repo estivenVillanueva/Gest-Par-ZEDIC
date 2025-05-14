@@ -6,7 +6,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../logic/AuthContext';
 
 // Importar iconos
 import GoogleIcon from '../assets/icons/google.svg';

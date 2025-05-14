@@ -1,20 +1,20 @@
 import React from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
-import Layout from '../components/layout/Layout';
-import DashboardLayout from '../components/layout/DashboardLayout';
-import Home from '../pages/Home';
-import Acceder from '../pages/Acceder';
-import Registro from '../pages/Registro';
-import Vehiculos from '../pages/dashboard/Vehiculos';
-import Pagos from '../pages/dashboard/Pagos';
-import Parqueadero from '../pages/dashboard/Parqueadero';
-import Reportes from '../pages/dashboard/Reportes';
-import Solicitudes from '../pages/dashboard/Solicitudes';
-import ParqueaderoProfile from '../components/profile/ParqueaderoProfile';
-import Contacto from '../pages/Contacto';
-import Servicios from '../pages/Servicios';
-import UserTypeSelection from '../components/UserTypeSelection';
-import { useAuth } from '../context/AuthContext';
+import Layout from '../src/components/layout/Layout';
+import DashboardLayout from '../src/components/layout/DashboardLayout';
+import Home from '../src/pages/Home';
+import Acceder from '../src/pages/Acceder';
+import Registro from '../src/pages/Registro';
+import Vehiculos from '../src/pages/dashboard/Vehiculos';
+import Pagos from '../src/pages/dashboard/Pagos';
+import Parqueadero from '../src/pages/dashboard/Parqueadero';
+import Reportes from '../src/pages/dashboard/Reportes';
+import Solicitudes from '../src/pages/dashboard/Solicitudes';
+import ParqueaderoProfile from '../src/components/profile/ParqueaderoProfile';
+import Contacto from '../src/pages/Contacto';
+import Servicios from '../src/pages/Servicios';
+import UserTypeSelection from '../src/components/UserTypeSelection';
+import { useAuth } from './AuthContext';
 
 const VehiculoNoDisponible = () => (
   <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>

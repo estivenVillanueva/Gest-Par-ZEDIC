@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import EmailIcon from '@mui/icons-material/Email';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../logic/AuthContext';
 
 // Importar iconos
 import GoogleIcon from '../assets/icons/google.svg';

@@ -23,7 +23,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import safeparkingLogo from '../../assets/safeparking.png';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../../logic/AuthContext';
 
 const navigationItems = [
   { 
