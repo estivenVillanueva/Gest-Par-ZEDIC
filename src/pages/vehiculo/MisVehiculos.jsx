@@ -21,7 +21,23 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import { useVehiculo } from '../../../logic/VehiculoContext';
+
+const MOCK_VEHICULOS = [
+  {
+    id: '1',
+    placa: 'ABC123',
+    tipoVehiculo: 'Carro',
+    color: 'Rojo',
+    modelo: 'Mazda 3',
+  },
+  {
+    id: '2',
+    placa: 'XYZ789',
+    tipoVehiculo: 'Moto',
+    color: 'Negro',
+    modelo: 'Yamaha FZ',
+  },
+];
 
 const VehiculoCard = ({ vehiculo, onVer, onEditar, onEliminar }) => (
   <Card sx={{ mb: 2 }}>
@@ -121,7 +137,7 @@ const FormularioVehiculo = ({ open, onClose, onGuardar, initialData }) => {
 };
 
 const MisVehiculos = () => {
-  const { vehiculos, agregarVehiculo, actualizarVehiculo, eliminarVehiculo, loading } = useVehiculo();
+  const [vehiculos, setVehiculos] = useState(MOCK_VEHICULOS);
   const [openForm, setOpenForm] = useState(false);
   const [editData, setEditData] = useState(null);
 
@@ -130,11 +146,11 @@ const MisVehiculos = () => {
     setOpenForm(true);
   };
 
-  const handleGuardar = async (data) => {
+  const handleGuardar = (data) => {
     if (editData) {
-      await actualizarVehiculo(editData.id, data);
+      setVehiculos(vehiculos.map(v => v.id === editData.id ? { ...editData, ...data } : v));
     } else {
-      await agregarVehiculo(data);
+      setVehiculos([...vehiculos, { ...data, id: (vehiculos.length + 1).toString() }]);
     }
     setOpenForm(false);
   };
@@ -144,9 +160,9 @@ const MisVehiculos = () => {
     setOpenForm(true);
   };
 
-  const handleEliminar = async (vehiculo) => {
+  const handleEliminar = (vehiculo) => {
     if (window.confirm('¿Seguro que deseas eliminar este vehículo?')) {
-      await eliminarVehiculo(vehiculo.id);
+      setVehiculos(vehiculos.filter(v => v.id !== vehiculo.id));
     }
   };
 
@@ -164,23 +180,15 @@ const MisVehiculos = () => {
               Agregar
             </Button>
           </Box>
-          {loading ? (
-            <Typography>Cargando...</Typography>
-          ) : (
-            vehiculos.length === 0 ? (
-              <Typography>No tienes vehículos registrados.</Typography>
-            ) : (
-              vehiculos.map((vehiculo) => (
-                <VehiculoCard
-                  key={vehiculo.id}
-                  vehiculo={vehiculo}
-                  onVer={handleVer}
-                  onEditar={handleEditar}
-                  onEliminar={handleEliminar}
-                />
-              ))
-            )
-          )}
+          {vehiculos.map((vehiculo) => (
+            <VehiculoCard
+              key={vehiculo.id}
+              vehiculo={vehiculo}
+              onVer={handleVer}
+              onEditar={handleEditar}
+              onEliminar={handleEliminar}
+            />
+          ))}
         </Grid>
         <Grid item xs={12} md={6}>
           <Box sx={{ p: 3, bgcolor: 'white', borderRadius: 2, boxShadow: 1 }}>
