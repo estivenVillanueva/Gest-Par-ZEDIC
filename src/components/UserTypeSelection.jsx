@@ -40,7 +40,7 @@ const UserTypeSelection = () => {
     if (userType === 'admin') {
       navigate('/dashboard/parqueadero');
     } else if (userType === 'dueno') {
-      navigate('/vehiculo/no-disponible');
+      navigate('/vehiculo/inicio');
     }
   };
 

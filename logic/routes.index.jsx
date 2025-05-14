@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import Layout from '../src/components/layout/Layout';
 import DashboardLayout from '../src/components/layout/DashboardLayout';
+import VehiculoLayout from '../src/components/layout/VehiculoLayout';
 import Home from '../src/pages/Home';
 import Acceder from '../src/pages/Acceder';
 import Registro from '../src/pages/Registro';
@@ -14,6 +15,8 @@ import ParqueaderoProfile from '../src/components/profile/ParqueaderoProfile';
 import Contacto from '../src/pages/Contacto';
 import Servicios from '../src/pages/Servicios';
 import UserTypeSelection from '../src/components/UserTypeSelection';
+import Inicio from '../src/pages/vehiculo/Inicio';
+import MisVehiculos from '../src/pages/vehiculo/MisVehiculos';
 import { useAuth } from './AuthContext';
 
 const VehiculoNoDisponible = () => (
@@ -45,7 +48,7 @@ const AppRoutes = () => {
         <Route path="vehiculo/no-disponible" element={<VehiculoNoDisponible />} />
       </Route>
 
-      {/* Rutas del dashboard */}
+      {/* Rutas del dashboard del administrador */}
       <Route path="/dashboard" element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
           <Route index element={<Navigate to="/dashboard/parqueadero" />} />
@@ -57,6 +60,18 @@ const AppRoutes = () => {
           <Route path="ingresos" element={<Parqueadero />} />
           <Route path="perfil" element={<ParqueaderoProfile />} />
           <Route path="contacto" element={<Contacto />} />
+        </Route>
+      </Route>
+
+      {/* Rutas del dueño del vehículo */}
+      <Route path="/vehiculo" element={<ProtectedRoute />}>
+        <Route element={<VehiculoLayout />}>
+          <Route index element={<Navigate to="/vehiculo/inicio" />} />
+          <Route path="inicio" element={<Inicio />} />
+          <Route path="mis-vehiculos" element={<MisVehiculos />} />
+          <Route path="reservas" element={<div>Reservas (En desarrollo)</div>} />
+          <Route path="pagos" element={<div>Pagos (En desarrollo)</div>} />
+          <Route path="perfil" element={<div>Perfil (En desarrollo)</div>} />
         </Route>
       </Route>
 
