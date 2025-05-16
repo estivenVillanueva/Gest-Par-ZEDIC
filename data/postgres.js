@@ -1,17 +1,29 @@
 // data/postgres.js
 // Conexión a PostgreSQL Cloud SQL usando variables de entorno
 
-import { Client } from 'pg';
+import pg from 'pg';
+import dotenv from 'dotenv';
 
-const client = new Client({
-  host: process.env.PG_HOST, // Ejemplo: '35.225.217.73'
-  port: process.env.PG_PORT || 5432,
-  user: process.env.PG_USER,
-  password: process.env.PG_PASSWORD,
-  database: process.env.PG_DATABASE, // Ejemplo: 'gest-par-zedic-database'
-  ssl: {
-    rejectUnauthorized: false // Permite certificados autofirmados/no verificados
-  }
+dotenv.config();
+
+const { Pool } = pg;
+
+export const pool = new Pool({
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST, // La IP pública de tu instancia de Cloud SQL
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
+    ssl: {
+        rejectUnauthorized: false // Necesario para conexiones SSL con Cloud SQL
+    }
 });
 
-export default client; 
+// Probar la conexión
+pool.connect((err, client, release) => {
+    if (err) {
+        return console.error('Error al conectar con la base de datos:', err.stack);
+    }
+    console.log('Conexión exitosa a la base de datos PostgreSQL en Google Cloud SQL');
+    release();
+}); 

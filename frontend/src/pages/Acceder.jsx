@@ -43,17 +43,20 @@ const Acceder = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
     try {
-      setError('');
-      setLoading(true);
-      await login(formData.email, formData.password);
-      if (formData.tipoUsuario === 'admin') {
+      const usuario = await login(formData.email, formData.password);
+      const tipo = usuario?.data?.tipo_usuario || usuario?.tipo_usuario;
+      if (tipo === 'admin') {
         navigate('/dashboard/parqueadero');
-      } else if (formData.tipoUsuario === 'dueno') {
+      } else if (tipo === 'dueno') {
         navigate('/vehiculo/inicio');
+      } else {
+        navigate('/');
       }
-    } catch (error) {
-      // El error ya se maneja en el contexto
+    } catch (err) {
+      setError('Credenciales incorrectas');
     } finally {
       setLoading(false);
     }

@@ -72,8 +72,8 @@ const Header = () => {
   return (
     <StyledAppBar 
       position="fixed"
-      scrolled={scrolled}
-      visible={visible}
+      {...(scrolled ? { scrolled: true } : {})}
+      {...(visible ? { visible: true } : {})}
     >
       <HeaderContainer maxWidth="xl">
         <HeaderToolbar>

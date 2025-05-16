@@ -58,24 +58,43 @@ const Registro = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validatePassword(formData.password)) return;
+    setError('');
 
+    if (formData.password.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres.');
+      return;
+    }
+
+    if (!formData.tipoUsuario) {
+      setError('Debes seleccionar un tipo de usuario.');
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
     try {
-      setError('');
-      setLoading(true);
-      const userCredential = await register(formData.email, formData.password, {
+      // Adaptar los nombres de los campos para el backend
+      const payload = {
         nombre: formData.nombre,
+        email: formData.email,
+        password: formData.password,
         ubicacion: formData.ubicacion,
         tipoUsuario: formData.tipoUsuario
+      };
+      const response = await fetch('http://localhost:3000/api/usuarios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
-
-      if (formData.tipoUsuario === 'admin') {
-        navigate('/dashboard/parqueadero');
-      } else if (formData.tipoUsuario === 'dueno') {
-        navigate('/vehiculo/inicio');
+      const data = await response.json();
+      if (response.ok) {
+        // Registro exitoso
+        navigate('/Acceder');
+      } else {
+        setError(data.message || 'Error al registrar usuario');
       }
-    } catch (error) {
-      // El error ya se maneja en el contexto
+    } catch (err) {
+      setError('Error de conexión con el servidor');
     } finally {
       setLoading(false);
     }
