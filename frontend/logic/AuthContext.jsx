@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
+const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
 
 export const useAuth = () => {
     return useContext(AuthContext);
@@ -17,7 +18,7 @@ export const AuthProvider = ({ children }) => {
     const register = async (email, password, userData) => {
         try {
             setError('');
-            const response = await fetch('https://gest-par-zedic.onrender.com/api/usuarios/register', {
+            const response = await fetch(`${API_URL}/api/usuarios/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -44,7 +45,7 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         try {
             setError('');
-            const response = await fetch('https://gest-par-zedic.onrender.com/api/usuarios/login', {
+            const response = await fetch(`${API_URL}/api/usuarios/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ correo: email, password })
@@ -76,7 +77,7 @@ export const AuthProvider = ({ children }) => {
     const resetPassword = async (email) => {
         try {
             setError('');
-            const response = await fetch('https://gest-par-zedic.onrender.com/api/usuarios/reset-password', {
+            const response = await fetch(`${API_URL}/api/usuarios/reset-password`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ correo: email })

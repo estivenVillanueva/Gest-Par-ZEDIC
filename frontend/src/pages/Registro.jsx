@@ -27,6 +27,8 @@ import {
   StyledTextField,
 } from '../styles/pages/Registro.styles';
 
+const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
+
 const Registro = () => {
   const navigate = useNavigate();
   const { register, loginWithGoogle, loginWithFacebook, error, setError } = useAuth();
@@ -73,7 +75,6 @@ const Registro = () => {
 
     setLoading(true);
     try {
-      // Adaptar los nombres de los campos para el backend
       const payload = {
         nombre: formData.nombre,
         email: formData.email,
@@ -81,7 +82,7 @@ const Registro = () => {
         ubicacion: formData.ubicacion,
         tipoUsuario: formData.tipoUsuario
       };
-      const response = await fetch('https://gest-par-zedic.onrender.com/api/usuarios', {
+      const response = await fetch(`${API_URL}/api/usuarios`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
