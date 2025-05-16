@@ -56,7 +56,7 @@ const Acceder = () => {
         navigate('/');
       }
     } catch (err) {
-      setError('Credenciales incorrectas');
+      setError('Credenciale incorrecta');
     } finally {
       setLoading(false);
     }
