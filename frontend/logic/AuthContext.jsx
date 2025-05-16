@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
     const register = async (email, password, userData) => {
         try {
             setError('');
-            const response = await fetch('http://localhost:3000/api/usuarios/register', {
+            const response = await fetch('https://gest-par-zedic.onrender.com/api/usuarios/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         try {
             setError('');
-            const response = await fetch('http://localhost:3000/api/usuarios/login', {
+            const response = await fetch('https://gest-par-zedic.onrender.com/api/usuarios/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ correo: email, password })
@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
     const resetPassword = async (email) => {
         try {
             setError('');
-            const response = await fetch('http://localhost:3000/api/usuarios/reset-password', {
+            const response = await fetch('https://gest-par-zedic.onrender.com/api/usuarios/reset-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ correo: email })

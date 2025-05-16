@@ -81,7 +81,7 @@ const Registro = () => {
         ubicacion: formData.ubicacion,
         tipoUsuario: formData.tipoUsuario
       };
-      const response = await fetch('http://localhost:3000/api/usuarios', {
+      const response = await fetch('https://gest-par-zedic.onrender.com/api/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
