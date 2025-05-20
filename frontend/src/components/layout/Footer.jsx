@@ -51,7 +51,7 @@ const Footer = () => {
         </FooterSection>
 
         <FooterSection>
-          <Typography variant="h6">Contacto</Typography>
+          <Typography variant="h6">Contact</Typography>
           <Typography component="p">Teléfono: +57 300 123 4567</Typography>
           <Typography component="p">Email: info@parqueaderos.com</Typography>
           <Typography component="p">
