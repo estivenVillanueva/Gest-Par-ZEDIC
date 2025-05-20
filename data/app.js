@@ -14,7 +14,11 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://gest-par-zedic.onrender.com'],
+  origin: [
+    'http://localhost:5173',
+    'https://gest-par-zedic.onrender.com',
+    'https://gest-par-zedic-9gcy.vercel.app'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -31,7 +35,11 @@ app.use('/api/roles', rolesRoutes);
 
 // Manejar preflight OPTIONS para todas las rutas
 app.options('*', cors({
-  origin: ['http://localhost:5173', 'https://gest-par-zedic.onrender.com'],
+  origin: [
+    'http://localhost:5173',
+    'https://gest-par-zedic.onrender.com',
+    'https://gest-par-zedic-9gcy.vercel.app'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
