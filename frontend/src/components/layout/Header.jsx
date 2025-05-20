@@ -35,11 +35,8 @@ const Header = () => {
   const hideAt = useRef(0);
 
   useEffect(() => {
-    const root = document.getElementById('root');
-    if (!root) return;
-
-    const handleRootScroll = () => {
-      const currentScrollPos = root.scrollTop;
+    const handleWindowScroll = () => {
+      const currentScrollPos = window.scrollY;
       setScrolled(currentScrollPos > 10);
 
       if (currentScrollPos > prevScrollPos.current && currentScrollPos > 50) {
@@ -51,8 +48,8 @@ const Header = () => {
       prevScrollPos.current = currentScrollPos;
     };
 
-    root.addEventListener('scroll', handleRootScroll);
-    return () => root.removeEventListener('scroll', handleRootScroll);
+    window.addEventListener('scroll', handleWindowScroll);
+    return () => window.removeEventListener('scroll', handleWindowScroll);
   }, []);
 
   const handleMenu = (event) => {
