@@ -1,6 +1,7 @@
 import React from 'react';
 import VehiculoHeader from './VehiculoHeader';
 import { Box, Toolbar } from '@mui/material';
+import { Outlet } from 'react-router-dom';
 
 const VehiculoLayout = ({ children }) => {
   return (
@@ -16,7 +17,7 @@ const VehiculoLayout = ({ children }) => {
         }}
       >
         <Toolbar />
-        {children}
+        <Outlet />
       </Box>
     </Box>
   );

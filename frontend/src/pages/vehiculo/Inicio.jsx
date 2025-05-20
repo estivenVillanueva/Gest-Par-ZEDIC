@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Grid,
   Paper,
@@ -43,8 +43,50 @@ const StatCard = ({ title, value, icon, color }) => (
   </Card>
 );
 
+const mockParqueaderosDisponibles = [
+  {
+    id: 1,
+    nombre: 'Parqueadero Centro',
+    telefono: '3001234567',
+    direccion: 'Calle 10 #5-20',
+    email: 'centro@parqueaderos.com',
+    capacidad: 50,
+    horarios: '6:00am - 10:00pm',
+    servicios: ['Mensual', 'Diario', 'Quincenal', 'Semanal'],
+  },
+  {
+    id: 2,
+    nombre: 'Parqueadero Norte',
+    telefono: '3019876543',
+    direccion: 'Av. Norte #100-50',
+    email: 'norte@parqueaderos.com',
+    capacidad: 30,
+    horarios: '24 horas',
+    servicios: ['Mensual', 'Diario'],
+  },
+];
+
+const mockParqueaderosReservados = [
+  {
+    id: 3,
+    nombre: 'Parqueadero Sur',
+    telefono: '3025558888',
+    direccion: 'Cra 20 #15-30',
+    email: 'sur@parqueaderos.com',
+    capacidad: 40,
+    horarios: '7:00am - 9:00pm',
+    servicios: ['Mensual', 'Semanal'],
+  },
+];
+
 const Inicio = () => {
   const navigate = useNavigate();
+  const [parqueaderosDisponibles] = useState(mockParqueaderosDisponibles);
+  const [parqueaderosReservados] = useState(mockParqueaderosReservados);
+
+  const handleReservar = (parqueadero) => {
+    alert(`Reservar en: ${parqueadero.nombre}`);
+  };
 
   return (
     <Box>
@@ -134,6 +176,63 @@ const Inicio = () => {
           </Card>
         </Grid>
       </Grid>
+
+      {/* Sección: Parqueaderos Disponibles */}
+      <Box sx={{ mt: 6, mb: 4 }}>
+        <Typography variant="h5" gutterBottom>
+          Parqueaderos Disponibles para Reservar
+        </Typography>
+        <Grid container spacing={3}>
+          {parqueaderosDisponibles.map((p) => (
+            <Grid item xs={12} md={6} key={p.id}>
+              <Card>
+                <CardHeader title={p.nombre} subheader={p.direccion} />
+                <CardContent>
+                  <Typography variant="body2"><b>Teléfono:</b> {p.telefono}</Typography>
+                  <Typography variant="body2"><b>Email:</b> {p.email}</Typography>
+                  <Typography variant="body2"><b>Capacidad:</b> {p.capacidad}</Typography>
+                  <Typography variant="body2"><b>Horarios:</b> {p.horarios}</Typography>
+                  <Typography variant="body2"><b>Servicios:</b> {p.servicios.join(', ')}</Typography>
+                  <Button variant="contained" sx={{ mt: 2 }} onClick={() => handleReservar(p)}>
+                    Reservar
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+
+      {/* Sección: Parqueaderos Reservados */}
+      <Box sx={{ mt: 6, mb: 4 }}>
+        <Typography variant="h5" gutterBottom>
+          Mis Parqueaderos Reservados
+        </Typography>
+        <Grid container spacing={3}>
+          {parqueaderosReservados.length === 0 ? (
+            <Grid item xs={12}>
+              <Typography variant="body2" color="text.secondary">
+                No tienes parqueaderos reservados.
+              </Typography>
+            </Grid>
+          ) : (
+            parqueaderosReservados.map((p) => (
+              <Grid item xs={12} md={6} key={p.id}>
+                <Card>
+                  <CardHeader title={p.nombre} subheader={p.direccion} />
+                  <CardContent>
+                    <Typography variant="body2"><b>Teléfono:</b> {p.telefono}</Typography>
+                    <Typography variant="body2"><b>Email:</b> {p.email}</Typography>
+                    <Typography variant="body2"><b>Capacidad:</b> {p.capacidad}</Typography>
+                    <Typography variant="body2"><b>Horarios:</b> {p.horarios}</Typography>
+                    <Typography variant="body2"><b>Servicios:</b> {p.servicios.join(', ')}</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))
+          )}
+        </Grid>
+      </Box>
     </Box>
   );
 };

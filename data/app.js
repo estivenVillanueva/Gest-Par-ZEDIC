@@ -13,7 +13,12 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173', 'https://gest-par-zedic.onrender.com'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // Rutas
@@ -23,6 +28,14 @@ app.use('/api/vehiculos', vehiculoRoutes);
 app.use('/api/servicios', serviciosRoutes);
 app.use('/api/facturas', facturaRoutes);
 app.use('/api/roles', rolesRoutes);
+
+// Manejar preflight OPTIONS para todas las rutas
+app.options('*', cors({
+  origin: ['http://localhost:5173', 'https://gest-par-zedic.onrender.com'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Manejo de errores
 app.use((err, req, res, next) => {
