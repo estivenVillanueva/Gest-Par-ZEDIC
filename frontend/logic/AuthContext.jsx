@@ -4,6 +4,16 @@ import { useNavigate } from 'react-router-dom';
 const AuthContext = createContext();
 const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
 
+// Utilidad para fetch con timeout
+const fetchWithTimeout = (resource, options = {}, timeout = 10000) => {
+    return Promise.race([
+        fetch(resource, options),
+        new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('timeout')), timeout)
+        )
+    ]);
+};
+
 export const useAuth = () => {
     return useContext(AuthContext);
 };
@@ -18,7 +28,7 @@ export const AuthProvider = ({ children }) => {
     const register = async (email, password, userData) => {
         try {
             setError('');
-            const response = await fetch(`${API_URL}/api/usuarios/register`, {
+            const response = await fetchWithTimeout(`${API_URL}/api/usuarios/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -45,7 +55,7 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         try {
             setError('');
-            const response = await fetch(`${API_URL}/api/usuarios/login`, {
+            const response = await fetchWithTimeout(`${API_URL}/api/usuarios/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ correo: email, password })
@@ -77,14 +87,12 @@ export const AuthProvider = ({ children }) => {
     const resetPassword = async (email) => {
         try {
             setError('');
-            const response = await fetch(`${API_URL}/api/usuarios/reset-password`, {
+            const response = await fetchWithTimeout(`${API_URL}/api/usuarios/reset-password`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ correo: email })
             });
             if (!response.ok) throw new Error('No existe una cuenta con este correo electrónico');
-            // Aquí implementarías la lógica para enviar el correo de recuperación
-            // Por ahora solo retornamos éxito
             return true;
         } catch (error) {
             handleAuthError(error);
@@ -94,6 +102,10 @@ export const AuthProvider = ({ children }) => {
 
     // Manejar errores de autenticación
     const handleAuthError = (error) => {
+        if (error.message === 'timeout') {
+            setError('El servidor no responde, intenta más tarde');
+            return;
+        }
         switch (error.message) {
             case 'Credenciales inválidas':
                 setError('Correo o contraseña incorrectos');

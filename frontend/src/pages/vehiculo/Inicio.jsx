@@ -17,6 +17,13 @@ import {
   Add as AddIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import LocalParkingIcon from '@mui/icons-material/LocalParking';
+import EmailIcon from '@mui/icons-material/Email';
+import PhoneIcon from '@mui/icons-material/Phone';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import PeopleIcon from '@mui/icons-material/People';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 
 const StatCard = ({ title, value, icon, color }) => (
   <Card sx={{ height: '100%' }}>
@@ -178,60 +185,151 @@ const Inicio = () => {
       </Grid>
 
       {/* Sección: Parqueaderos Disponibles */}
-      <Box sx={{ mt: 6, mb: 4 }}>
-        <Typography variant="h5" gutterBottom>
-          Parqueaderos Disponibles para Reservar
-        </Typography>
-        <Grid container spacing={3}>
-          {parqueaderosDisponibles.map((p) => (
-            <Grid item xs={12} md={6} key={p.id}>
-              <Card>
-                <CardHeader title={p.nombre} subheader={p.direccion} />
-                <CardContent>
-                  <Typography variant="body2"><b>Teléfono:</b> {p.telefono}</Typography>
-                  <Typography variant="body2"><b>Email:</b> {p.email}</Typography>
-                  <Typography variant="body2"><b>Capacidad:</b> {p.capacidad}</Typography>
-                  <Typography variant="body2"><b>Horarios:</b> {p.horarios}</Typography>
-                  <Typography variant="body2"><b>Servicios:</b> {p.servicios.join(', ')}</Typography>
-                  <Button variant="contained" sx={{ mt: 2 }} onClick={() => handleReservar(p)}>
+      <Box sx={{ mt: 6, mb: 4, display: 'flex', justifyContent: 'center' }}>
+        <Box sx={{ width: '100%', maxWidth: 1100 }}>
+          <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, color: '#2B6CA3', textAlign: 'center', mb: 4 }}>
+            Parqueaderos Disponibles para Reservar
+          </Typography>
+          <Grid container spacing={5} justifyContent="center">
+            {parqueaderosDisponibles.map((p) => (
+              <Grid item xs={12} sm={6} md={4} key={p.id} sx={{ display: 'flex', justifyContent: 'center' }}>
+                <Card sx={{
+                  borderRadius: 3,
+                  boxShadow: '0 4px 24px rgba(43,108,163,0.10)',
+                  p: 0,
+                  bgcolor: '#fff',
+                  minHeight: 340,
+                  width: 320,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'flex-start',
+                  gap: 2,
+                  transition: 'box-shadow 0.2s',
+                  '&:hover': { boxShadow: '0 8px 32px rgba(43,108,163,0.18)' }
+                }}>
+                  <Box sx={{ mt: 4, mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <Box sx={{
+                      bgcolor: '#2B6CA3',
+                      borderRadius: 2,
+                      width: 64,
+                      height: 64,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mb: 1
+                    }}>
+                      <LocalParkingIcon sx={{ fontSize: 38, color: '#fff' }} />
+                    </Box>
+                    <Typography variant="h6" sx={{ fontWeight: 700, textAlign: 'center' }}>{p.nombre}</Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                      <LocationOnIcon sx={{ fontSize: 18, mr: 0.5 }} /> {p.direccion}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ width: '90%', mb: 2 }}>
+                    <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                      <PhoneIcon sx={{ fontSize: 18, mr: 0.5, color: '#43a047' }} /> {p.telefono}
+                    </Typography>
+                    <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                      <EmailIcon sx={{ fontSize: 18, mr: 0.5, color: '#e53935' }} /> {p.email}
+                    </Typography>
+                    <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                      <PeopleIcon sx={{ fontSize: 18, mr: 0.5, color: '#fbc02d' }} /> Capacidad: {p.capacidad}
+                    </Typography>
+                    <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                      <AccessTimeIcon sx={{ fontSize: 18, mr: 0.5, color: '#1976d2' }} /> Horarios: {p.horarios}
+                    </Typography>
+                    <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <EventAvailableIcon sx={{ fontSize: 18, mr: 0.5, color: '#43a047' }} /> Servicios: {p.servicios.join(', ')}
+                    </Typography>
+                  </Box>
+                  <Button
+                    variant="contained"
+                    startIcon={<EventAvailableIcon />}
+                    sx={{ mb: 3, bgcolor: '#2B6CA3', borderRadius: 2, fontWeight: 600, width: '85%', '&:hover': { bgcolor: '#1976d2' } }}
+                    onClick={() => handleReservar(p)}
+                  >
                     Reservar
                   </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
       </Box>
 
       {/* Sección: Parqueaderos Reservados */}
-      <Box sx={{ mt: 6, mb: 4 }}>
-        <Typography variant="h5" gutterBottom>
-          Mis Parqueaderos Reservados
-        </Typography>
-        <Grid container spacing={3}>
-          {parqueaderosReservados.length === 0 ? (
-            <Grid item xs={12}>
-              <Typography variant="body2" color="text.secondary">
-                No tienes parqueaderos reservados.
-              </Typography>
-            </Grid>
-          ) : (
-            parqueaderosReservados.map((p) => (
-              <Grid item xs={12} md={6} key={p.id}>
-                <Card>
-                  <CardHeader title={p.nombre} subheader={p.direccion} />
-                  <CardContent>
-                    <Typography variant="body2"><b>Teléfono:</b> {p.telefono}</Typography>
-                    <Typography variant="body2"><b>Email:</b> {p.email}</Typography>
-                    <Typography variant="body2"><b>Capacidad:</b> {p.capacidad}</Typography>
-                    <Typography variant="body2"><b>Horarios:</b> {p.horarios}</Typography>
-                    <Typography variant="body2"><b>Servicios:</b> {p.servicios.join(', ')}</Typography>
-                  </CardContent>
-                </Card>
+      <Box sx={{ mt: 6, mb: 4, display: 'flex', justifyContent: 'center' }}>
+        <Box sx={{ width: '100%', maxWidth: 1100 }}>
+          <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, color: '#2B6CA3', textAlign: 'center', mb: 4 }}>
+            Mis Parqueaderos Reservados
+          </Typography>
+          <Grid container spacing={5} justifyContent="center">
+            {parqueaderosReservados.length === 0 ? (
+              <Grid item xs={12}>
+                <Typography variant="body2" color="text.secondary">
+                  No tienes parqueaderos reservados.
+                </Typography>
               </Grid>
-            ))
-          )}
-        </Grid>
+            ) : (
+              parqueaderosReservados.map((p) => (
+                <Grid item xs={12} sm={6} md={4} key={p.id} sx={{ display: 'flex', justifyContent: 'center' }}>
+                  <Card sx={{
+                    borderRadius: 3,
+                    boxShadow: '0 4px 24px rgba(43,108,163,0.10)',
+                    p: 0,
+                    bgcolor: '#fff',
+                    minHeight: 340,
+                    width: 320,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    gap: 2,
+                    transition: 'box-shadow 0.2s',
+                    '&:hover': { boxShadow: '0 8px 32px rgba(43,108,163,0.18)' }
+                  }}>
+                    <Box sx={{ mt: 4, mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <Box sx={{
+                        bgcolor: '#2B6CA3',
+                        borderRadius: 2,
+                        width: 64,
+                        height: 64,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        mb: 1
+                      }}>
+                        <LocalParkingIcon sx={{ fontSize: 38, color: '#fff' }} />
+                      </Box>
+                      <Typography variant="h6" sx={{ fontWeight: 700, textAlign: 'center' }}>{p.nombre}</Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                        <LocationOnIcon sx={{ fontSize: 18, mr: 0.5 }} /> {p.direccion}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ width: '90%', mb: 2 }}>
+                      <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                        <PhoneIcon sx={{ fontSize: 18, mr: 0.5, color: '#43a047' }} /> {p.telefono}
+                      </Typography>
+                      <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                        <EmailIcon sx={{ fontSize: 18, mr: 0.5, color: '#e53935' }} /> {p.email}
+                      </Typography>
+                      <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                        <PeopleIcon sx={{ fontSize: 18, mr: 0.5, color: '#fbc02d' }} /> Capacidad: {p.capacidad}
+                      </Typography>
+                      <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                        <AccessTimeIcon sx={{ fontSize: 18, mr: 0.5, color: '#1976d2' }} /> Horarios: {p.horarios}
+                      </Typography>
+                      <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <EventAvailableIcon sx={{ fontSize: 18, mr: 0.5, color: '#43a047' }} /> Servicios: {p.servicios.join(', ')}
+                      </Typography>
+                    </Box>
+                  </Card>
+                </Grid>
+              ))
+            )}
+          </Grid>
+        </Box>
       </Box>
     </Box>
   );
