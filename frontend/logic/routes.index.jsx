@@ -17,6 +17,7 @@ import Servicios from '../src/pages/Servicios';
 import UserTypeSelection from '../src/components/UserTypeSelection';
 import Inicio from '../src/pages/vehiculo/Inicio';
 import MisVehiculos from '../src/pages/vehiculo/MisVehiculos';
+import Reservas from '../src/pages/vehiculo/Reservas';
 import { useAuth } from './AuthContext';
 
 const VehiculoNoDisponible = () => (
@@ -69,7 +70,7 @@ const AppRoutes = () => {
           <Route index element={<Navigate to="/vehiculo/inicio" />} />
           <Route path="inicio" element={<Inicio />} />
           <Route path="mis-vehiculos" element={<MisVehiculos />} />
-          <Route path="reservas" element={<div>Reservas (En desarrollo)</div>} />
+          <Route path="reservas" element={<Reservas />} />
           <Route path="pagos" element={<div>Pagos (En desarrollo)</div>} />
           <Route path="perfil" element={<div>Perfil (En desarrollo)</div>} />
         </Route>

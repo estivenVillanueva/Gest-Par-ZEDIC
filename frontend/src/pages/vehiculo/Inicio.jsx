@@ -24,30 +24,25 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PeopleIcon from '@mui/icons-material/People';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import {
+  DashboardCard,
+  DashboardCardIcon,
+  DashboardCardTitle,
+  DashboardCardValue,
+  DashboardCardButton
+} from '../../styles/components/DashboardCard.styles';
 
-const StatCard = ({ title, value, icon, color }) => (
-  <Card sx={{ height: '100%' }}>
-    <CardContent>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        <Box
-          sx={{
-            backgroundColor: `${color}15`,
-            borderRadius: '12px',
-            p: 1,
-            mr: 2,
-          }}
-        >
-          {icon}
-        </Box>
-        <Typography variant="h6" component="div">
-          {title}
-        </Typography>
-      </Box>
-      <Typography variant="h4" component="div" sx={{ mb: 1 }}>
-        {value}
-      </Typography>
-    </CardContent>
-  </Card>
+const StatCard = ({ title, value, icon, button, onButtonClick }) => (
+  <DashboardCard>
+    <DashboardCardIcon>{icon}</DashboardCardIcon>
+    <DashboardCardTitle>{title}</DashboardCardTitle>
+    <DashboardCardValue>{value}</DashboardCardValue>
+    {button && (
+      <DashboardCardButton startIcon={button.icon} onClick={onButtonClick}>
+        {button.label}
+      </DashboardCardButton>
+    )}
+  </DashboardCard>
 );
 
 const mockParqueaderosDisponibles = [
@@ -96,62 +91,86 @@ const Inicio = () => {
   };
 
   return (
-    <Box>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Bienvenido a tu Dashboard
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Gestiona tus vehículos y reservas de parqueadero
-        </Typography>
-      </Box>
+    <Box sx={{
+      minHeight: '100vh',
+      bgcolor: '#f0f4fa',
+      py: { xs: 2, md: 6 },
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: { xs: 4, md: 7 },
+    }}>
+      {/* Cabecera Dashboard */}
+      <Paper elevation={3} sx={{
+        width: '100%',
+        maxWidth: 1200,
+        borderRadius: 4,
+        p: { xs: 2, sm: 4, md: 7 },
+        boxShadow: '0 8px 32px rgba(43,108,163,0.10)',
+        bgcolor: '#fff',
+        mb: 0,
+        position: 'relative',
+      }}>
+        <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 800, color: '#3498f3', mb: 1 }}>
+            ¡Hola, Usuario! Bienvenido a tu Dashboard
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+            Gestiona tus vehículos y reservas de parqueadero
+          </Typography>
+          <Box sx={{ width: '100%', borderBottom: '2px solid #e3eaf6', mb: 2 }} />
+        </Box>
+        <Grid container spacing={2} sx={{ mb: 0, justifyContent: 'center' }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <StatCard
+              title="Mis Vehículos"
+              value="2"
+              icon={<CarIcon />}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <StatCard
+              title="Reservas Activas"
+              value="1"
+              icon={<CalendarIcon />}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <StatCard
+              title="Pagos Pendientes"
+              value="$0"
+              icon={<PaymentIcon />}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <StatCard
+              title=""
+              value=""
+              icon={<AddIcon />}
+              button={{ label: 'Agregar Vehículo', icon: <AddIcon /> }}
+              onButtonClick={() => navigate('/vehiculo/mis-vehiculos')}
+            />
+          </Grid>
+        </Grid>
+      </Paper>
 
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Mis Vehículos"
-            value="2"
-            icon={<CarIcon sx={{ color: '#2B6CA3' }} />}
-            color="#2B6CA3"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Reservas Activas"
-            value="1"
-            icon={<CalendarIcon sx={{ color: '#4CAF50' }} />}
-            color="#4CAF50"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Pagos Pendientes"
-            value="$0"
-            icon={<PaymentIcon sx={{ color: '#FF9800' }} />}
-            color="#FF9800"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => navigate('/vehiculo/mis-vehiculos')}
-                sx={{ bgcolor: '#2B6CA3', '&:hover': { bgcolor: '#1e4d6e' } }}
-              >
-                Agregar Vehículo
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <Card>
+      {/* Próximas Reservas y Últimos Pagos */}
+      <Paper elevation={2} sx={{
+        width: '100%',
+        maxWidth: 1200,
+        borderRadius: 3,
+        p: { xs: 2, sm: 4, md: 5 },
+        boxShadow: '0 4px 16px rgba(52,152,243,0.08)',
+        bgcolor: '#fff',
+        display: 'flex',
+        flexDirection: { xs: 'column', md: 'row' },
+        gap: 3,
+        alignItems: 'stretch',
+      }}>
+        <Box flex={1}>
+          <Card sx={{ borderRadius: 4, boxShadow: '0 2px 12px rgba(52,152,243,0.06)' }}>
             <CardHeader
-              title="Próximas Reservas"
+              title={<Typography variant="h6">Próximas Reservas</Typography>}
               action={
                 <IconButton onClick={() => navigate('/vehiculo/reservas')}>
                   <CalendarIcon />
@@ -164,11 +183,11 @@ const Inicio = () => {
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Card>
+        </Box>
+        <Box flex={1}>
+          <Card sx={{ borderRadius: 4, boxShadow: '0 2px 12px rgba(52,152,243,0.06)' }}>
             <CardHeader
-              title="Últimos Pagos"
+              title={<Typography variant="h6">Últimos Pagos</Typography>}
               action={
                 <IconButton onClick={() => navigate('/vehiculo/pagos')}>
                   <PaymentIcon />
@@ -181,72 +200,81 @@ const Inicio = () => {
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
-      </Grid>
+        </Box>
+      </Paper>
 
-      {/* Sección: Parqueaderos Disponibles */}
-      <Box sx={{ mt: 6, mb: 4, display: 'flex', justifyContent: 'center' }}>
-        <Box sx={{ width: '100%', maxWidth: 1100 }}>
+      {/* Parqueaderos Disponibles */}
+      <Paper elevation={2} sx={{
+        width: '100%',
+        maxWidth: 1200,
+        borderRadius: 3,
+        p: { xs: 2, sm: 4, md: 5 },
+        boxShadow: '0 4px 16px rgba(52,152,243,0.08)',
+        bgcolor: '#fff',
+      }}>
+        <Box sx={{ mb: 2 }}>
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, color: '#2B6CA3', textAlign: 'center', mb: 4 }}>
             Parqueaderos Disponibles para Reservar
           </Typography>
-          <Grid container spacing={5} justifyContent="center">
+          <Grid container spacing={{ xs: 3, md: 5 }} justifyContent="center" alignItems="stretch">
             {parqueaderosDisponibles.map((p) => (
-              <Grid item xs={12} sm={6} md={4} key={p.id} sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Grid item xs={12} sm={8} md={5} lg={4} key={p.id} sx={{ display: 'flex', justifyContent: 'center' }}>
                 <Card sx={{
                   borderRadius: 3,
-                  boxShadow: '0 4px 24px rgba(43,108,163,0.10)',
-                  p: 0,
+                  boxShadow: '0 8px 32px rgba(52,152,243,0.10)',
                   bgcolor: '#fff',
                   minHeight: 340,
-                  width: 320,
+                  width: 340,
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'flex-start',
                   gap: 2,
-                  transition: 'box-shadow 0.2s',
-                  '&:hover': { boxShadow: '0 8px 32px rgba(43,108,163,0.18)' }
+                  p: 3,
+                  mb: 2,
+                  transition: 'box-shadow 0.25s, transform 0.18s',
+                  '&:hover': { boxShadow: '0 16px 48px rgba(52,152,243,0.18)', transform: 'translateY(-4px) scale(1.02)' }
                 }}>
-                  <Box sx={{ mt: 4, mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <Box sx={{ mt: 1, mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <Box sx={{
-                      bgcolor: '#2B6CA3',
-                      borderRadius: 2,
-                      width: 64,
-                      height: 64,
+                      background: 'linear-gradient(135deg, #3498f3 0%, #6ec1ff 100%)',
+                      borderRadius: '50%',
+                      width: 60,
+                      height: 60,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      mb: 1
+                      mb: 1,
+                      boxShadow: '0 2px 8px rgba(52,152,243,0.10)'
                     }}>
-                      <LocalParkingIcon sx={{ fontSize: 38, color: '#fff' }} />
+                      <LocalParkingIcon sx={{ fontSize: 34, color: '#fff' }} />
                     </Box>
-                    <Typography variant="h6" sx={{ fontWeight: 700, textAlign: 'center' }}>{p.nombre}</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 700, textAlign: 'center', mb: 0.5 }}>{p.nombre}</Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                      <LocationOnIcon sx={{ fontSize: 18, mr: 0.5 }} /> {p.direccion}
+                      <LocationOnIcon sx={{ fontSize: 16, mr: 0.5 }} /> {p.direccion}
                     </Typography>
                   </Box>
-                  <Box sx={{ width: '90%', mb: 2 }}>
+                  <Box sx={{ width: '100%', mb: 2 }}>
                     <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                      <PhoneIcon sx={{ fontSize: 18, mr: 0.5, color: '#43a047' }} /> {p.telefono}
+                      <PhoneIcon sx={{ fontSize: 16, mr: 0.5, color: '#43a047' }} /> {p.telefono}
                     </Typography>
                     <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                      <EmailIcon sx={{ fontSize: 18, mr: 0.5, color: '#e53935' }} /> {p.email}
+                      <EmailIcon sx={{ fontSize: 16, mr: 0.5, color: '#e53935' }} /> {p.email}
                     </Typography>
                     <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                      <PeopleIcon sx={{ fontSize: 18, mr: 0.5, color: '#fbc02d' }} /> Capacidad: {p.capacidad}
+                      <PeopleIcon sx={{ fontSize: 16, mr: 0.5, color: '#fbc02d' }} /> Capacidad: {p.capacidad}
                     </Typography>
                     <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                      <AccessTimeIcon sx={{ fontSize: 18, mr: 0.5, color: '#1976d2' }} /> Horarios: {p.horarios}
+                      <AccessTimeIcon sx={{ fontSize: 16, mr: 0.5, color: '#1976d2' }} /> Horarios: {p.horarios}
                     </Typography>
                     <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <EventAvailableIcon sx={{ fontSize: 18, mr: 0.5, color: '#43a047' }} /> Servicios: {p.servicios.join(', ')}
+                      <EventAvailableIcon sx={{ fontSize: 16, mr: 0.5, color: '#43a047' }} /> Servicios: {p.servicios.join(', ')}
                     </Typography>
                   </Box>
                   <Button
                     variant="contained"
                     startIcon={<EventAvailableIcon />}
-                    sx={{ mb: 3, bgcolor: '#2B6CA3', borderRadius: 2, fontWeight: 600, width: '85%', '&:hover': { bgcolor: '#1976d2' } }}
+                    sx={{ mb: 1, borderRadius: 5, fontWeight: 600, width: '100%', bgcolor: '#3498f3', '&:hover': { bgcolor: '#2176bd' } }}
                     onClick={() => handleReservar(p)}
                   >
                     Reservar
@@ -256,15 +284,22 @@ const Inicio = () => {
             ))}
           </Grid>
         </Box>
-      </Box>
+      </Paper>
 
-      {/* Sección: Parqueaderos Reservados */}
-      <Box sx={{ mt: 6, mb: 4, display: 'flex', justifyContent: 'center' }}>
-        <Box sx={{ width: '100%', maxWidth: 1100 }}>
+      {/* Parqueaderos Reservados */}
+      <Paper elevation={2} sx={{
+        width: '100%',
+        maxWidth: 1200,
+        borderRadius: 3,
+        p: { xs: 2, sm: 4, md: 5 },
+        boxShadow: '0 4px 16px rgba(52,152,243,0.08)',
+        bgcolor: '#fff',
+      }}>
+        <Box sx={{ mb: 2 }}>
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, color: '#2B6CA3', textAlign: 'center', mb: 4 }}>
             Mis Parqueaderos Reservados
           </Typography>
-          <Grid container spacing={5} justifyContent="center">
+          <Grid container spacing={{ xs: 3, md: 5 }} justifyContent="center" alignItems="stretch">
             {parqueaderosReservados.length === 0 ? (
               <Grid item xs={12}>
                 <Typography variant="body2" color="text.secondary">
@@ -273,55 +308,57 @@ const Inicio = () => {
               </Grid>
             ) : (
               parqueaderosReservados.map((p) => (
-                <Grid item xs={12} sm={6} md={4} key={p.id} sx={{ display: 'flex', justifyContent: 'center' }}>
+                <Grid item xs={12} sm={8} md={5} lg={4} key={p.id} sx={{ display: 'flex', justifyContent: 'center' }}>
                   <Card sx={{
                     borderRadius: 3,
-                    boxShadow: '0 4px 24px rgba(43,108,163,0.10)',
-                    p: 0,
+                    boxShadow: '0 8px 32px rgba(52,152,243,0.10)',
                     bgcolor: '#fff',
                     minHeight: 340,
-                    width: 320,
+                    width: 340,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'flex-start',
                     gap: 2,
-                    transition: 'box-shadow 0.2s',
-                    '&:hover': { boxShadow: '0 8px 32px rgba(43,108,163,0.18)' }
+                    p: 3,
+                    mb: 2,
+                    transition: 'box-shadow 0.25s, transform 0.18s',
+                    '&:hover': { boxShadow: '0 16px 48px rgba(52,152,243,0.18)', transform: 'translateY(-4px) scale(1.02)' }
                   }}>
-                    <Box sx={{ mt: 4, mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <Box sx={{ mt: 1, mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                       <Box sx={{
-                        bgcolor: '#2B6CA3',
-                        borderRadius: 2,
-                        width: 64,
-                        height: 64,
+                        background: 'linear-gradient(135deg, #3498f3 0%, #6ec1ff 100%)',
+                        borderRadius: '50%',
+                        width: 60,
+                        height: 60,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        mb: 1
+                        mb: 1,
+                        boxShadow: '0 2px 8px rgba(52,152,243,0.10)'
                       }}>
-                        <LocalParkingIcon sx={{ fontSize: 38, color: '#fff' }} />
+                        <LocalParkingIcon sx={{ fontSize: 34, color: '#fff' }} />
                       </Box>
-                      <Typography variant="h6" sx={{ fontWeight: 700, textAlign: 'center' }}>{p.nombre}</Typography>
+                      <Typography variant="h6" sx={{ fontWeight: 700, textAlign: 'center', mb: 0.5 }}>{p.nombre}</Typography>
                       <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                        <LocationOnIcon sx={{ fontSize: 18, mr: 0.5 }} /> {p.direccion}
+                        <LocationOnIcon sx={{ fontSize: 16, mr: 0.5 }} /> {p.direccion}
                       </Typography>
                     </Box>
-                    <Box sx={{ width: '90%', mb: 2 }}>
+                    <Box sx={{ width: '100%', mb: 2 }}>
                       <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                        <PhoneIcon sx={{ fontSize: 18, mr: 0.5, color: '#43a047' }} /> {p.telefono}
+                        <PhoneIcon sx={{ fontSize: 16, mr: 0.5, color: '#43a047' }} /> {p.telefono}
                       </Typography>
                       <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                        <EmailIcon sx={{ fontSize: 18, mr: 0.5, color: '#e53935' }} /> {p.email}
+                        <EmailIcon sx={{ fontSize: 16, mr: 0.5, color: '#e53935' }} /> {p.email}
                       </Typography>
                       <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                        <PeopleIcon sx={{ fontSize: 18, mr: 0.5, color: '#fbc02d' }} /> Capacidad: {p.capacidad}
+                        <PeopleIcon sx={{ fontSize: 16, mr: 0.5, color: '#fbc02d' }} /> Capacidad: {p.capacidad}
                       </Typography>
                       <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                        <AccessTimeIcon sx={{ fontSize: 18, mr: 0.5, color: '#1976d2' }} /> Horarios: {p.horarios}
+                        <AccessTimeIcon sx={{ fontSize: 16, mr: 0.5, color: '#1976d2' }} /> Horarios: {p.horarios}
                       </Typography>
                       <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <EventAvailableIcon sx={{ fontSize: 18, mr: 0.5, color: '#43a047' }} /> Servicios: {p.servicios.join(', ')}
+                        <EventAvailableIcon sx={{ fontSize: 16, mr: 0.5, color: '#43a047' }} /> Servicios: {p.servicios.join(', ')}
                       </Typography>
                     </Box>
                   </Card>
@@ -330,7 +367,7 @@ const Inicio = () => {
             )}
           </Grid>
         </Box>
-      </Box>
+      </Paper>
     </Box>
   );
 };

@@ -16,6 +16,7 @@ import {
   Avatar,
   Tooltip,
   Divider,
+  Paper,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -40,33 +41,33 @@ const MOCK_VEHICULOS = [
 ];
 
 const VehiculoCard = ({ vehiculo, onVer, onEditar, onEliminar }) => (
-  <Card sx={{ mb: 2 }}>
-    <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-      <Avatar sx={{ bgcolor: '#2B6CA3', width: 56, height: 56 }}>
+  <Card sx={{ mb: 2, borderRadius: 3, boxShadow: '0 2px 12px rgba(52,152,243,0.10)', p: 1, display: 'flex', alignItems: 'center', transition: 'box-shadow 0.18s', '&:hover': { boxShadow: '0 8px 32px rgba(52,152,243,0.18)' } }}>
+    <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 0, flex: 1 }}>
+      <Avatar sx={{ background: 'linear-gradient(135deg, #3498f3 0%, #6ec1ff 100%)', width: 54, height: 54, color: '#fff', fontSize: 32, boxShadow: '0 2px 8px rgba(52,152,243,0.10)' }}>
         <DirectionsCarIcon sx={{ fontSize: 32 }} />
       </Avatar>
       <Box sx={{ flexGrow: 1 }}>
-        <Typography variant="h6">{vehiculo.placa}</Typography>
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>{vehiculo.placa}</Typography>
         <Typography variant="body2" color="text.secondary">{vehiculo.tipoVehiculo} - {vehiculo.color} - {vehiculo.modelo}</Typography>
       </Box>
-      <CardActions>
-        <Tooltip title="Ver información">
-          <IconButton onClick={() => onVer(vehiculo)} color="primary">
-            <DirectionsCarIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Editar">
-          <IconButton onClick={() => onEditar(vehiculo)} color="secondary">
-            <EditIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Eliminar">
-          <IconButton onClick={() => onEliminar(vehiculo)} color="error">
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      </CardActions>
     </CardContent>
+    <CardActions sx={{ gap: 1 }}>
+      <Tooltip title="Ver información">
+        <IconButton onClick={() => onVer(vehiculo)} color="primary">
+          <DirectionsCarIcon />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Editar">
+        <IconButton onClick={() => onEditar(vehiculo)} color="secondary">
+          <EditIcon />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Eliminar">
+        <IconButton onClick={() => onEliminar(vehiculo)} color="error">
+          <DeleteIcon />
+        </IconButton>
+      </Tooltip>
+    </CardActions>
   </Card>
 );
 
@@ -136,10 +137,33 @@ const FormularioVehiculo = ({ open, onClose, onGuardar, initialData }) => {
   );
 };
 
+const InfoVehiculoDialog = ({ open, onClose, vehiculo }) => (
+  <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+    <DialogTitle sx={{ fontWeight: 700, color: '#3498f3', textAlign: 'center' }}>Información del Vehículo</DialogTitle>
+    <DialogContent dividers>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, py: 1 }}>
+        <Avatar sx={{ background: 'linear-gradient(135deg, #3498f3 0%, #6ec1ff 100%)', width: 60, height: 60, color: '#fff', mb: 1 }}>
+          <DirectionsCarIcon sx={{ fontSize: 36 }} />
+        </Avatar>
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>{vehiculo?.placa}</Typography>
+        <Box sx={{ width: '100%', mt: 1 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}><b>Tipo:</b> {vehiculo?.tipoVehiculo}</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}><b>Color:</b> {vehiculo?.color}</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}><b>Modelo:</b> {vehiculo?.modelo}</Typography>
+        </Box>
+      </Box>
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={onClose} variant="contained" sx={{ bgcolor: '#3498f3', '&:hover': { bgcolor: '#2176bd' } }}>Cerrar</Button>
+    </DialogActions>
+  </Dialog>
+);
+
 const MisVehiculos = () => {
   const [vehiculos, setVehiculos] = useState(MOCK_VEHICULOS);
   const [openForm, setOpenForm] = useState(false);
   const [editData, setEditData] = useState(null);
+  const [infoVehiculo, setInfoVehiculo] = useState(null);
 
   const handleAgregar = () => {
     setEditData(null);
@@ -167,50 +191,48 @@ const MisVehiculos = () => {
   };
 
   const handleVer = (vehiculo) => {
-    alert(`Información del vehículo:\nPlaca: ${vehiculo.placa}\nTipo: ${vehiculo.tipoVehiculo}\nColor: ${vehiculo.color}\nModelo: ${vehiculo.modelo}`);
+    setInfoVehiculo(vehiculo);
   };
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={6}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 2 }}>
-            <Typography variant="h5" sx={{ flexGrow: 1 }}>Tus Vehículos</Typography>
-            <Button variant="contained" startIcon={<AddIcon />} onClick={handleAgregar}>
-              Agregar
-            </Button>
-          </Box>
-          {vehiculos.map((vehiculo) => (
-            <VehiculoCard
-              key={vehiculo.id}
-              vehiculo={vehiculo}
-              onVer={handleVer}
-              onEditar={handleEditar}
-              onEliminar={handleEliminar}
-            />
-          ))}
+    <Box sx={{ bgcolor: '#f0f4fa', minHeight: '100vh', py: 6, display: 'flex', justifyContent: 'center' }}>
+      <Paper elevation={3} sx={{ width: '100%', maxWidth: 1100, borderRadius: 4, p: { xs: 2, sm: 4, md: 6 }, boxShadow: '0 8px 32px rgba(43,108,163,0.10)', bgcolor: '#fff' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, justifyContent: 'space-between' }}>
+          <Typography variant="h4" sx={{ fontWeight: 800, color: '#3498f3' }}>Tus Vehículos</Typography>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={handleAgregar} sx={{ borderRadius: 3, fontWeight: 600, bgcolor: '#3498f3', '&:hover': { bgcolor: '#2176bd' } }}>
+            Agregar Vehículo
+          </Button>
+        </Box>
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={7}>
+            {vehiculos.map((vehiculo) => (
+              <VehiculoCard
+                key={vehiculo.id}
+                vehiculo={vehiculo}
+                onVer={handleVer}
+                onEditar={handleEditar}
+                onEliminar={handleEliminar}
+              />
+            ))}
+          </Grid>
+          <Grid item xs={12} md={5}>
+            <Box sx={{ p: 3, bgcolor: 'white', borderRadius: 3, boxShadow: 1 }}>
+              <Typography variant="h6" gutterBottom>Registrar/Editar Vehículo</Typography>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Completa el formulario para agregar o editar un vehículo.
+              </Typography>
+              <Divider sx={{ my: 2 }} />
+              <FormularioVehiculo
+                open={openForm}
+                onClose={() => setOpenForm(false)}
+                onGuardar={handleGuardar}
+                initialData={editData}
+              />
+            </Box>
+          </Grid>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <Box sx={{ p: 3, bgcolor: 'white', borderRadius: 2, boxShadow: 1 }}>
-            <Typography variant="h6" gutterBottom>Registrar/Editar Vehículo</Typography>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
-              Completa el formulario para agregar o editar un vehículo.
-            </Typography>
-            <Divider sx={{ my: 2 }} />
-            <FormularioVehiculo
-              open={openForm}
-              onClose={() => setOpenForm(false)}
-              onGuardar={handleGuardar}
-              initialData={editData}
-            />
-          </Box>
-        </Grid>
-      </Grid>
-      {/* Información de la empresa y contacto en la parte inferior */}
-      <Box sx={{ mt: 6, textAlign: 'center', color: 'text.secondary' }}>
-        <Divider sx={{ mb: 2 }} />
-        <Typography variant="body2">Gest-Par ZEDIC | Contacto: info@parqueaderos.com | Bogotá, Colombia</Typography>
-      </Box>
+        <InfoVehiculoDialog open={!!infoVehiculo} onClose={() => setInfoVehiculo(null)} vehiculo={infoVehiculo} />
+      </Paper>
     </Box>
   );
 };
