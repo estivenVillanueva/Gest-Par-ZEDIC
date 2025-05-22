@@ -82,6 +82,7 @@ const OwnerProfile = () => {
       const updated = {
         nombre: editField === 'nombre' ? editValue : profile.nombre,
         correo: editField === 'correo' ? editValue : profile.correo,
+        tipo_usuario: profile.tipo_usuario,
         ubicacion: editField === 'ubicacion' ? editValue : profile.ubicacion,
         telefono: editField === 'telefono' ? (editValue || '') : (profile.telefono || ''),
       };
