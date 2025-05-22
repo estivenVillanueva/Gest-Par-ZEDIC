@@ -140,7 +140,7 @@ const OwnerProfile = () => {
       if (!res.ok) throw new Error('Error al eliminar cuenta');
       setSnackbar({ open: true, message: 'Cuenta eliminada', severity: 'success' });
       await logout();
-      window.location.href = '/acceder';
+      window.location.href = '/';
     } catch (err) {
       setSnackbar({ open: true, message: 'Error al eliminar cuenta', severity: 'error' });
     }
