@@ -52,6 +52,9 @@ const InfoItem = ({ icon, title, value, onEdit }) => (
   </Box>
 );
 
+const PARQUEADERO_API_URL = 'https://gest-par-zedic.onrender.com/parqueaderos'; // URL real del backend
+const PARQUEADERO_ID = 1; // Cambia esto por el ID real o dinámico
+
 const ParqueaderoProfile = () => {
   const navigate = useNavigate();
   const [openEdit, setOpenEdit] = useState(false);
@@ -83,35 +86,10 @@ const ParqueaderoProfile = () => {
   useEffect(() => {
     const cargarDatosParqueadero = async () => {
       try {
-        const datosSimulados = {
-          nombre: 'Mi Parqueadero',
-          direccion: 'Calle Principal #123',
-          capacidad: '50 vehículos',
-          horarios: 'Lunes a Domingo 24/7',
-          telefono: '+1234567890',
-          email: 'contacto@parqueadero.com',
-          descripcion: 'Ofrecemos servicios de parqueadero seguros y confiables para todo tipo de vehículos. Contamos con vigilancia 24/7 y personal capacitado.',
-          servicios: [
-            { tipo: 'Por hora', tarifa: '$5.000' },
-            { tipo: 'Mensual', tarifa: '$150.000' },
-            { tipo: 'Quincenal', tarifa: '$80.000' }
-          ],
-          beneficios: [
-            'Eficiencia en la gestión del parqueadero',
-            'Precisión en el control de vehículos',
-            'Alta satisfacción del cliente'
-          ],
-          administrador: {
-            nombre: 'Juan Pérez',
-            cargo: 'Administrador Principal',
-            identificacion: '1234567890',
-            telefono: '+1234567891',
-            email: 'juan.perez@parqueadero.com',
-            experiencia: '5 años en gestión de parqueaderos',
-            fechaInicio: '01/01/2020'
-          }
-        };
-        setParqueaderoInfo(datosSimulados);
+        const response = await fetch(`${PARQUEADERO_API_URL}/${PARQUEADERO_ID}`);
+        if (!response.ok) throw new Error('Error al obtener datos');
+        const data = await response.json();
+        setParqueaderoInfo(data.data);
       } catch (error) {
         setSnackbar({
           open: true,
@@ -120,7 +98,6 @@ const ParqueaderoProfile = () => {
         });
       }
     };
-
     cargarDatosParqueadero();
   }, []);
 
@@ -132,23 +109,15 @@ const ParqueaderoProfile = () => {
 
   const handleSave = async () => {
     try {
-      // Aquí se enviarían los cambios al backend
-      if (editField.includes('administrador.')) {
-        const field = editField.split('.')[1];
-        setParqueaderoInfo(prev => ({
-          ...prev,
-          administrador: {
-            ...prev.administrador,
-            [field]: editValue
-          }
-        }));
-      } else {
-        setParqueaderoInfo(prev => ({
-          ...prev,
-          [editField]: editValue
-        }));
-      }
-      
+      const updatedData = { ...parqueaderoInfo, [editField]: editValue };
+      const response = await fetch(`${PARQUEADERO_API_URL}/${PARQUEADERO_ID}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedData)
+      });
+      if (!response.ok) throw new Error('Error al actualizar');
+      const data = await response.json();
+      setParqueaderoInfo(data.data);
       setSnackbar({
         open: true,
         message: 'Cambios guardados exitosamente',
