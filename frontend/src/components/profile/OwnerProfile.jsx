@@ -83,7 +83,7 @@ const OwnerProfile = () => {
         nombre: editField === 'nombre' ? editValue : profile.nombre,
         correo: editField === 'correo' ? editValue : profile.correo,
         ubicacion: editField === 'ubicacion' ? editValue : profile.ubicacion,
-        telefono: editField === 'telefono' ? editValue : profile.telefono,
+        telefono: editField === 'telefono' ? (editValue || '') : (profile.telefono || ''),
       };
       const res = await fetch(`${API_URL}/api/usuarios/${profile.id}`, {
         method: 'PUT',
