@@ -118,7 +118,7 @@ router.delete('/:id', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
     try {
-        console.log('Datos recibidos en login:', req.body); // Log de depuración
+        console.log('Dato recibido en login:', req.body); // Log de depuración
         const { correo, password, contrasena } = req.body;
         const pass = password || contrasena;
         const usuario = await usuarioQueries.verifyCredentials(correo, pass);
