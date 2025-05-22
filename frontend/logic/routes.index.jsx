@@ -19,6 +19,7 @@ import Inicio from '../src/pages/vehiculo/Inicio';
 import MisVehiculos from '../src/pages/vehiculo/MisVehiculos';
 import Reservas from '../src/pages/vehiculo/Reservas';
 import { useAuth } from './AuthContext';
+import OwnerProfile from '../src/components/profile/OwnerProfile';
 
 const VehiculoNoDisponible = () => (
   <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -72,7 +73,7 @@ const AppRoutes = () => {
           <Route path="mis-vehiculos" element={<MisVehiculos />} />
           <Route path="reservas" element={<Reservas />} />
           <Route path="pagos" element={<div>Pagos (En desarrollo)</div>} />
-          <Route path="perfil" element={<div>Perfil (En desarrollo)</div>} />
+          <Route path="perfil" element={<OwnerProfile />} />
         </Route>
       </Route>
 
