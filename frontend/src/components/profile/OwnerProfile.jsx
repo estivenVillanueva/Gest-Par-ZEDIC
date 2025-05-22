@@ -41,7 +41,7 @@ const estadosCuenta = [
 const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
 
 const OwnerProfile = () => {
-  const { currentUser, setError } = useAuth();
+  const { currentUser, setError, logout } = useAuth();
   const [profile, setProfile] = useState(null);
   const [editField, setEditField] = useState(null);
   const [editValue, setEditValue] = useState('');
@@ -130,11 +130,20 @@ const OwnerProfile = () => {
     // TODO: Llamar API para cambiar contraseña
   };
 
-  // Eliminar cuenta (placeholder, requiere endpoint real)
-  const handleDeleteAccount = () => {
+  // Eliminar cuenta
+  const handleDeleteAccount = async () => {
     setOpenDelete(false);
-    setSnackbar({ open: true, message: 'Cuenta eliminada', severity: 'success' });
-    // TODO: Llamar API para eliminar cuenta
+    try {
+      const res = await fetch(`${API_URL}/api/usuarios/${profile.id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Error al eliminar cuenta');
+      setSnackbar({ open: true, message: 'Cuenta eliminada', severity: 'success' });
+      await logout();
+      window.location.href = '/acceder';
+    } catch (err) {
+      setSnackbar({ open: true, message: 'Error al eliminar cuenta', severity: 'error' });
+    }
   };
 
   if (!profile) {
