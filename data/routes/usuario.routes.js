@@ -71,6 +71,7 @@ router.post('/', async (req, res) => {
 // Actualizar usuario
 router.put('/:id', async (req, res) => {
     try {
+        console.log('Datos recibidos para actualizar:', req.body); // <-- Log para depuración
         const usuarioActualizado = await usuarioQueries.updateUsuario(req.params.id, req.body);
         if (!usuarioActualizado) {
             return res.status(404).json({

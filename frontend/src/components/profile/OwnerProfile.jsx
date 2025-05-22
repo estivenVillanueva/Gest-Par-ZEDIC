@@ -30,7 +30,7 @@ const fields = [
   { key: 'nombre', label: 'Nombre' },
   { key: 'correo', label: 'Correo' },
   { key: 'telefono', label: 'Teléfono' },
-  { key: 'direccion', label: 'Dirección' }
+  { key: 'ubicacion', label: 'Ubicación' }
 ];
 
 const estadosCuenta = [
@@ -78,7 +78,13 @@ const OwnerProfile = () => {
   // Guardar edición
   const handleSaveEdit = async () => {
     try {
-      const updated = { ...profile, [editField]: editValue };
+      // Solo los campos permitidos
+      const updated = {
+        nombre: editField === 'nombre' ? editValue : profile.nombre,
+        correo: editField === 'correo' ? editValue : profile.correo,
+        ubicacion: editField === 'ubicacion' ? editValue : profile.ubicacion,
+        telefono: editField === 'telefono' ? editValue : profile.telefono,
+      };
       const res = await fetch(`${API_URL}/api/usuarios/${profile.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
