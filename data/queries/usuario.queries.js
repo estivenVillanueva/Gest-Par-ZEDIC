@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 
 export const usuarioQueries = {
     // Crear un nuevo usuario
-    async createUsuario({ nombre, email, password, ubicacion, tipoUsuario, tipo_usuario }) {
+    async createUsuario({ nombre, email, password, ubicacion, tipoUsuario, tipo_usuario, telefono }) {
         console.log('Password recibido para hash:', password); // Log de depuración
         if (!password) {
             throw new Error('El campo password es requerido');
@@ -15,11 +15,11 @@ export const usuarioQueries = {
         const tipo = tipo_usuario || tipoUsuario;
 
         const query = `
-            INSERT INTO usuarios (nombre, correo, password, ubicacion, tipo_usuario)
-            VALUES ($1, $2, $3, $4, $5)
+            INSERT INTO usuarios (nombre, correo, password, ubicacion, tipo_usuario, telefono)
+            VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *
         `;
-        const values = [nombre, email, hashedPassword, ubicacion, tipo];
+        const values = [nombre, email, hashedPassword, ubicacion, tipo, telefono];
         const result = await pool.query(query, values);
         return result.rows[0];
     },
@@ -39,14 +39,14 @@ export const usuarioQueries = {
     },
 
     // Actualizar usuario
-    async updateUsuario(id, { nombre, email, ubicacion }) {
+    async updateUsuario(id, { nombre, email, ubicacion, telefono }) {
         const query = `
             UPDATE usuarios
-            SET nombre = $1, correo = $2, ubicacion = $3
-            WHERE id = $4
+            SET nombre = $1, correo = $2, ubicacion = $3, telefono = $4
+            WHERE id = $5
             RETURNING *
         `;
-        const values = [nombre, email, ubicacion, id];
+        const values = [nombre, email, ubicacion, telefono, id];
         const result = await pool.query(query, values);
         return result.rows[0];
     },

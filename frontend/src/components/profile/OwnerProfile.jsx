@@ -24,6 +24,7 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import LockIcon from '@mui/icons-material/Lock';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useTheme } from '@mui/material/styles';
+import { useAuth } from '../../../logic/AuthContext';
 
 const fields = [
   { key: 'nombre', label: 'Nombre' },
@@ -37,20 +38,11 @@ const estadosCuenta = [
   { value: 'Inactivo', label: 'Inactivo' }
 ];
 
+const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
+
 const OwnerProfile = () => {
-  const [profile, setProfile] = useState({
-    nombre: '',
-    correo: '',
-    telefono: '',
-    direccion: '',
-    rol: 'Dueño de Vehículo',
-    estado: 'Activo',
-    fechaRegistro: '2023-10-01',
-    ultimaActividad: '2024-06-10 14:23',
-    vehiculos: 2,
-    reservas: 5,
-    pagos: 4
-  });
+  const { currentUser, setError } = useAuth();
+  const [profile, setProfile] = useState(null);
   const [editField, setEditField] = useState(null);
   const [editValue, setEditValue] = useState('');
   const [openEdit, setOpenEdit] = useState(false);
@@ -61,37 +53,66 @@ const OwnerProfile = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
+  // Cargar datos reales del usuario
   useEffect(() => {
-    // TODO: Reemplazar por llamada real a la API
-    setProfile(prev => ({
-      ...prev,
-      nombre: 'Juan Pérez',
-      correo: 'juan@email.com',
-      telefono: '123456789',
-      direccion: 'Calle 123',
-      rol: 'Dueño de Vehículo',
-      estado: 'Activo',
-      fechaRegistro: '2023-10-01',
-      ultimaActividad: '2024-06-10 14:23',
-      vehiculos: 2,
-      reservas: 5,
-      pagos: 4
-    }));
-  }, []);
+    const fetchProfile = async () => {
+      if (!currentUser) return;
+      try {
+        const res = await fetch(`${API_URL}/api/usuarios/${currentUser.data?.id || currentUser.id}`);
+        const data = await res.json();
+        setProfile(data.data);
+      } catch (err) {
+        setError('No se pudo cargar el perfil');
+      }
+    };
+    fetchProfile();
+  }, [currentUser, setError]);
 
+  // Editar campo
   const handleEdit = (field) => {
     setEditField(field.key);
-    setEditValue(profile[field.key]);
+    setEditValue(profile[field.key] || '');
     setOpenEdit(true);
   };
 
-  const handleSaveEdit = () => {
-    setProfile(prev => ({ ...prev, [editField]: editValue }));
-    setOpenEdit(false);
-    setSnackbar({ open: true, message: 'Campo actualizado', severity: 'success' });
-    // TODO: Llamar API para actualizar
+  // Guardar edición
+  const handleSaveEdit = async () => {
+    try {
+      const updated = { ...profile, [editField]: editValue };
+      const res = await fetch(`${API_URL}/api/usuarios/${profile.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated)
+      });
+      if (!res.ok) throw new Error('Error al actualizar');
+      const data = await res.json();
+      setProfile(data.data);
+      setSnackbar({ open: true, message: 'Campo actualizado', severity: 'success' });
+      setOpenEdit(false);
+    } catch (err) {
+      setSnackbar({ open: true, message: 'Error al actualizar', severity: 'error' });
+    }
   };
 
+  // Cambiar estado
+  const handleEstadoChange = async (e) => {
+    try {
+      const updated = { ...profile, estado: e.target.value };
+      const res = await fetch(`${API_URL}/api/usuarios/${profile.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated)
+      });
+      if (!res.ok) throw new Error('Error al actualizar estado');
+      const data = await res.json();
+      setProfile(data.data);
+      setSnackbar({ open: true, message: 'Estado de la cuenta actualizado', severity: 'success' });
+    } catch (err) {
+      setSnackbar({ open: true, message: 'Error al actualizar estado', severity: 'error' });
+    }
+  };
+
+  // Cambiar contraseña (placeholder, requiere endpoint real)
   const handlePasswordChange = () => {
     if (passwords.new !== passwords.confirm) {
       setSnackbar({ open: true, message: 'Las contraseñas no coinciden', severity: 'error' });
@@ -102,16 +123,16 @@ const OwnerProfile = () => {
     // TODO: Llamar API para cambiar contraseña
   };
 
+  // Eliminar cuenta (placeholder, requiere endpoint real)
   const handleDeleteAccount = () => {
     setOpenDelete(false);
     setSnackbar({ open: true, message: 'Cuenta eliminada', severity: 'success' });
     // TODO: Llamar API para eliminar cuenta
   };
 
-  const handleEstadoChange = (e) => {
-    setProfile(prev => ({ ...prev, estado: e.target.value }));
-    setSnackbar({ open: true, message: 'Estado de la cuenta actualizado', severity: 'success' });
-  };
+  if (!profile) {
+    return <Box sx={{ p: 6, textAlign: 'center' }}><Typography>Cargando perfil...</Typography></Box>;
+  }
 
   return (
     <Box
@@ -144,9 +165,9 @@ const OwnerProfile = () => {
             <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 1 }}>
               {profile.correo}
             </Typography>
-            <Chip label={profile.rol} color="primary" sx={{ mr: 1 }} />
+            <Chip label={profile.rol || 'Dueño de Vehículo'} color="primary" sx={{ mr: 1 }} />
             <Select
-              value={profile.estado}
+              value={profile.estado || 'Activo'}
               onChange={handleEstadoChange}
               size="small"
               sx={{
@@ -168,10 +189,10 @@ const OwnerProfile = () => {
           </Box>
           <Box sx={{ mt: isMobile ? 2 : 0, textAlign: isMobile ? 'left' : 'right' }}>
             <Typography variant="body2" color="text.secondary">
-              Fecha de registro: <b>{profile.fechaRegistro}</b>
+              Fecha de registro: <b>{profile.created_at ? profile.created_at.split('T')[0] : ''}</b>
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Última actividad: <b>{profile.ultimaActividad}</b>
+              Última actividad: <b>{profile.updated_at ? profile.updated_at.split('T')[0] : ''}</b>
             </Typography>
           </Box>
         </Box>
@@ -188,7 +209,7 @@ const OwnerProfile = () => {
                   {field.label}:
                 </Typography>
                 <TextField
-                  value={profile[field.key]}
+                  value={profile[field.key] || ''}
                   variant="standard"
                   size="small"
                   fullWidth
@@ -240,15 +261,15 @@ const OwnerProfile = () => {
             </Typography>
             <Box sx={{ display: 'flex', gap: 3, mb: 3, flexWrap: 'wrap' }}>
               <Box sx={{ textAlign: 'center', flex: 1 }}>
-                <Typography variant="h4" fontWeight={700} color="primary.main">{profile.vehiculos}</Typography>
+                <Typography variant="h4" fontWeight={700} color="primary.main">{profile.vehiculos || 0}</Typography>
                 <Typography variant="body2" color="text.secondary">Vehículos</Typography>
               </Box>
               <Box sx={{ textAlign: 'center', flex: 1 }}>
-                <Typography variant="h4" fontWeight={700} color="primary.main">{profile.reservas}</Typography>
+                <Typography variant="h4" fontWeight={700} color="primary.main">{profile.reservas || 0}</Typography>
                 <Typography variant="body2" color="text.secondary">Reservas</Typography>
               </Box>
               <Box sx={{ textAlign: 'center', flex: 1 }}>
-                <Typography variant="h4" fontWeight={700} color="primary.main">{profile.pagos}</Typography>
+                <Typography variant="h4" fontWeight={700} color="primary.main">{profile.pagos || 0}</Typography>
                 <Typography variant="body2" color="text.secondary">Pagos</Typography>
               </Box>
             </Box>
@@ -264,7 +285,7 @@ const OwnerProfile = () => {
               </Typography>
             </Box>
             <Typography variant="caption" color="text.disabled">
-              Última actualización del perfil: {profile.ultimaActividad}
+              Última actualización del perfil: {profile.updated_at ? profile.updated_at.split('T')[0] : ''}
             </Typography>
           </Grid>
         </Grid>
