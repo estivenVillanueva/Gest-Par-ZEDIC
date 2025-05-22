@@ -39,14 +39,14 @@ export const usuarioQueries = {
     },
 
     // Actualizar usuario
-    async updateUsuario(id, { nombre, email, ubicacion, telefono }) {
+    async updateUsuario(id, { nombre, correo, ubicacion, telefono }) {
         const query = `
             UPDATE usuarios
             SET nombre = $1, correo = $2, ubicacion = $3, telefono = $4
             WHERE id = $5
             RETURNING *
         `;
-        const values = [nombre, email, ubicacion, telefono, id];
+        const values = [nombre, correo, ubicacion, telefono, id];
         const result = await pool.query(query, values);
         return result.rows[0];
     },
