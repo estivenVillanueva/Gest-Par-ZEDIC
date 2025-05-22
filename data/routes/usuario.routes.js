@@ -84,6 +84,7 @@ router.put('/:id', async (req, res) => {
             data: usuarioActualizado
         });
     } catch (error) {
+        console.error('Error al actualizar usuario:', error); // <-- Imprime el error completo
         res.status(500).json({
             success: false,
             message: 'Error al actualizar usuario',
