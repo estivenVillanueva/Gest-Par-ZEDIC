@@ -32,6 +32,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import BadgeIcon from '@mui/icons-material/Badge';
 import WorkIcon from '@mui/icons-material/Work';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../logic/AuthContext';
 
 const InfoItem = ({ icon, title, value, onEdit }) => (
   <Box sx={{ mb: 3, p: 2, bgcolor: 'background.paper', borderRadius: 2 }}>
@@ -52,10 +53,10 @@ const InfoItem = ({ icon, title, value, onEdit }) => (
   </Box>
 );
 
-const PARQUEADERO_API_URL = 'https://gest-par-zedic.onrender.com/parqueaderos'; // URL real del backend
-const PARQUEADERO_ID = 1; // Cambia esto por el ID real o dinámico
+const PARQUEADERO_API_URL = 'https://gest-par-zedic.onrender.com/parqueaderos'; // URL correcta del backend
 
 const ParqueaderoProfile = () => {
+  const { currentUser } = useAuth();
   const navigate = useNavigate();
   const [openEdit, setOpenEdit] = useState(false);
   const [editField, setEditField] = useState('');
@@ -82,14 +83,23 @@ const ParqueaderoProfile = () => {
       fechaInicio: ''
     }
   });
+  const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
+    // Mostrar mensaje de bienvenida solo si es la primera vez
+    if (localStorage.getItem('showWelcomePending')) {
+      setShowWelcome(true);
+      localStorage.removeItem('showWelcomePending');
+    }
     const cargarDatosParqueadero = async () => {
+      if (!currentUser) return;
       try {
-        const response = await fetch(`${PARQUEADERO_API_URL}/${PARQUEADERO_ID}`);
+        // Buscar parqueadero por usuario_id
+        const response = await fetch(`${PARQUEADERO_API_URL}?usuario_id=${currentUser.id}`);
         if (!response.ok) throw new Error('Error al obtener datos');
         const data = await response.json();
-        setParqueaderoInfo(data.data);
+        // Si la API devuelve un array, tomar el primero
+        setParqueaderoInfo(Array.isArray(data.data) ? data.data[0] : data.data);
       } catch (error) {
         setSnackbar({
           open: true,
@@ -99,7 +109,7 @@ const ParqueaderoProfile = () => {
       }
     };
     cargarDatosParqueadero();
-  }, []);
+  }, [currentUser]);
 
   const handleEdit = (field, value) => {
     setEditField(field);
@@ -110,7 +120,7 @@ const ParqueaderoProfile = () => {
   const handleSave = async () => {
     try {
       const updatedData = { ...parqueaderoInfo, [editField]: editValue };
-      const response = await fetch(`${PARQUEADERO_API_URL}/${PARQUEADERO_ID}`, {
+      const response = await fetch(`${PARQUEADERO_API_URL}/${parqueaderoInfo.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedData)
@@ -136,6 +146,31 @@ const ParqueaderoProfile = () => {
   const handleCloseSnackbar = () => {
     setSnackbar(prev => ({ ...prev, open: false }));
   };
+
+  if (showWelcome) {
+    return (
+      <Container maxWidth="sm" sx={{ py: 8 }}>
+        <Paper elevation={3} sx={{ p: 4, borderRadius: 2, textAlign: 'center' }}>
+          <Typography variant="h4" gutterBottom>
+            ¡Bienvenido a Gest-Par ZEDIC!
+          </Typography>
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            Tu cuenta ha sido creada exitosamente.<br />
+            Empecemos a configurar tu parqueadero en el sistema.
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            sx={{ mt: 4 }}
+            onClick={() => setShowWelcome(false)}
+          >
+            Continuar
+          </Button>
+        </Paper>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>

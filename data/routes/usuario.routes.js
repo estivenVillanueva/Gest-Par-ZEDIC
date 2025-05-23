@@ -1,5 +1,6 @@
 import express from 'express';
 import { usuarioQueries } from '../queries/usuario.queries.js';
+import { parqueaderoQueries } from '../queries/parqueadero.queries.js';
 
 const router = express.Router();
 
@@ -54,6 +55,22 @@ router.post('/', async (req, res) => {
     try {
         console.log('Datos recibidos en registro:', req.body); // Log de depuración
         const nuevoUsuario = await usuarioQueries.createUsuario(req.body);
+        // Si el usuario es admin, crear parqueadero automáticamente
+        if (nuevoUsuario.tipo_usuario === 'admin') {
+            await parqueaderoQueries.createParqueadero({
+                nombre: '',
+                ubicacion: '',
+                capacidad: 0,
+                precio_hora: '',
+                estado: 'Activo',
+                telefono: '',
+                email: '',
+                direccion: '',
+                horarios: '',
+                descripcion: '',
+                usuario_id: nuevoUsuario.id // Relación
+            });
+        }
         res.status(201).json({
             success: true,
             data: nuevoUsuario

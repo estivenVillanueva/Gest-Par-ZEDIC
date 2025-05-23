@@ -41,6 +41,8 @@ const Registro = () => {
     password: '',
     tipoUsuario: '',
   });
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [newUserId, setNewUserId] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -89,8 +91,21 @@ const Registro = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        // Registro exitoso
-        navigate('/Acceder');
+        localStorage.setItem('showWelcome', 'true');
+        // No mostrar mensaje aquí, solo marcar la bandera
+        // setShowWelcome(true);
+        // setNewUserId(data.data.id);
+        // Iniciar sesión automáticamente
+        const loginResponse = await fetch(`${API_URL}/api/usuarios/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ correo: formData.email, password: formData.password })
+        });
+        if (loginResponse.ok) {
+          navigate('/dashboard/parqueadero');
+        } else {
+          setError('Registro exitoso, pero error al iniciar sesión automáticamente');
+        }
       } else {
         setError(data.message || 'Error al registrar usuario');
       }

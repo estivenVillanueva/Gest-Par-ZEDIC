@@ -64,6 +64,10 @@ export const AuthProvider = ({ children }) => {
             const usuario = await response.json();
             setCurrentUser(usuario);
             localStorage.setItem('user', JSON.stringify(usuario));
+            // Si es la primera vez, mostrar mensaje de bienvenida
+            if (localStorage.getItem('showWelcome')) {
+                localStorage.setItem('showWelcomePending', 'true');
+            }
             return usuario;
         } catch (error) {
             handleAuthError(error);

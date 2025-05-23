@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Box, Typography, Button, Grid, Paper } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const adminSections = [
   {
@@ -26,6 +26,42 @@ const adminSections = [
 ];
 
 const Parqueadero = () => {
+  const [showWelcome, setShowWelcome] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (localStorage.getItem('showWelcomePending')) {
+      setShowWelcome(true);
+      localStorage.removeItem('showWelcomePending');
+      localStorage.removeItem('showWelcome');
+    }
+  }, []);
+
+  if (showWelcome) {
+    return (
+      <Container maxWidth="sm" sx={{ py: 8 }}>
+        <Paper elevation={3} sx={{ p: 4, borderRadius: 2, textAlign: 'center' }}>
+          <Typography variant="h4" gutterBottom>
+            ¡Bienvenido a Gest-Par ZEDIC!
+          </Typography>
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            Tu cuenta ha sido creada exitosamente.<br />
+            Empecemos a configurar tu parqueadero en el sistema.
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            sx={{ mt: 4 }}
+            onClick={() => navigate('/dashboard/perfil')}
+          >
+            Continuar
+          </Button>
+        </Paper>
+      </Container>
+    );
+  }
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h4" fontWeight={700} mb={4}>
