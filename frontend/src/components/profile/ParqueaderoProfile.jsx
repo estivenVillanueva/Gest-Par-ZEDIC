@@ -90,9 +90,10 @@ const ParqueaderoProfile = () => {
     if (localStorage.getItem('showWelcomePending')) {
       setShowWelcome(true);
       localStorage.removeItem('showWelcomePending');
+      localStorage.removeItem('showWelcome');
     }
     const cargarDatosParqueadero = async () => {
-      if (!currentUser) return;
+      if (!currentUser || !currentUser.id) return; // Validación para evitar id=undefined
       try {
         // Buscar parqueadero por usuario_id
         const response = await fetch(`${PARQUEADERO_API_URL}?usuario_id=${currentUser.id}`);

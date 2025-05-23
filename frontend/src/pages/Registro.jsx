@@ -75,15 +75,22 @@ const Registro = () => {
       return;
     }
 
+    if (!formData.email) {
+      setError('El correo es obligatorio.');
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       const payload = {
         nombre: formData.nombre,
-        email: formData.email,
+        correo: formData.email,
         password: formData.password,
         ubicacion: formData.ubicacion,
-        tipoUsuario: formData.tipoUsuario
+        tipo_usuario: formData.tipoUsuario
       };
+      console.log('Payload enviado al backend:', payload);
       const response = await fetch(`${API_URL}/api/usuarios`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

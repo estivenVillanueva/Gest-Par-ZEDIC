@@ -3,23 +3,29 @@ import bcrypt from 'bcrypt';
 
 export const usuarioQueries = {
     // Crear un nuevo usuario
-    async createUsuario({ nombre, email, password, ubicacion, tipoUsuario, tipo_usuario, telefono }) {
-        console.log('Password recibido para hash:', password); // Log de depuración
-        if (!password) {
-            throw new Error('El campo password es requerido');
-        }
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+    async createUsuario(obj) {
+        console.log('Objeto recibido en createUsuario:', obj);
+        const correoFinal = (obj.correo || obj.Correo || obj.email || obj.Email || '').trim();
+        const nombreFinal = (obj.nombre || obj.Nombre || '').trim();
+        const passwordFinal = obj.password || obj.Password || '';
+        const ubicacionFinal = (obj.ubicacion || obj.Ubicacion || '').trim();
+        const tipoFinal = obj.tipo_usuario || obj.tipoUsuario || obj.Tipo_usuario || obj.TipoUsuario || '';
+        const telefonoFinal = obj.telefono || obj.Telefono || '';
 
-        // Usar tipo_usuario si existe, si no, usar tipoUsuario
-        const tipo = tipo_usuario || tipoUsuario;
+        if (!correoFinal) throw new Error('El campo correo es requerido');
+        if (!passwordFinal) throw new Error('El campo password es requerido');
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(passwordFinal, salt);
+
+        const values = [nombreFinal, correoFinal, hashedPassword, ubicacionFinal, tipoFinal, telefonoFinal];
+        console.log('Valores enviados a la base de datos:', values);
 
         const query = `
             INSERT INTO usuarios (nombre, correo, password, ubicacion, tipo_usuario, telefono)
             VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *
         `;
-        const values = [nombre, email, hashedPassword, ubicacion, tipo, telefono];
         const result = await pool.query(query, values);
         return result.rows[0];
     },
