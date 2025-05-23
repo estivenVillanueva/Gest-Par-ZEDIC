@@ -41,9 +41,8 @@ export const AuthProvider = ({ children }) => {
             });
             if (!response.ok) throw new Error('Error al registrar usuario');
             const usuario = await response.json();
-            const { contrasena: _, ...usuarioSinContrasena } = usuario;
-            setCurrentUser(usuarioSinContrasena);
-            localStorage.setItem('user', JSON.stringify(usuarioSinContrasena));
+            setCurrentUser(usuario.data);
+            localStorage.setItem('user', JSON.stringify(usuario.data));
             return usuario;
         } catch (error) {
             handleAuthError(error);
@@ -62,8 +61,9 @@ export const AuthProvider = ({ children }) => {
             });
             if (!response.ok) throw new Error('Credenciales inválidas');
             const usuario = await response.json();
-            setCurrentUser(usuario);
-            localStorage.setItem('user', JSON.stringify(usuario));
+            setCurrentUser(usuario.data);
+            console.log('Usuario guardado en contexto:', usuario.data);
+            localStorage.setItem('user', JSON.stringify(usuario.data));
             // Si es la primera vez, mostrar mensaje de bienvenida
             if (localStorage.getItem('showWelcome')) {
                 localStorage.setItem('showWelcomePending', 'true');

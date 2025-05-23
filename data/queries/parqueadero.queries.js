@@ -2,13 +2,13 @@ import { pool } from '../postgres.js';
 
 export const parqueaderoQueries = {
     // Crear un nuevo parqueadero
-    async createParqueadero({ nombre, ubicacion, capacidad, precio_hora, estado, telefono, email, direccion, horarios, descripcion }) {
+    async createParqueadero({ nombre, ubicacion, capacidad, precio_hora, estado, telefono, email, direccion, horarios, descripcion, usuario_id }) {
         const query = `
-            INSERT INTO parqueaderos (nombre, ubicacion, capacidad, precio_hora, estado, telefono, email, direccion, horarios, descripcion)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            INSERT INTO parqueaderos (nombre, ubicacion, capacidad, precio_hora, estado, telefono, email, direccion, horarios, descripcion, usuario_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
             RETURNING *
         `;
-        const values = [nombre, ubicacion, capacidad, precio_hora, estado, telefono, email, direccion, horarios, descripcion];
+        const values = [nombre, ubicacion, capacidad, precio_hora, estado, telefono, email, direccion, horarios, descripcion, usuario_id];
         const result = await pool.query(query, values);
         return result.rows[0];
     },
@@ -53,6 +53,13 @@ export const parqueaderoQueries = {
     async deleteParqueadero(id) {
         const query = 'DELETE FROM parqueaderos WHERE id = $1 RETURNING *';
         const result = await pool.query(query, [id]);
+        return result.rows[0];
+    },
+
+    // Obtener parqueadero por usuario_id
+    async getParqueaderoByUsuarioId(usuario_id) {
+        const query = 'SELECT * FROM parqueaderos WHERE usuario_id = $1';
+        const result = await pool.query(query, [usuario_id]);
         return result.rows[0];
     }
 }; 

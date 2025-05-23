@@ -57,6 +57,7 @@ const PARQUEADERO_API_URL = 'https://gest-par-zedic.onrender.com/parqueaderos'; 
 
 const ParqueaderoProfile = () => {
   const { currentUser } = useAuth();
+  console.log('currentUser en ParqueaderoProfile:', currentUser);
   const navigate = useNavigate();
   const [openEdit, setOpenEdit] = useState(false);
   const [editField, setEditField] = useState('');
@@ -93,15 +94,17 @@ const ParqueaderoProfile = () => {
       localStorage.removeItem('showWelcome');
     }
     const cargarDatosParqueadero = async () => {
+      console.log('Intentando cargar parqueadero para usuario:', currentUser?.id);
       if (!currentUser || !currentUser.id) return; // Validación para evitar id=undefined
       try {
-        // Buscar parqueadero por usuario_id
-        const response = await fetch(`${PARQUEADERO_API_URL}?usuario_id=${currentUser.id}`);
+        const response = await fetch(`${PARQUEADERO_API_URL}/usuario/${currentUser.id}`);
+        console.log('Respuesta fetch:', response);
         if (!response.ok) throw new Error('Error al obtener datos');
         const data = await response.json();
-        // Si la API devuelve un array, tomar el primero
-        setParqueaderoInfo(Array.isArray(data.data) ? data.data[0] : data.data);
+        console.log('Respuesta de la API al cargar parqueadero:', data);
+        setParqueaderoInfo(data.data);
       } catch (error) {
+        console.error('Error al cargar parqueadero:', error);
         setSnackbar({
           open: true,
           message: 'Error al cargar los datos del parqueadero',
@@ -119,6 +122,14 @@ const ParqueaderoProfile = () => {
   };
 
   const handleSave = async () => {
+    if (!parqueaderoInfo.id) {
+      setSnackbar({
+        open: true,
+        message: 'No se encontró el parqueadero para actualizar.',
+        severity: 'error'
+      });
+      return;
+    }
     try {
       const updatedData = { ...parqueaderoInfo, [editField]: editValue };
       const response = await fetch(`${PARQUEADERO_API_URL}/${parqueaderoInfo.id}`, {
@@ -172,6 +183,8 @@ const ParqueaderoProfile = () => {
       </Container>
     );
   }
+
+  if (!currentUser) return <div>Cargando usuario...</div>;
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>

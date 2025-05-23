@@ -31,7 +31,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender
 
 const Registro = () => {
   const navigate = useNavigate();
-  const { register, loginWithGoogle, loginWithFacebook, error, setError } = useAuth();
+  const { register, loginWithGoogle, loginWithFacebook, error, setError, login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -99,15 +99,10 @@ const Registro = () => {
       const data = await response.json();
       if (response.ok) {
         localStorage.setItem('showWelcome', 'true');
-        // Iniciar sesión automáticamente
-        const loginResponse = await fetch(`${API_URL}/api/usuarios/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ correo: formData.email, password: formData.password })
-        });
-        if (loginResponse.ok) {
-          const loginData = await loginResponse.json();
-          const tipo = loginData?.data?.tipo_usuario || loginData?.tipo_usuario;
+        // Iniciar sesión automáticamente usando el método del contexto
+        try {
+          const usuario = await login(formData.email, formData.password);
+          const tipo = usuario?.data?.tipo_usuario || usuario?.tipo_usuario;
           if (tipo === 'admin') {
             navigate('/dashboard/parqueadero');
           } else if (tipo === 'dueno') {
@@ -115,7 +110,7 @@ const Registro = () => {
           } else {
             navigate('/');
           }
-        } else {
+        } catch (err) {
           setError('Registro exitoso, pero error al iniciar sesión automáticamente');
         }
       } else {
