@@ -61,7 +61,7 @@ router.post('/', async (req, res) => {
                 nombre: '',
                 ubicacion: '',
                 capacidad: 0,
-                precio_hora: '',
+                precio_hora: 0,
                 estado: 'Activo',
                 telefono: '',
                 email: '',
