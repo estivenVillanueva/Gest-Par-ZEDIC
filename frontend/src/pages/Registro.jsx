@@ -99,9 +99,6 @@ const Registro = () => {
       const data = await response.json();
       if (response.ok) {
         localStorage.setItem('showWelcome', 'true');
-        // No mostrar mensaje aquí, solo marcar la bandera
-        // setShowWelcome(true);
-        // setNewUserId(data.data.id);
         // Iniciar sesión automáticamente
         const loginResponse = await fetch(`${API_URL}/api/usuarios/login`, {
           method: 'POST',
@@ -109,7 +106,15 @@ const Registro = () => {
           body: JSON.stringify({ correo: formData.email, password: formData.password })
         });
         if (loginResponse.ok) {
-          navigate('/dashboard/parqueadero');
+          const loginData = await loginResponse.json();
+          const tipo = loginData?.data?.tipo_usuario || loginData?.tipo_usuario;
+          if (tipo === 'admin') {
+            navigate('/dashboard/parqueadero');
+          } else if (tipo === 'dueno') {
+            navigate('/vehiculo/inicio');
+          } else {
+            navigate('/');
+          }
         } else {
           setError('Registro exitoso, pero error al iniciar sesión automáticamente');
         }
