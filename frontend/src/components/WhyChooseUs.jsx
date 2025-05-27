@@ -92,7 +92,8 @@ const WhyChooseUs = () => {
           display: 'flex', 
           justifyContent: 'center',
           gap: '32px',
-          flexWrap: 'wrap'
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: 'center'
         }}>
           {features.map((feature, index) => (
             <FeatureContainer elevation={0} key={index}>

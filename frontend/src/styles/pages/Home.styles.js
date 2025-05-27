@@ -274,7 +274,6 @@ export const StyledButton = styled(Button)`
   text-transform: none;
   letter-spacing: 0.5px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: ${float} 3s infinite ease-in-out;
   box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 
   &:hover {
