@@ -86,6 +86,7 @@ router.post('/', async (req, res) => {
 // Actualizar un parqueadero
 router.put('/:id', async (req, res) => {
     try {
+        console.log('Datos recibidos para actualizar parqueadero:', req.body, 'ID:', req.params.id);
         const parqueaderoActualizado = await parqueaderoQueries.updateParqueadero(req.params.id, req.body);
         if (!parqueaderoActualizado) {
             return res.status(404).json({

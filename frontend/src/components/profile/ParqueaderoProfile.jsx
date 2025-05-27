@@ -140,12 +140,18 @@ const ParqueaderoProfile = () => {
           severity: 'success'
         });
         setOpenEdit(false);
-        // Volver a cargar los datos actualizados del usuario
+        // Volver a cargar los datos actualizados del usuario y actualizar el estado local
         const refreshed = await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/${currentUser.id}`);
         if (refreshed.ok) {
           const refreshedData = await refreshed.json();
           // Si tienes un contexto global de usuario, actualízalo aquí
           // setCurrentUser(refreshedData.data);
+          // Actualizar el estado local del usuario para reflejar los cambios en la interfaz
+          currentUser.nombre = refreshedData.data.nombre;
+          currentUser.telefono = refreshedData.data.telefono;
+          currentUser.ubicacion = refreshedData.data.ubicacion;
+          currentUser.correo = refreshedData.data.correo;
+          currentUser.tipo_usuario = refreshedData.data.tipo_usuario;
         }
       } catch (error) {
         setSnackbar({
@@ -282,21 +288,21 @@ const ParqueaderoProfile = () => {
               icon={<LocationOnIcon color="primary" />}
               title="Dirección"
               value={parqueaderoInfo.direccion}
-              onEdit={() => handleEdit('direccion', parqueaderoInfo.direccion)}
+              onEdit={() => handleEdit('parqueadero.direccion', parqueaderoInfo.direccion)}
             />
             
             <InfoItem
               icon={<LocalParkingIcon color="primary" />}
               title="Capacidad"
               value={parqueaderoInfo.capacidad}
-              onEdit={() => handleEdit('capacidad', parqueaderoInfo.capacidad)}
+              onEdit={() => handleEdit('parqueadero.capacidad', parqueaderoInfo.capacidad)}
             />
             
             <InfoItem
               icon={<AccessTimeIcon color="primary" />}
               title="Horarios"
               value={parqueaderoInfo.horarios}
-              onEdit={() => handleEdit('horarios', parqueaderoInfo.horarios)}
+              onEdit={() => handleEdit('parqueadero.horarios', parqueaderoInfo.horarios)}
             />
           </Grid>
 
@@ -309,14 +315,14 @@ const ParqueaderoProfile = () => {
               icon={<PhoneIcon color="primary" />}
               title="Teléfono"
               value={parqueaderoInfo.telefono}
-              onEdit={() => handleEdit('telefono', parqueaderoInfo.telefono)}
+              onEdit={() => handleEdit('parqueadero.telefono', parqueaderoInfo.telefono)}
             />
             
             <InfoItem
               icon={<EmailIcon color="primary" />}
               title="Email"
               value={parqueaderoInfo.email}
-              onEdit={() => handleEdit('email', parqueaderoInfo.email)}
+              onEdit={() => handleEdit('parqueadero.email', parqueaderoInfo.email)}
             />
             
             <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
@@ -341,7 +347,7 @@ const ParqueaderoProfile = () => {
               </Typography>
               <Button
                 startIcon={<EditIcon />}
-                onClick={() => handleEdit('descripcion', parqueaderoInfo.descripcion)}
+                onClick={() => handleEdit('parqueadero.descripcion', parqueaderoInfo.descripcion)}
                 sx={{ mt: 2 }}
               >
                 Editar descripción
@@ -516,13 +522,13 @@ const ParqueaderoProfile = () => {
                 icon={<PhoneIcon color="primary" />}
                 title="Teléfono"
                 value={currentUser?.telefono || 'No especificado'}
-                onEdit={() => handleEdit('telefono', currentUser?.telefono)}
+                onEdit={() => handleEdit('usuario.telefono', currentUser?.telefono)}
               />
               <InfoItem
                 icon={<LocationOnIcon color="primary" />}
                 title="Ubicación"
                 value={currentUser?.ubicacion || 'No especificado'}
-                onEdit={() => handleEdit('ubicacion', currentUser?.ubicacion)}
+                onEdit={() => handleEdit('usuario.ubicacion', currentUser?.ubicacion)}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -530,13 +536,13 @@ const ParqueaderoProfile = () => {
                 icon={<EmailIcon color="primary" />}
                 title="Email"
                 value={currentUser?.correo || 'No especificado'}
-                onEdit={() => handleEdit('correo', currentUser?.correo)}
+                onEdit={() => handleEdit('usuario.correo', currentUser?.correo)}
               />
               <InfoItem
                 icon={<BusinessIcon color="primary" />}
                 title="Tipo de Usuario"
                 value={currentUser?.tipo_usuario || 'No especificado'}
-                onEdit={() => handleEdit('tipo_usuario', currentUser?.tipo_usuario)}
+                onEdit={() => handleEdit('usuario.tipo_usuario', currentUser?.tipo_usuario)}
               />
               <InfoItem
                 icon={<AccessTimeIcon color="primary" />}
