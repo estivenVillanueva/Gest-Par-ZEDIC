@@ -53,7 +53,7 @@ const InfoItem = ({ icon, title, value, onEdit }) => (
   </Box>
 );
 
-const PARQUEADERO_API_URL = 'https://gest-par-zedic.onrender.com/parqueaderos'; // URL correcta del backend
+const PARQUEADERO_API_URL = 'https://gest-par-zedic.onrender.com/api/parqueaderos'; // URL correcta del backend
 
 const ParqueaderoProfile = () => {
   const { currentUser } = useAuth();
@@ -122,6 +122,36 @@ const ParqueaderoProfile = () => {
   };
 
   const handleSave = async () => {
+    // Campos que pertenecen a la tabla usuarios
+    const userFields = ['nombre', 'telefono', 'correo', 'ubicacion', 'tipo_usuario'];
+    if (userFields.includes(editField)) {
+      // Actualizar usuario
+      try {
+        const updatedUser = { ...currentUser, [editField]: editValue };
+        const response = await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/${currentUser.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedUser)
+        });
+        if (!response.ok) throw new Error('Error al actualizar usuario');
+        const data = await response.json();
+        setSnackbar({
+          open: true,
+          message: 'Cambios guardados exitosamente',
+          severity: 'success'
+        });
+        setOpenEdit(false);
+        // Opcional: Actualizar currentUser en el contexto si es necesario
+      } catch (error) {
+        setSnackbar({
+          open: true,
+          message: 'Error al guardar los cambios',
+          severity: 'error'
+        });
+      }
+      return;
+    }
+    // Si no es campo de usuario, actualizar parqueadero
     if (!parqueaderoInfo.id) {
       setSnackbar({
         open: true,
@@ -306,7 +336,7 @@ const ParqueaderoProfile = () => {
               Servicios Ofrecidos
             </Typography>
             <Grid container spacing={2} sx={{ mb: 3 }}>
-              {parqueaderoInfo.servicios.map((servicio, index) => (
+              {(parqueaderoInfo.servicios || []).map((servicio, index) => (
                 <Grid item xs={12} sm={4} key={index}>
                   <Paper
                     variant="outlined"
@@ -463,58 +493,41 @@ const ParqueaderoProfile = () => {
               <InfoItem
                 icon={<PersonIcon color="primary" />}
                 title="Nombre del Administrador"
-                value={parqueaderoInfo.administrador.nombre}
-                onEdit={() => handleEdit('administrador.nombre', parqueaderoInfo.administrador.nombre)}
+                value={currentUser?.nombre || 'No especificado'}
+                onEdit={() => handleEdit('nombre', currentUser?.nombre)}
               />
               <InfoItem
-                icon={<BadgeIcon color="primary" />}
-                title="Identificación"
-                value={parqueaderoInfo.administrador.identificacion}
-                onEdit={() => handleEdit('administrador.identificacion', parqueaderoInfo.administrador.identificacion)}
+                icon={<PhoneIcon color="primary" />}
+                title="Teléfono"
+                value={currentUser?.telefono || 'No especificado'}
+                onEdit={() => handleEdit('telefono', currentUser?.telefono)}
               />
               <InfoItem
-                icon={<WorkIcon color="primary" />}
-                title="Cargo"
-                value={parqueaderoInfo.administrador.cargo}
-                onEdit={() => handleEdit('administrador.cargo', parqueaderoInfo.administrador.cargo)}
+                icon={<LocationOnIcon color="primary" />}
+                title="Ubicación"
+                value={currentUser?.ubicacion || 'No especificado'}
+                onEdit={() => handleEdit('ubicacion', currentUser?.ubicacion)}
               />
             </Grid>
             <Grid item xs={12} md={6}>
               <InfoItem
-                icon={<PhoneIcon color="primary" />}
-                title="Teléfono"
-                value={parqueaderoInfo.administrador.telefono}
-                onEdit={() => handleEdit('administrador.telefono', parqueaderoInfo.administrador.telefono)}
-              />
-              <InfoItem
                 icon={<EmailIcon color="primary" />}
                 title="Email"
-                value={parqueaderoInfo.administrador.email}
-                onEdit={() => handleEdit('administrador.email', parqueaderoInfo.administrador.email)}
+                value={currentUser?.correo || 'No especificado'}
+                onEdit={() => handleEdit('correo', currentUser?.correo)}
+              />
+              <InfoItem
+                icon={<BusinessIcon color="primary" />}
+                title="Tipo de Usuario"
+                value={currentUser?.tipo_usuario || 'No especificado'}
+                onEdit={() => handleEdit('tipo_usuario', currentUser?.tipo_usuario)}
               />
               <InfoItem
                 icon={<AccessTimeIcon color="primary" />}
-                title="Fecha de Inicio"
-                value={parqueaderoInfo.administrador.fechaInicio}
-                onEdit={() => handleEdit('administrador.fechaInicio', parqueaderoInfo.administrador.fechaInicio)}
+                title="Fecha de Registro"
+                value={currentUser?.created_at ? currentUser.created_at.split('T')[0] : 'No especificado'}
+                onEdit={() => handleEdit('created_at', currentUser?.created_at)}
               />
-            </Grid>
-            <Grid item xs={12}>
-              <Box sx={{ mt: 3, p: 2, bgcolor: 'background.paper', borderRadius: 2 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-                  Experiencia
-                </Typography>
-                <Typography variant="body1" color="text.secondary">
-                  {parqueaderoInfo.administrador.experiencia}
-                </Typography>
-                <Button
-                  startIcon={<EditIcon />}
-                  onClick={() => handleEdit('administrador.experiencia', parqueaderoInfo.administrador.experiencia)}
-                  sx={{ mt: 1 }}
-                >
-                  Editar experiencia
-                </Button>
-              </Box>
             </Grid>
           </Grid>
         </DialogContent>
