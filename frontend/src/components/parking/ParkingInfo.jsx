@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, IconButton, Container, Collapse, Fade } from '@mui/material';
+import { Box, Typography, IconButton, Container, Collapse, Fade, Button, Divider, Paper, Grid } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
@@ -31,7 +31,7 @@ import {
   ServicesList,
 } from '../../styles/components/ParkingInfo.styles';
 
-const ParkingInfo = ({ parkingData }) => {
+const ParkingInfo = ({ parkingData, onClose }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogInfo, setDialogInfo] = useState({});
   const [dialogTitle, setDialogTitle] = useState('');
@@ -102,90 +102,76 @@ const ParkingInfo = ({ parkingData }) => {
   ];
 
   return (
-    <Container maxWidth="lg">
-      <Fade in={true} timeout={1000}>
-        <InfoContainer elevation={3}>
-          <LogoContainer>
-            <img src="/logo.png" alt="Logo Parqueadero" />
-          </LogoContainer>
-
-          {infoSections.map((section, index) => (
-            <Fade in={true} timeout={1000} style={{ transitionDelay: `${index * 200}ms` }} key={section.key}>
-              <InfoSection
-                onMouseEnter={() => handleSectionHover(index)}
-                onMouseLeave={() => handleSectionHover(null)}
-                sx={{
-                  transform: activeSection === index ? 'scale(1.02)' : 'scale(1)',
-                }}
-              >
-                <StyledInfoIcon>{section.icon}</StyledInfoIcon>
-                <Box flex={1}>
-                  <InfoText>{section.title}</InfoText>
-                  <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-                    {section.description}
-                  </Typography>
-                </Box>
-                <InfoButton
-                  endIcon={<InfoIcon />}
-                  onClick={() => handleInfoClick(section.dialogTitle, 
-                    { [section.dialogTitle]: parkingData?.[section.key] || 'No disponible' }
-                  )}
-                >
-                  ver info
-                </InfoButton>
-              </InfoSection>
-            </Fade>
-          ))}
-
-          <ServiceButton
-            onClick={() => setIsServicesExpanded(!isServicesExpanded)}
-            startIcon={isServicesExpanded ? <RemoveIcon /> : <AddIcon />}
-          >
-            Servicios disponibles
-          </ServiceButton>
-
-          <Collapse in={isServicesExpanded}>
-            <ServicesList>
-              {services.map((service, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 2,
-                    mb: 2,
-                  }}
-                >
-                  <Box sx={{
-                    backgroundColor: '#2563EB',
-                    borderRadius: '12px',
-                    padding: '12px',
-                    color: 'white',
-                  }}>
-                    {service.icon}
-                  </Box>
-                  <Box>
-                    <Typography variant="subtitle1" fontWeight="600">
-                      {service.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {service.description}
-                    </Typography>
-                  </Box>
-                </Box>
-              ))}
-            </ServicesList>
-          </Collapse>
-        </InfoContainer>
-      </Fade>
-
+    <Paper elevation={4} sx={{ overflow: 'hidden', bgcolor: '#f8fafc' }}>
+      {/* Banner superior con imagen */}
+      <Box sx={{ width: '100%', height: 180, background: 'url(https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80) center/cover', position: 'relative' }}>
+        <Button onClick={onClose} sx={{ position: 'absolute', top: 16, right: 16, bgcolor: 'rgba(255,255,255,0.8)', color: '#2563eb', fontWeight: 700, borderRadius: 2, px: 2, boxShadow: 2, '&:hover': { bgcolor: '#2563eb', color: 'white' } }}>Cerrar</Button>
+      </Box>
+      <Box sx={{ p: { xs: 2, md: 4 } }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+          <LocalParkingIcon sx={{ fontSize: 40, color: '#2563eb' }} />
+          <Typography variant="h4" fontWeight={800} color="#2563eb">{parkingData?.name}</Typography>
+        </Box>
+        <Divider sx={{ mb: 2 }} />
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+              <LocationOnIcon sx={{ color: '#64748b' }} />
+              <Typography variant="subtitle1" fontWeight={600}>Dirección:</Typography>
+            </Box>
+            <Typography variant="body1" color="text.secondary" mb={2}>{parkingData?.address}</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+              <AccessTimeIcon sx={{ color: '#64748b' }} />
+              <Typography variant="subtitle1" fontWeight={600}>Horario:</Typography>
+            </Box>
+            <Typography variant="body1" color="text.secondary" mb={2}>{parkingData?.schedule}</Typography>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+              <DirectionsCarIcon sx={{ color: '#64748b' }} />
+              <Typography variant="subtitle1" fontWeight={600}>Capacidad:</Typography>
+            </Box>
+            <Typography variant="body1" color="text.secondary" mb={2}>{parkingData?.capacity} vehículos</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+              <SecurityIcon sx={{ color: '#64748b' }} />
+              <Typography variant="subtitle1" fontWeight={600}>Seguridad:</Typography>
+            </Box>
+            <Typography variant="body1" color="text.secondary" mb={2}>24/7, cámaras y personal</Typography>
+          </Grid>
+        </Grid>
+        <Divider sx={{ my: 3 }} />
+        <Typography variant="h6" fontWeight={700} color="#2563eb" mb={2}>Servicios Destacados</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={4}>
+            <Box sx={{ bgcolor: '#e3f2fd', borderRadius: 2, p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: 1 }}>
+              <SecurityIcon sx={{ color: '#2563eb', fontSize: 32, mb: 1 }} />
+              <Typography fontWeight={600}>Seguridad 24/7</Typography>
+              <Typography variant="body2" color="text.secondary" align="center">Vigilancia permanente y cámaras de seguridad</Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Box sx={{ bgcolor: '#e3f2fd', borderRadius: 2, p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: 1 }}>
+              <DirectionsCarIcon sx={{ color: '#2563eb', fontSize: 32, mb: 1 }} />
+              <Typography fontWeight={600}>Espacios amplios</Typography>
+              <Typography variant="body2" color="text.secondary" align="center">Cómodo acceso para todo tipo de vehículos</Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Box sx={{ bgcolor: '#e3f2fd', borderRadius: 2, p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: 1 }}>
+              <AccessTimeIcon sx={{ color: '#2563eb', fontSize: 32, mb: 1 }} />
+              <Typography fontWeight={600}>Horario flexible</Typography>
+              <Typography variant="body2" color="text.secondary" align="center">Opciones de estacionamiento adaptadas a tu rutina</Typography>
+            </Box>
+          </Grid>
+        </Grid>
+      </Box>
       <InfoDialog
         open={openDialog}
         onClose={handleCloseDialog}
         title={dialogTitle}
         info={dialogInfo}
       />
-    </Container>
+    </Paper>
   );
 };
 

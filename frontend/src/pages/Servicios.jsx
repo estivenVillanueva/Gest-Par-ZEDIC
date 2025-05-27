@@ -29,7 +29,8 @@ import {
   ServiciosGrid,
   ServicioCard,
   ServicioIconBox,
-  BeneficiosPaper
+  BeneficiosPaper,
+  BeneficioListItem
 } from '../styles/pages/Servicios.styles';
 
 const Servicios = () => {
@@ -144,56 +145,69 @@ const Servicios = () => {
         </ServiciosGrid>
 
         <BeneficiosPaper elevation={0}>
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={6}>
-              <Typography 
-                variant="h4" 
-                gutterBottom 
-                sx={{ 
-                  fontWeight: 'bold',
-                  mb: 3
-                }}
-              >
-                Beneficios Adicionales
-              </Typography>
-              <List>
-                {beneficios.map((beneficio, index) => (
-                  <ListItem key={index} sx={{ py: 1 }}>
-                    <ListItemIcon>
-                      <CheckCircleIcon sx={{ color: 'white' }} />
-                    </ListItemIcon>
-                    <ListItemText 
-                      primary={beneficio}
-                      sx={{ 
-                        '& .MuiListItemText-primary': {
-                          fontSize: '1.1rem'
-                        }
-                      }}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Box sx={{ 
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100%',
-                gap: 3
-              }}>
-                <SpeedIcon sx={{ fontSize: 60, color: 'white' }} />
-                <Typography variant="h5" align="center" sx={{ fontWeight: 'bold' }}>
-                  Tecnología de Punta
-                </Typography>
-                <Typography variant="body1" align="center">
-                  Utilizamos los sistemas más avanzados para garantizar la seguridad y comodidad de tu vehículo.
-                </Typography>
-                <VerifiedUserIcon sx={{ fontSize: 60, color: 'white' }} />
+          <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+            maxWidth: 600,
+            mx: 'auto',
+            py: 4
+          }}>
+            <Typography 
+              variant="h4" 
+              gutterBottom 
+              sx={{ 
+                fontWeight: 'bold',
+                mb: 3
+              }}
+            >
+              Beneficios Adicionales
+            </Typography>
+            <List sx={{ width: '100%', mb: 4 }}>
+              {beneficios.map((beneficio, index) => (
+                <BeneficioListItem key={index} elevation={0} sx={{ justifyContent: 'center' }}>
+                  <ListItemIcon sx={{ minWidth: 40 }}>
+                    <Box sx={{
+                      bgcolor: 'rgba(43,108,163,0.18)',
+                      borderRadius: '50%',
+                      width: 32,
+                      height: 32,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                      <CheckCircleIcon sx={{ color: 'white', fontSize: 22 }} />
+                    </Box>
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={beneficio}
+                    sx={{
+                      '& .MuiListItemText-primary': {
+                        fontSize: '1.1rem',
+                        fontWeight: 500
+                      }
+                    }}
+                  />
+                </BeneficioListItem>
+              ))}
+            </List>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+              <Box sx={{ bgcolor: 'rgba(255,255,255,0.13)', borderRadius: '50%', p: 2 }}>
+                <SpeedIcon sx={{ fontSize: 48, color: 'white' }} />
               </Box>
-            </Grid>
-          </Grid>
+              <Typography variant="h5" align="center" sx={{ fontWeight: 'bold', mb: 1 }}>
+                Tecnología de Punta
+              </Typography>
+              <Typography variant="body1" align="center" sx={{ mb: 2 }}>
+                Utilizamos los sistemas más avanzados para garantizar la seguridad y comodidad de tu vehículo.
+              </Typography>
+              <Box sx={{ bgcolor: 'rgba(255,255,255,0.13)', borderRadius: '50%', p: 2 }}>
+                <VerifiedUserIcon sx={{ fontSize: 48, color: 'white' }} />
+              </Box>
+            </Box>
+          </Box>
         </BeneficiosPaper>
       </Container>
     </ServiciosSection>

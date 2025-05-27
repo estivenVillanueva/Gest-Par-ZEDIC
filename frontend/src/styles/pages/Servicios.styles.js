@@ -42,8 +42,22 @@ export const ServicioIconBox = styled(Box)`
 export const BeneficiosPaper = styled(Paper)`
   margin-top: 64px;
   padding: 48px;
-  border-radius: 24px;
-  background: linear-gradient(135deg, #2B6CA3 0%, #1a4971 100%);
+  border-radius: 16px;
+  background: linear-gradient(120deg, rgba(43,108,163,0.85) 0%, rgba(80,180,255,0.65) 100%);
   color: white;
-  box-shadow: 0 4px 24px 0 rgba(43, 108, 163, 0.12);
+  box-shadow: 0 8px 32px 0 rgba(43, 108, 163, 0.18);
+  backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(255,255,255,0.18);
+`;
+
+export const BeneficioListItem = styled(Paper)`
+  background: rgba(255,255,255,0.10);
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px 0 rgba(43, 108, 163, 0.10);
+  padding: 12px 20px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  border: none;
 `; 

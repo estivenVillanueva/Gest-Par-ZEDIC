@@ -40,6 +40,8 @@ import {
 } from '../styles/pages/Home.styles';
 import MapaParqueaderos from '../components/maps/MapaParqueaderos';
 import WhyChooseUs from '../components/WhyChooseUs';
+import ParkingInfo from '../components/parking/ParkingInfo';
+import Dialog from '@mui/material/Dialog';
 
 const Home = () => {
   const [searchView, setSearchView] = useState('map'); // 'map' o 'list'
@@ -47,6 +49,39 @@ const Home = () => {
   const [showFilters, setShowFilters] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [openDetails, setOpenDetails] = useState(false);
+  const [selectedParking, setSelectedParking] = useState(null);
+
+  const mockParkings = [
+    {
+      id: 1,
+      name: 'Parqueadero 1',
+      address: 'Carrera 5 #10-50',
+      capacity: 50,
+      schedule: '24/7',
+    },
+    {
+      id: 2,
+      name: 'Parqueadero 2',
+      address: 'Carrera 5 #10-50',
+      capacity: 50,
+      schedule: '24/7',
+    },
+    {
+      id: 3,
+      name: 'Parqueadero 3',
+      address: 'Carrera 5 #10-50',
+      capacity: 50,
+      schedule: '24/7',
+    },
+    {
+      id: 4,
+      name: 'Parqueadero 4',
+      address: 'Carrera 5 #10-50',
+      capacity: 50,
+      schedule: '24/7',
+    },
+  ];
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
@@ -129,7 +164,7 @@ const Home = () => {
                     px: 2 
                   }}
                 >
-                  {[1, 2, 3, 4].map((item) => (
+                  {[1, 2, 3, 4].map((item, idx) => (
                     <Grid 
                       item 
                       xs={12} 
@@ -172,8 +207,10 @@ const Home = () => {
                           <StyledButton 
                             variant="contained" 
                             fullWidth
-                            component={Link}
-                            to={`/parqueadero/${item}`}
+                            onClick={() => {
+                              setSelectedParking(mockParkings[idx]);
+                              setOpenDetails(true);
+                            }}
                             sx={{ mt: 2 }}
                           >
                             Ver detalles
@@ -255,6 +292,10 @@ const Home = () => {
           {/* Aquí irán los filtros */}
         </Box>
       </Drawer>
+
+      <Dialog open={openDetails} onClose={() => setOpenDetails(false)} maxWidth="md" fullWidth>
+        {selectedParking && <ParkingInfo parkingData={selectedParking} onClose={() => setOpenDetails(false)} />}
+      </Dialog>
     </Box>
   );
 };
