@@ -1,16 +1,18 @@
 import { pool } from '../postgres.js';
 import bcrypt from 'bcrypt';
+import { parqueaderoQueries } from './parqueadero.queries.js';
 
 export const usuarioQueries = {
     // Crear un nuevo usuario
-    async createUsuario(obj) {
-        console.log('Objeto recibido en createUsuario:', obj);
-        const correoFinal = (obj.correo || obj.Correo || obj.email || obj.Email || '').trim();
-        const nombreFinal = (obj.nombre || obj.Nombre || '').trim();
-        const passwordFinal = obj.password || obj.Password || '';
-        const ubicacionFinal = (obj.ubicacion || obj.Ubicacion || '').trim();
-        const tipoFinal = obj.tipo_usuario || obj.tipoUsuario || obj.Tipo_usuario || obj.TipoUsuario || '';
-        const telefonoFinal = obj.telefono || obj.Telefono || '';
+    async createUsuario({ nombre, correo, password, ubicacion, tipo_usuario, rol_id, telefono }) {
+        console.log('Objeto recibido en createUsuario:', { nombre, correo, password, ubicacion, tipo_usuario, rol_id, telefono });
+        const correoFinal = (correo || '').trim();
+        const nombreFinal = (nombre || '').trim();
+        const passwordFinal = password || '';
+        const ubicacionFinal = (ubicacion || '').trim();
+        const tipoFinal = tipo_usuario || '';
+        const telefonoFinal = telefono || '';
+        const rolIdFinal = rol_id || 1; // Valor por defecto para admin
 
         if (!correoFinal) throw new Error('El campo correo es requerido');
         if (!passwordFinal) throw new Error('El campo password es requerido');
@@ -18,16 +20,35 @@ export const usuarioQueries = {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(passwordFinal, salt);
 
-        const values = [nombreFinal, correoFinal, hashedPassword, ubicacionFinal, tipoFinal, telefonoFinal];
+        const values = [nombreFinal, correoFinal, hashedPassword, ubicacionFinal, tipoFinal, rolIdFinal, telefonoFinal];
         console.log('Valores enviados a la base de datos:', values);
 
         const query = `
-            INSERT INTO usuarios (nombre, correo, password, ubicacion, tipo_usuario, telefono)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO usuarios (nombre, correo, password, ubicacion, tipo_usuario, rol_id, telefono)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *
         `;
         const result = await pool.query(query, values);
-        return result.rows[0];
+        const usuario = result.rows[0];
+
+        // Si el usuario es admin, crear parqueadero asociado automáticamente
+        if (usuario.tipo_usuario === 'admin') {
+            await parqueaderoQueries.createParqueadero({
+                nombre: 'Parqueadero de ' + usuario.nombre,
+                ubicacion: usuario.ubicacion || '',
+                capacidad: 0,
+                precio_hora: 0,
+                estado: 'Activo',
+                telefono: usuario.telefono || '',
+                email: usuario.correo,
+                direccion: usuario.ubicacion || '',
+                horarios: '',
+                descripcion: '',
+                usuario_id: usuario.id
+            });
+        }
+
+        return usuario;
     },
 
     // Obtener usuario por correo

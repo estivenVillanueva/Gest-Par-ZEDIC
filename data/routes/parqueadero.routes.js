@@ -20,6 +20,29 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Obtener parqueadero por usuario_id
+router.get('/usuario/:usuario_id', async (req, res) => {
+    try {
+        const parqueadero = await parqueaderoQueries.getParqueaderoByUsuarioId(req.params.usuario_id);
+        if (!parqueadero) {
+            return res.status(404).json({
+                success: false,
+                message: 'Parqueadero no encontrado para este usuario'
+            });
+        }
+        res.json({
+            success: true,
+            data: parqueadero
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener parqueadero por usuario',
+            error: error.message
+        });
+    }
+});
+
 // Obtener un parqueadero por ID
 router.get('/:id', async (req, res) => {
     try {
@@ -101,29 +124,6 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error al eliminar parqueadero',
-            error: error.message
-        });
-    }
-});
-
-// Obtener parqueadero por usuario_id
-router.get('/usuario/:usuario_id', async (req, res) => {
-    try {
-        const parqueadero = await parqueaderoQueries.getParqueaderoByUsuarioId(req.params.usuario_id);
-        if (!parqueadero) {
-            return res.status(404).json({
-                success: false,
-                message: 'Parqueadero no encontrado para este usuario'
-            });
-        }
-        res.json({
-            success: true,
-            data: parqueadero
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener parqueadero por usuario',
             error: error.message
         });
     }
