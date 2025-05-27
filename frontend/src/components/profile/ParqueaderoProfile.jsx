@@ -122,12 +122,11 @@ const ParqueaderoProfile = () => {
   };
 
   const handleSave = async () => {
-    // Campos que pertenecen a la tabla usuarios
-    const userFields = ['nombre', 'telefono', 'correo', 'ubicacion', 'tipo_usuario'];
-    if (userFields.includes(editField)) {
-      // Actualizar usuario
+    // Si el campo es del usuario
+    if (editField.startsWith('usuario.')) {
+      const field = editField.replace('usuario.', '');
       try {
-        const updatedUser = { ...currentUser, [editField]: editValue };
+        const updatedUser = { ...currentUser, [field]: editValue };
         const response = await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/${currentUser.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -141,7 +140,13 @@ const ParqueaderoProfile = () => {
           severity: 'success'
         });
         setOpenEdit(false);
-        // Opcional: Actualizar currentUser en el contexto si es necesario
+        // Volver a cargar los datos actualizados del usuario
+        const refreshed = await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/${currentUser.id}`);
+        if (refreshed.ok) {
+          const refreshedData = await refreshed.json();
+          // Si tienes un contexto global de usuario, actualízalo aquí
+          // setCurrentUser(refreshedData.data);
+        }
       } catch (error) {
         setSnackbar({
           open: true,
@@ -151,38 +156,49 @@ const ParqueaderoProfile = () => {
       }
       return;
     }
-    // Si no es campo de usuario, actualizar parqueadero
-    if (!parqueaderoInfo.id) {
-      setSnackbar({
-        open: true,
-        message: 'No se encontró el parqueadero para actualizar.',
-        severity: 'error'
-      });
+    // Si el campo es del parqueadero
+    if (editField.startsWith('parqueadero.')) {
+      const field = editField.replace('parqueadero.', '');
+      if (!parqueaderoInfo.id) {
+        setSnackbar({
+          open: true,
+          message: 'No se encontró el parqueadero para actualizar.',
+          severity: 'error'
+        });
+        return;
+      }
+      try {
+        const updatedData = { ...parqueaderoInfo, [field]: editValue };
+        const response = await fetch(`${PARQUEADERO_API_URL}/${parqueaderoInfo.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedData)
+        });
+        if (!response.ok) throw new Error('Error al actualizar');
+        const data = await response.json();
+        setParqueaderoInfo(data.data);
+        setSnackbar({
+          open: true,
+          message: 'Cambios guardados exitosamente',
+          severity: 'success'
+        });
+        setOpenEdit(false);
+        // Volver a cargar los datos actualizados del parqueadero
+        const refreshed = await fetch(`${PARQUEADERO_API_URL}/usuario/${currentUser.id}`);
+        if (refreshed.ok) {
+          const refreshedData = await refreshed.json();
+          setParqueaderoInfo(refreshedData.data);
+        }
+      } catch (error) {
+        setSnackbar({
+          open: true,
+          message: 'Error al guardar los cambios',
+          severity: 'error'
+        });
+      }
       return;
     }
-    try {
-      const updatedData = { ...parqueaderoInfo, [editField]: editValue };
-      const response = await fetch(`${PARQUEADERO_API_URL}/${parqueaderoInfo.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedData)
-      });
-      if (!response.ok) throw new Error('Error al actualizar');
-      const data = await response.json();
-      setParqueaderoInfo(data.data);
-      setSnackbar({
-        open: true,
-        message: 'Cambios guardados exitosamente',
-        severity: 'success'
-      });
-      setOpenEdit(false);
-    } catch (error) {
-      setSnackbar({
-        open: true,
-        message: 'Error al guardar los cambios',
-        severity: 'error'
-      });
-    }
+    // ... (mantener el resto de la lógica si hay otros campos)
   };
 
   const handleCloseSnackbar = () => {
@@ -259,7 +275,7 @@ const ParqueaderoProfile = () => {
               icon={<BusinessIcon color="primary" />}
               title="Nombre"
               value={parqueaderoInfo.nombre}
-              onEdit={() => handleEdit('nombre', parqueaderoInfo.nombre)}
+              onEdit={() => handleEdit('parqueadero.nombre', parqueaderoInfo.nombre)}
             />
             
             <InfoItem
@@ -494,7 +510,7 @@ const ParqueaderoProfile = () => {
                 icon={<PersonIcon color="primary" />}
                 title="Nombre del Administrador"
                 value={currentUser?.nombre || 'No especificado'}
-                onEdit={() => handleEdit('nombre', currentUser?.nombre)}
+                onEdit={() => handleEdit('usuario.nombre', currentUser?.nombre)}
               />
               <InfoItem
                 icon={<PhoneIcon color="primary" />}
