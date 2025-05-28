@@ -1,1 +1,8 @@
 /* index.css vacío para estilos globales */ 
+
+.google-login-rounded {
+  border-radius: 16px !important;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  margin-bottom: 16px;
+} 

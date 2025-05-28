@@ -83,6 +83,7 @@ export const usuarioQueries = {
         `;
         const values = [nombre, correo, ubicacion, telefono, tipoUsuarioFinal, id];
         const result = await pool.query(query, values);
+        console.log('RESULTADO DEL UPDATE:', result.rows[0]);
         return result.rows[0];
     },
 

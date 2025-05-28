@@ -185,10 +185,12 @@ const Acceder = () => {
           <span>o continúa con</span>
         </Divider>
 
-        <GoogleLogin
-          onSuccess={handleGoogleSuccess}
-          onError={() => setError('Error al iniciar sesión con Google')}
-        />
+        <div className="google-login-rounded">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError('Error al iniciar sesión con Google')}
+          />
+        </div>
 
         <AuthFooter>
           ¿No tienes una cuenta?

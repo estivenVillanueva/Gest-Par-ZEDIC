@@ -299,10 +299,12 @@ const Registro = () => {
           <span>o continúa con</span>
         </StyledDivider>
 
-        <GoogleLogin
-          onSuccess={handleGoogleSuccess}
-          onError={() => setError('Error al iniciar sesión con Google')}
-        />
+        <div className="google-login-rounded">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError('Error al iniciar sesión con Google')}
+          />
+        </div>
 
         <AuthFooter>
           ¿Ya tienes una cuenta?{' '}
