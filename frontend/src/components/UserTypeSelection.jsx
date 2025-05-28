@@ -29,13 +29,34 @@ const SelectionButton = styled(Button)(({ theme }) => ({
   marginTop: theme.spacing(2),
 }));
 
+const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
+
 const UserTypeSelection = () => {
   const navigate = useNavigate();
 
-  const handleUserTypeSelection = (userType) => {
+  const handleUserTypeSelection = async (userType) => {
     // Guardar el tipo de usuario en localStorage o en el estado global
     localStorage.setItem('userType', userType);
-    
+    // Obtener usuario actual
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+      try {
+        console.log('Actualizando usuario:', { ...user, tipo_usuario: userType });
+        const response = await fetch(`${API_URL}/api/usuarios/${user.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...user, tipo_usuario: userType })
+        });
+        if (response.ok) {
+          const updatedUser = await response.json();
+          console.log('Usuario actualizado:', updatedUser);
+          user.tipo_usuario = userType;
+          localStorage.setItem('user', JSON.stringify(user));
+        }
+      } catch (err) {
+        // Manejo de error opcional
+      }
+    }
     // Redirigir según el tipo de usuario
     if (userType === 'admin') {
       navigate('/dashboard/parqueadero');

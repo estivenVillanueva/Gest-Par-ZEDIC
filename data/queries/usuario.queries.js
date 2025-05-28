@@ -69,14 +69,19 @@ export const usuarioQueries = {
     },
 
     // Actualizar usuario
-    async updateUsuario(id, { nombre, correo, ubicacion, telefono }) {
+    async updateUsuario(id, data) {
+        console.log('DATA RECIBIDA EN UPDATE:', data);
+        const { nombre, correo, ubicacion, telefono } = data;
+        const tipoUsuarioFinal = data.tipo_usuario || data.tipoUsuario;
+        console.log('tipoUsuarioFinal usado en UPDATE:', tipoUsuarioFinal);
+        console.log('Valores para UPDATE:', [nombre, correo, ubicacion, telefono, tipoUsuarioFinal, id]);
         const query = `
             UPDATE usuarios
-            SET nombre = $1, correo = $2, ubicacion = $3, telefono = $4
-            WHERE id = $5
+            SET nombre = $1, correo = $2, ubicacion = $3, telefono = $4, tipo_usuario = $5
+            WHERE id = $6
             RETURNING *
         `;
-        const values = [nombre, correo, ubicacion, telefono, id];
+        const values = [nombre, correo, ubicacion, telefono, tipoUsuarioFinal, id];
         const result = await pool.query(query, values);
         return result.rows[0];
     },
