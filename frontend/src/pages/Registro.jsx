@@ -7,6 +7,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { useAuth } from '../../logic/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
 
 // Importar iconos
 import GoogleIcon from '../assets/icons/google.svg';
@@ -123,12 +124,11 @@ const Registro = () => {
     }
   };
 
-  const handleGoogleSignUp = async () => {
+  const handleGoogleSuccess = async (credentialResponse) => {
     try {
       setError('');
       setLoading(true);
-      const result = await loginWithGoogle();
-      // Redirigir a la página de selección de tipo de usuario
+      const result = await loginWithGoogle(credentialResponse);
       navigate('/seleccion-tipo-usuario');
     } catch (error) {
       // El error ya se maneja en el contexto
@@ -299,14 +299,10 @@ const Registro = () => {
           <span>o continúa con</span>
         </StyledDivider>
 
-        <SocialButton
-          fullWidth
-          onClick={handleGoogleSignUp}
-          disabled={loading}
-        >
-          <img src={GoogleIcon} alt="Google" style={{ width: 20, height: 20 }} />
-          Google
-        </SocialButton>
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={() => setError('Error al iniciar sesión con Google')}
+        />
 
         <AuthFooter>
           ¿Ya tienes una cuenta?{' '}

@@ -5,6 +5,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import EmailIcon from '@mui/icons-material/Email';
 import { useAuth } from '../../logic/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
 
 // Importar iconos
 import GoogleIcon from '../assets/icons/google.svg';
@@ -62,13 +63,19 @@ const Acceder = () => {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleSuccess = async (credentialResponse) => {
     try {
       setError('');
       setLoading(true);
-      const result = await loginWithGoogle();
-      // Aquí podrías verificar el tipo de usuario en la base de datos
-      navigate('/dashboard/parqueadero');
+      const result = await loginWithGoogle(credentialResponse);
+      const tipo = result?.data?.tipo_usuario;
+      if (tipo === 'admin') {
+        navigate('/dashboard/parqueadero');
+      } else if (tipo === 'dueno') {
+        navigate('/vehiculo/inicio');
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       // El error ya se maneja en el contexto
     } finally {
@@ -178,15 +185,10 @@ const Acceder = () => {
           <span>o continúa con</span>
         </Divider>
 
-        <SocialButton
-          fullWidth
-          onClick={handleGoogleLogin}
-          disabled={loading}
-          sx={{ mb: 2 }}
-        >
-          <img src={GoogleIcon} alt="Google" style={{ width: 20, height: 20 }} />
-          Google
-        </SocialButton>
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={() => setError('Error al iniciar sesión con Google')}
+        />
 
         <AuthFooter>
           ¿No tienes una cuenta?

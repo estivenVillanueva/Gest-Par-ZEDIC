@@ -160,4 +160,46 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// Google Auth: registrar o loguear usuario con Google
+router.post('/google-auth', async (req, res) => {
+    try {
+        const { email, nombre, foto, googleId } = req.body;
+        // Buscar usuario por correo o googleId
+        let usuario = await usuarioQueries.getUsuarioByCorreo(email);
+        if (!usuario && googleId) {
+            usuario = await usuarioQueries.getUsuarioByGoogleId(googleId);
+        }
+        if (!usuario) {
+            // Crear nuevo usuario
+            usuario = await usuarioQueries.createUsuario({
+                nombre,
+                correo: email,
+                foto,
+                googleId,
+                tipo_usuario: 'dueno', // o el tipo que prefieras por defecto
+            });
+        } else {
+            // Actualizar googleId y foto si es necesario
+            if (googleId && usuario.googleId !== googleId) {
+                usuario.googleId = googleId;
+            }
+            if (foto && usuario.foto !== foto) {
+                usuario.foto = foto;
+            }
+            // Aquí podrías guardar los cambios si tu ORM lo requiere
+        }
+        res.json({
+            success: true,
+            data: usuario
+        });
+    } catch (error) {
+        console.error('Error en google-auth:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error en la autenticación con Google',
+            error: error.message
+        });
+    }
+});
+
 export const usuarioRoutes = router; 

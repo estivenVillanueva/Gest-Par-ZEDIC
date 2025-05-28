@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext();
 const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
@@ -104,6 +105,35 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // Autenticación con Google
+    const loginWithGoogle = async (credentialResponse) => {
+        try {
+            setError('');
+            setLoading(true);
+            const decoded = jwtDecode(credentialResponse.credential);
+            const response = await fetchWithTimeout(`${API_URL}/api/usuarios/google-auth`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: decoded.email,
+                    nombre: decoded.name,
+                    foto: decoded.picture,
+                    googleId: decoded.sub
+                })
+            });
+            if (!response.ok) throw new Error('Error en la autenticación con Google');
+            const usuario = await response.json();
+            setCurrentUser(usuario.data);
+            localStorage.setItem('user', JSON.stringify(usuario.data));
+            return usuario;
+        } catch (error) {
+            handleAuthError(error);
+            throw error;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // Manejar errores de autenticación
     const handleAuthError = (error) => {
         if (error.message === 'timeout') {
@@ -138,6 +168,7 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         resetPassword,
+        loginWithGoogle,
         setError
     };
 

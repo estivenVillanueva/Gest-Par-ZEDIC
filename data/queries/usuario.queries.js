@@ -4,28 +4,31 @@ import { parqueaderoQueries } from './parqueadero.queries.js';
 
 export const usuarioQueries = {
     // Crear un nuevo usuario
-    async createUsuario({ nombre, correo, password, ubicacion, tipo_usuario, rol_id, telefono }) {
-        console.log('Objeto recibido en createUsuario:', { nombre, correo, password, ubicacion, tipo_usuario, rol_id, telefono });
+    async createUsuario({ nombre, correo, password, ubicacion, tipo_usuario, rol_id, telefono, googleId, foto }) {
+        console.log('Objeto recibido en createUsuario:', { nombre, correo, password, ubicacion, tipo_usuario, rol_id, telefono, googleId, foto });
         const correoFinal = (correo || '').trim();
         const nombreFinal = (nombre || '').trim();
-        const passwordFinal = password || '';
         const ubicacionFinal = (ubicacion || '').trim();
         const tipoFinal = tipo_usuario || '';
         const telefonoFinal = telefono || '';
-        const rolIdFinal = rol_id || 1; // Valor por defecto para admin
+        const rolIdFinal = rol_id || 1;
+        const googleIdFinal = googleId || null;
+        const fotoFinal = foto || null;
 
         if (!correoFinal) throw new Error('El campo correo es requerido');
-        if (!passwordFinal) throw new Error('El campo password es requerido');
+        // Permitir usuarios Google sin password
+        let hashedPassword = null;
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            hashedPassword = await bcrypt.hash(password, salt);
+        }
 
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(passwordFinal, salt);
-
-        const values = [nombreFinal, correoFinal, hashedPassword, ubicacionFinal, tipoFinal, rolIdFinal, telefonoFinal];
+        const values = [nombreFinal, correoFinal, hashedPassword, ubicacionFinal, tipoFinal, rolIdFinal, telefonoFinal, googleIdFinal, fotoFinal];
         console.log('Valores enviados a la base de datos:', values);
 
         const query = `
-            INSERT INTO usuarios (nombre, correo, password, ubicacion, tipo_usuario, rol_id, telefono)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            INSERT INTO usuarios (nombre, correo, password, ubicacion, tipo_usuario, rol_id, telefono, googleid, foto)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             RETURNING *
         `;
         const result = await pool.query(query, values);
@@ -113,6 +116,13 @@ export const usuarioQueries = {
             RETURNING *
         `;
         const result = await pool.query(query, [hashedPassword, id]);
+        return result.rows[0];
+    },
+
+    // Buscar usuario por Google ID
+    async getUsuarioByGoogleId(googleId) {
+        const query = 'SELECT * FROM usuarios WHERE googleid = $1';
+        const result = await pool.query(query, [googleId]);
         return result.rows[0];
     }
 }; 
