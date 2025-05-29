@@ -178,7 +178,7 @@ const Registro = () => {
         <AuthForm onSubmit={handleSubmit}>
           <FormField>
             <InputLabel>
-              Nombre complet
+              Nombre completo
             </InputLabel>
             <StyledTextField
               fullWidth
