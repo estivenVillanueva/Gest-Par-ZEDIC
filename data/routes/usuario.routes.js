@@ -164,30 +164,31 @@ router.post('/login', async (req, res) => {
 router.post('/google-auth', async (req, res) => {
     try {
         const { email, nombre, foto, googleId } = req.body;
-        // Buscar usuario por correo o googleId
+        // Buscar usuario por correo
         let usuario = await usuarioQueries.getUsuarioByCorreo(email);
-        if (!usuario && googleId) {
-            usuario = await usuarioQueries.getUsuarioByGoogleId(googleId);
-        }
-        if (!usuario) {
-            // Crear nuevo usuario
-            usuario = await usuarioQueries.createUsuario({
-                nombre,
-                correo: email,
-                foto,
-                googleId,
-                tipo_usuario: 'dueno', // o el tipo que prefieras por defecto
-            });
-        } else {
-            // Actualizar googleId y foto si es necesario
-            if (googleId && usuario.googleId !== googleId) {
-                usuario.googleId = googleId;
+        if (usuario) {
+            if (usuario.googleId) {
+                // Ya está registrado con Google, solo login
+                return res.json({
+                    success: true,
+                    data: usuario
+                });
+            } else {
+                // Existe con ese correo pero no con Google
+                return res.status(400).json({
+                    success: false,
+                    message: 'Este correo ya está registrado sin Google. Usa tu método de acceso original.'
+                });
             }
-            if (foto && usuario.foto !== foto) {
-                usuario.foto = foto;
-            }
-            // Aquí podrías guardar los cambios si tu ORM lo requiere
         }
+        // Si no existe, crear nuevo usuario
+        usuario = await usuarioQueries.createUsuario({
+            nombre,
+            correo: email,
+            foto,
+            googleId,
+            tipo_usuario: 'dueno', // o el tipo que prefieras por defecto
+        });
         res.json({
             success: true,
             data: usuario
