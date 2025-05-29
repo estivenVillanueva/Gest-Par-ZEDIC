@@ -125,6 +125,15 @@ export const AuthProvider = ({ children }) => {
             const usuario = await response.json();
             setCurrentUser(usuario.data);
             localStorage.setItem('user', JSON.stringify(usuario.data));
+            // Redirección automática según tipo de usuario
+            const tipo = usuario?.data?.tipo_usuario;
+            if (tipo === 'admin') {
+                navigate('/dashboard/parqueadero');
+            } else if (tipo === 'dueno') {
+                navigate('/vehiculo/inicio');
+            } else {
+                navigate('/');
+            }
             return usuario;
         } catch (error) {
             handleAuthError(error);
