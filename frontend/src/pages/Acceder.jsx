@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { InputAdornment, IconButton, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -33,6 +33,11 @@ const Acceder = () => {
     password: '',
     tipoUsuario: '',
   });
+
+  useEffect(() => {
+    setError('');
+    // Limpia el error al montar el componente o cambiar de ruta
+  }, [setError]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
