@@ -13,15 +13,23 @@ dotenv.config();
 const app = express();
 
 // Middleware
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://gest-par-zedic.onrender.com',
+  'https://gest-par-zedic-9gcy.vercel.app'
+];
+
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://gest-par-zedic.onrender.com',
-    'https://gest-par-zedic-9gcy.vercel.app',
-    'https://gest-par-zedic-9gcy-222n7m7b1-estivenvillanueva71.vercel.app',
-    'https://gest-par-zedic-9gcy-v1poyd758-estivenvillanuevas-projects.vercel.app',
-    'https://gest-par-zedic-9gcy-222n7m7b1-estivenvillanueva71.vercel.app/api/usuarios'
-  ],
+  origin: function(origin, callback) {
+    if (
+      allowedOrigins.includes(origin) ||
+      /^https:\/\/gest-par-zedic-9gcy-.*\.vercel\.app$/.test(origin)
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -38,14 +46,16 @@ app.use('/api/roles', rolesRoutes);
 
 // Manejar preflight OPTIONS para todas las rutas
 app.options('*', cors({
-  origin: [
-    'http://localhost:5173',
-    'https://gest-par-zedic.onrender.com',
-    'https://gest-par-zedic-9gcy.vercel.app',
-    'https://gest-par-zedic-9gcy-222n7m7b1-estivenvillanueva71.vercel.app',
-    'https://gest-par-zedic-9gcy-v1poyd758-estivenvillanuevas-projects.vercel.app',
-    'https://gest-par-zedic-9gcy-222n7m7b1-estivenvillanueva71.vercel.app/api/usuarios'
-  ],
+  origin: function(origin, callback) {
+    if (
+      allowedOrigins.includes(origin) ||
+      /^https:\/\/gest-par-zedic-9gcy-.*\.vercel\.app$/.test(origin)
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
