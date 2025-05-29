@@ -18,7 +18,9 @@ app.use(cors({
     'http://localhost:5173',
     'https://gest-par-zedic.onrender.com',
     'https://gest-par-zedic-9gcy.vercel.app',
-    'https://gest-par-zedic-9gcy-222n7m7b1-estivenvillanueva71.vercel.app'
+    'https://gest-par-zedic-9gcy-222n7m7b1-estivenvillanueva71.vercel.app',
+    'https://gest-par-zedic-9gcy-v1poyd758-estivenvillanuevas-projects.vercel.app',
+    'https://gest-par-zedic-9gcy-222n7m7b1-estivenvillanueva71.vercel.app/api/usuarios'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -40,7 +42,9 @@ app.options('*', cors({
     'http://localhost:5173',
     'https://gest-par-zedic.onrender.com',
     'https://gest-par-zedic-9gcy.vercel.app',
-    'https://gest-par-zedic-9gcy-222n7m7b1-estivenvillanueva71.vercel.app'
+    'https://gest-par-zedic-9gcy-222n7m7b1-estivenvillanueva71.vercel.app',
+    'https://gest-par-zedic-9gcy-v1poyd758-estivenvillanuevas-projects.vercel.app',
+    'https://gest-par-zedic-9gcy-222n7m7b1-estivenvillanueva71.vercel.app/api/usuarios'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
