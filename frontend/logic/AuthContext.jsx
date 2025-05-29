@@ -121,8 +121,11 @@ export const AuthProvider = ({ children }) => {
                     googleId: decoded.sub
                 })
             });
-            if (!response.ok) throw new Error('Error en la autenticación con Google');
             const usuario = await response.json();
+            if (!response.ok) {
+                // Mostrar el mensaje específico del backend si existe
+                throw new Error(usuario.message || 'Error en la autenticación con Google');
+            }
             setCurrentUser(usuario.data);
             localStorage.setItem('user', JSON.stringify(usuario.data));
             // Redirección automática según tipo de usuario
@@ -145,20 +148,7 @@ export const AuthProvider = ({ children }) => {
 
     // Manejar errores de autenticación
     const handleAuthError = (error) => {
-        if (error.message === 'timeout') {
-            setError('El servidor no responde, intenta más tarde');
-            return;
-        }
-        switch (error.message) {
-            case 'Credenciales inválidas':
-                setError('Correo o contraseña incorrectos');
-                break;
-            case 'No existe una cuenta con este correo electrónico':
-                setError('No existe una cuenta con este correo electrónico');
-                break;
-            default:
-                setError('Ocurrió un error durante la autenticación');
-        }
+        setError(error.message || 'Ocurrió un error durante la autenticación');
     };
 
     // Verificar si hay una sesión activa al cargar
