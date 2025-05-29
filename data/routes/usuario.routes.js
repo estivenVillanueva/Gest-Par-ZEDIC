@@ -168,7 +168,7 @@ router.post('/google-auth', async (req, res) => {
         let usuario = await usuarioQueries.getUsuarioByCorreo(email);
         if (usuario) {
             if (usuario.googleId) {
-                // Ya está registrado con Google, solo login
+                // Ya está registrado con Google, permitir login
                 return res.json({
                     success: true,
                     data: usuario
