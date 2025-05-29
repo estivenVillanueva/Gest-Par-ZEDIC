@@ -190,10 +190,36 @@ const Acceder = () => {
           <span>o continúa con</span>
         </Divider>
 
-        <div className="google-login-rounded">
+        <div style={{ display: 'flex', justifyContent: 'center', margin: '16px 0' }}>
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
             onError={() => setError('Error al iniciar sesión con Google')}
+            useOneTap={false}
+            auto_select={false}
+            prompt="select_account"
+            render={renderProps => (
+              <button
+                onClick={renderProps.onClick}
+                disabled={renderProps.disabled}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: '#fff',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '24px',
+                  padding: '10px 24px',
+                  fontWeight: 500,
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                  transition: 'box-shadow 0.2s',
+                }}
+              >
+                <img src={GoogleIcon} alt="Google" style={{ width: 24, height: 24, marginRight: 12 }} />
+                Continuar con Google
+              </button>
+            )}
           />
         </div>
 
