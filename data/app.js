@@ -22,6 +22,7 @@ const allowedOrigins = [
 app.use(cors({
   origin: function(origin, callback) {
     if (
+      !origin ||
       allowedOrigins.includes(origin) ||
       /^https:\/\/gest-par-zedic-9gcy-.*\.vercel\.app$/.test(origin)
     ) {
@@ -48,6 +49,7 @@ app.use('/api/roles', rolesRoutes);
 app.options('*', cors({
   origin: function(origin, callback) {
     if (
+      !origin ||
       allowedOrigins.includes(origin) ||
       /^https:\/\/gest-par-zedic-9gcy-.*\.vercel\.app$/.test(origin)
     ) {
