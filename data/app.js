@@ -17,7 +17,8 @@ app.use(cors({
   origin: [
     'http://localhost:5173',
     'https://gest-par-zedic.onrender.com',
-    'https://gest-par-zedic-9gcy.vercel.app'
+    'https://gest-par-zedic-9gcy.vercel.app',
+    'https://gest-par-zedic-9gcy-222n7m7b1-estivenvillanueva71.vercel.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -38,7 +39,8 @@ app.options('*', cors({
   origin: [
     'http://localhost:5173',
     'https://gest-par-zedic.onrender.com',
-    'https://gest-par-zedic-9gcy.vercel.app'
+    'https://gest-par-zedic-9gcy.vercel.app',
+    'https://gest-par-zedic-9gcy-222n7m7b1-estivenvillanueva71.vercel.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
