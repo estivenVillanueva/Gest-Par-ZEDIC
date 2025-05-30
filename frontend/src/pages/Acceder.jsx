@@ -52,31 +52,22 @@ const Acceder = () => {
     setError('');
     setLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com'}/api/usuarios/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          correo: formData.email,
-          password: formData.password
-        })
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data.message || 'Credenciales incorrectas');
-        setLoading(false);
-        return;
-      }
-      // Solo navegar si el login fue exitoso
-      const tipo = data.data?.tipo_usuario;
+      const usuario = await login(formData.email, formData.password);
+      console.log('Respuesta del backend:', usuario);
+      const tipo = usuario?.data?.tipo_usuario || usuario?.tipo_usuario;
+      console.log('Tipo de usuario:', tipo);
       if (tipo === 'admin') {
+        console.log('Navegando a /dashboard/parqueadero');
         navigate('/dashboard/parqueadero');
       } else if (tipo === 'dueno') {
+        console.log('Navegando a /vehiculo/inicio');
         navigate('/vehiculo/inicio');
       } else {
+        console.log('Navegando a /');
         navigate('/');
       }
     } catch (err) {
-      setError('Error de conexión con el servidor');
+      setError(err.message || 'Credenciales incorrectas');
     } finally {
       setLoading(false);
     }

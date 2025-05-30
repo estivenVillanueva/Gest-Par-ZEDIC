@@ -184,11 +184,10 @@ router.post('/login', async (req, res) => {
             data: usuario
         });
     } catch (error) {
-        console.error('Error en login:', error); // Log de error
-        res.status(500).json({
+        // Si el error es por usuario no verificado o credenciales, devolver 401 y el mensaje
+        return res.status(401).json({
             success: false,
-            message: 'Error en el login',
-            error: error.message
+            message: error.message || 'Error en el login'
         });
     }
 });
