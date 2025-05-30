@@ -272,10 +272,22 @@ router.get('/verificar/:token', async (req, res) => {
     try {
         const usuario = await usuarioQueries.getUsuarioByToken(token);
         if (!usuario) {
-            return res.status(400).send('Token inválido o expirado');
+            return res.send(`
+                <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 40px auto; border: 1px solid #e0e0e0; border-radius: 8px; padding: 32px; background: #fafbfc; text-align: center;">
+                    <h2 style="color: #DC2626;">¡Enlace inválido o expirado!</h2>
+                    <p>El enlace de verificación no es válido o ya fue utilizado.</p>
+                    <a href="https://gest-par-zedic-9gcy.vercel.app/acceder" style="display: inline-block; margin-top: 24px; background: #2563EB; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Ir a Iniciar Sesión</a>
+                </div>
+            `);
         }
         await usuarioQueries.verificarUsuario(usuario.id);
-        res.send('¡Correo verificado correctamente! Ya puedes iniciar sesión.');
+        res.send(`
+            <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 40px auto; border: 1px solid #e0e0e0; border-radius: 8px; padding: 32px; background: #fafbfc; text-align: center;">
+                <h2 style="color: #2563EB;">¡Cuenta verificada correctamente!</h2>
+                <p>Tu correo ha sido verificado exitosamente.<br>Ya puedes iniciar sesión en la plataforma.</p>
+                <a href="https://gest-par-zedic-9gcy.vercel.app/acceder" style="display: inline-block; margin-top: 24px; background: #2563EB; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Ir a Iniciar Sesión</a>
+            </div>
+        `);
     } catch (error) {
         res.status(500).send('Error al verificar el correo.');
     }
