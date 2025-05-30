@@ -52,8 +52,22 @@ const Acceder = () => {
     setError('');
     setLoading(true);
     try {
-      const usuario = await login(formData.email, formData.password);
-      const tipo = usuario?.data?.tipo_usuario || usuario?.tipo_usuario;
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com'}/api/usuarios/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          correo: formData.email,
+          password: formData.password
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.message || 'Credenciales incorrectas');
+        setLoading(false);
+        return;
+      }
+      // Solo navegar si el login fue exitoso
+      const tipo = data.data?.tipo_usuario;
       if (tipo === 'admin') {
         navigate('/dashboard/parqueadero');
       } else if (tipo === 'dueno') {
@@ -62,7 +76,7 @@ const Acceder = () => {
         navigate('/');
       }
     } catch (err) {
-      setError('Credenciale incorrecta');
+      setError('Error de conexión con el servidor');
     } finally {
       setLoading(false);
     }
