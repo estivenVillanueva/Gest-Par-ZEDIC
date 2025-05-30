@@ -158,20 +158,8 @@ const Registro = () => {
       
       const data = await response.json();
       if (response.ok) {
-        localStorage.setItem('showWelcome', 'true');
-        try {
-          const usuario = await login(formData.email, formData.password);
-          const tipo = usuario?.data?.tipo_usuario || usuario?.tipo_usuario;
-          if (tipo === 'admin') {
-            navigate('/dashboard/parqueadero');
-          } else if (tipo === 'dueno') {
-            navigate('/vehiculo/inicio');
-          } else {
-            navigate('/');
-          }
-        } catch (err) {
-          setError('Registro exitoso, pero error al iniciar sesión automáticamente');
-        }
+        // Mostrar solo el mensaje de verificación, no iniciar sesión automáticamente
+        setShowWelcome(true);
       } else {
         setError(data.message || 'Error al registrar usuario');
       }
@@ -233,125 +221,139 @@ const Registro = () => {
           </div>
         )}
 
-        <AuthForm onSubmit={handleSubmit}>
-          <FormField>
-            <InputLabel>
-              Nombre completo
-            </InputLabel>
-            <StyledTextField
-              fullWidth
-              name="nombre"
-              placeholder="John Doe"
-              value={formData.nombre}
-              onChange={handleChange}
-              required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <PersonIcon sx={{ color: '#9CA3AF', fontSize: '1.2rem' }} />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </FormField>
-
-          <FormField>
-            <InputLabel>
-              Correo electrónico o teléfono
-            </InputLabel>
-            <StyledTextField
-              fullWidth
-              name="email"
-              type="email"
-              placeholder="ejemplo@email.com"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <EmailIcon sx={{ color: '#9CA3AF', fontSize: '1.2rem' }} />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </FormField>
-
-          <FormField>
-            <InputLabel>
-              Ubicación
-            </InputLabel>
-            <StyledTextField
-              fullWidth
-              name="ubicacion"
-              placeholder="Ciudad, País"
-              value={formData.ubicacion}
-              onChange={handleChange}
-              required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <LocationOnIcon sx={{ color: '#9CA3AF', fontSize: '1.2rem' }} />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </FormField>
-
-          <FormField>
-            <InputLabel>
-              Tipo de usuario
-            </InputLabel>
-            <FormControl fullWidth required>
-              <Select
-                name="tipoUsuario"
-                value={formData.tipoUsuario}
+        {showWelcome ? (
+          <div style={{
+            color: '#2563EB',
+            backgroundColor: '#DBEAFE',
+            padding: '16px',
+            borderRadius: '8px',
+            marginBottom: '16px',
+            textAlign: 'center',
+            fontWeight: 500
+          }}>
+            ¡Registro exitoso! Te hemos enviado un correo de verificación. Por favor, revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.
+          </div>
+        ) : (
+          <AuthForm onSubmit={handleSubmit}>
+            <FormField>
+              <InputLabel>
+                Nombre completo
+              </InputLabel>
+              <StyledTextField
+                fullWidth
+                name="nombre"
+                placeholder="John Doe"
+                value={formData.nombre}
                 onChange={handleChange}
-                displayEmpty
-              >
-                <MenuItem value="" disabled>Selecciona el tipo de usuario</MenuItem>
-                <MenuItem value="admin">Administrador Parqueadero</MenuItem>
-                <MenuItem value="dueno">Dueño del Vehículo</MenuItem>
-              </Select>
-            </FormControl>
-          </FormField>
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonIcon sx={{ color: '#9CA3AF', fontSize: '1.2rem' }} />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </FormField>
 
-          <FormField>
-            <InputLabel>
-              Contraseña
-            </InputLabel>
-            <StyledTextField
+            <FormField>
+              <InputLabel>
+                Correo electrónico o teléfono
+              </InputLabel>
+              <StyledTextField
+                fullWidth
+                name="email"
+                type="email"
+                placeholder="ejemplo@email.com"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <EmailIcon sx={{ color: '#9CA3AF', fontSize: '1.2rem' }} />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </FormField>
+
+            <FormField>
+              <InputLabel>
+                Ubicación
+              </InputLabel>
+              <StyledTextField
+                fullWidth
+                name="ubicacion"
+                placeholder="Ciudad, País"
+                value={formData.ubicacion}
+                onChange={handleChange}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LocationOnIcon sx={{ color: '#9CA3AF', fontSize: '1.2rem' }} />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </FormField>
+
+            <FormField>
+              <InputLabel>
+                Tipo de usuario
+              </InputLabel>
+              <FormControl fullWidth required>
+                <Select
+                  name="tipoUsuario"
+                  value={formData.tipoUsuario}
+                  onChange={handleChange}
+                  displayEmpty
+                >
+                  <MenuItem value="" disabled>Selecciona el tipo de usuario</MenuItem>
+                  <MenuItem value="admin">Administrador Parqueadero</MenuItem>
+                  <MenuItem value="dueno">Dueño del Vehículo</MenuItem>
+                </Select>
+              </FormControl>
+            </FormField>
+
+            <FormField>
+              <InputLabel>
+                Contraseña
+              </InputLabel>
+              <StyledTextField
+                fullWidth
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                        sx={{ color: '#9CA3AF' }}
+                      >
+                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </FormField>
+
+            <RegisterButton
+              type="submit"
               fullWidth
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                      sx={{ color: '#9CA3AF' }}
-                    >
-                      {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </FormField>
-
-          <RegisterButton
-            type="submit"
-            fullWidth
-            disabled={loading}
-          >
-            {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
-          </RegisterButton>
-        </AuthForm>
+              disabled={loading}
+            >
+              {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
+            </RegisterButton>
+          </AuthForm>
+        )}
 
         <StyledDivider>
           <span>o continúa con</span>

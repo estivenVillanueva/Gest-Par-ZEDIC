@@ -103,6 +103,11 @@ export const usuarioQueries = {
         console.log('Usuario encontrado:', usuario); // Log de depuración
         if (!usuario) return null;
 
+        // Solo permitir login si el usuario está verificado
+        if (!usuario.verificado) {
+            throw new Error('Debes verificar tu correo antes de iniciar sesión.');
+        }
+
         const validPassword = await bcrypt.compare(password, usuario.password);
         console.log('Password válido:', validPassword); // Log de depuración
         if (!validPassword) return null;
