@@ -66,29 +66,82 @@ const Registro = () => {
     return true;
   };
 
+  const validateEmailFormat = (email) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  };
+
+  const validateEmailDomain = async (email) => {
+    try {
+      const response = await fetch(`${API_URL}/api/usuarios/verificar-correo-existente`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await response.json();
+      return data.isValid;
+    } catch (error) {
+      console.error('Error al verificar dominio:', error);
+      return false;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
+    // Validación de contraseña
     if (formData.password.length < 8) {
       setError('La contraseña debe tener al menos 8 caracteres.');
       return;
     }
 
+    // Validación de tipo de usuario
     if (!formData.tipoUsuario) {
       setError('Debes seleccionar un tipo de usuario.');
       setLoading(false);
       return;
     }
 
+    // Validación de correo
     if (!formData.email) {
       setError('El correo es obligatorio.');
       setLoading(false);
       return;
     }
 
+    // Validar formato del correo
+    if (!validateEmailFormat(formData.email)) {
+      setError('Por favor, ingresa un correo electrónico válido.');
+      return;
+    }
+
     setLoading(true);
     try {
+      // Verificar si el correo ya está registrado
+      const checkEmailResponse = await fetch(`${API_URL}/api/usuarios/verificar-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email })
+      });
+      
+      const emailCheckData = await checkEmailResponse.json();
+      
+      if (emailCheckData.exists) {
+        setError('Este correo electrónico ya está registrado.');
+        setLoading(false);
+        return;
+      }
+
+      // Verificar si el dominio del correo es válido
+      const isEmailValid = await validateEmailDomain(formData.email);
+      if (!isEmailValid) {
+        setError('El correo electrónico proporcionado no es válido o no existe.');
+        setLoading(false);
+        return;
+      }
+
+      // Si pasó todas las validaciones, proceder con el registro
       const payload = {
         nombre: formData.nombre,
         correo: formData.email,
@@ -96,16 +149,16 @@ const Registro = () => {
         ubicacion: formData.ubicacion,
         tipo_usuario: formData.tipoUsuario
       };
-      console.log('Payload enviado al backend:', payload);
+
       const response = await fetch(`${API_URL}/api/usuarios`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
+      
       const data = await response.json();
       if (response.ok) {
         localStorage.setItem('showWelcome', 'true');
-        // Iniciar sesión automáticamente usando el método del contexto
         try {
           const usuario = await login(formData.email, formData.password);
           const tipo = usuario?.data?.tipo_usuario || usuario?.tipo_usuario;
