@@ -4,8 +4,8 @@ import { parqueaderoQueries } from './parqueadero.queries.js';
 
 export const usuarioQueries = {
     // Crear un nuevo usuario
-    async createUsuario({ nombre, correo, password, ubicacion, tipo_usuario, rol_id, telefono, googleId, foto }) {
-        console.log('Objeto recibido en createUsuario:', { nombre, correo, password, ubicacion, tipo_usuario, rol_id, telefono, googleId, foto });
+    async createUsuario({ nombre, correo, password, ubicacion, tipo_usuario, rol_id, telefono, googleId, foto, verificado = false, tokenVerificacion = null }) {
+        console.log('Objeto recibido en createUsuario:', { nombre, correo, password, ubicacion, tipo_usuario, rol_id, telefono, googleId, foto, verificado, tokenVerificacion });
         const correoFinal = (correo || '').trim();
         const nombreFinal = (nombre || '').trim();
         const ubicacionFinal = (ubicacion || '').trim();
@@ -14,6 +14,8 @@ export const usuarioQueries = {
         const rolIdFinal = rol_id || 1;
         const googleIdFinal = googleId || null;
         const fotoFinal = foto || null;
+        const verificadoFinal = verificado;
+        const tokenVerificacionFinal = tokenVerificacion;
 
         if (!correoFinal) throw new Error('El campo correo es requerido');
         // Permitir usuarios Google sin password
@@ -23,12 +25,12 @@ export const usuarioQueries = {
             hashedPassword = await bcrypt.hash(password, salt);
         }
 
-        const values = [nombreFinal, correoFinal, hashedPassword, ubicacionFinal, tipoFinal, rolIdFinal, telefonoFinal, googleIdFinal, fotoFinal];
+        const values = [nombreFinal, correoFinal, hashedPassword, ubicacionFinal, tipoFinal, rolIdFinal, telefonoFinal, googleIdFinal, fotoFinal, verificadoFinal, tokenVerificacionFinal];
         console.log('Valores enviados a la base de datos:', values);
 
         const query = `
-            INSERT INTO usuarios (nombre, correo, password, ubicacion, tipo_usuario, rol_id, telefono, googleid, foto)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            INSERT INTO usuarios (nombre, correo, password, ubicacion, tipo_usuario, rol_id, telefono, googleid, foto, verificado, tokenverificacion)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
             RETURNING *
         `;
         const result = await pool.query(query, values);
@@ -129,6 +131,25 @@ export const usuarioQueries = {
     async getUsuarioByGoogleId(googleId) {
         const query = 'SELECT * FROM usuarios WHERE googleid = $1';
         const result = await pool.query(query, [googleId]);
+        return result.rows[0];
+    },
+
+    // Buscar usuario por token de verificación
+    async getUsuarioByToken(token) {
+        const query = 'SELECT * FROM usuarios WHERE tokenverificacion = $1';
+        const result = await pool.query(query, [token]);
+        return result.rows[0];
+    },
+
+    // Marcar usuario como verificado y eliminar el token
+    async verificarUsuario(id) {
+        const query = `
+            UPDATE usuarios
+            SET verificado = true, tokenverificacion = NULL
+            WHERE id = $1
+            RETURNING *
+        `;
+        const result = await pool.query(query, [id]);
         return result.rows[0];
     }
 }; 

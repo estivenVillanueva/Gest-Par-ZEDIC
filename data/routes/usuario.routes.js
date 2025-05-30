@@ -3,6 +3,8 @@ import { usuarioQueries } from '../queries/usuario.queries.js';
 import { parqueaderoQueries } from '../queries/parqueadero.queries.js';
 import dns from 'dns';
 import { promisify } from 'util';
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
 const router = express.Router();
 
@@ -57,27 +59,39 @@ router.get('/:id', async (req, res) => {
 // Crear un nuevo usuario
 router.post('/', async (req, res) => {
     try {
-        console.log('Datos recibidos en registro:', req.body); // Log de depuración
-        const nuevoUsuario = await usuarioQueries.createUsuario(req.body);
-        // Eliminar la creación redundante de parqueadero aquí
-        // if (nuevoUsuario.tipo_usuario === 'admin') {
-        //     await parqueaderoQueries.createParqueadero({
-        //         nombre: '',
-        //         ubicacion: '',
-        //         capacidad: 0,
-        //         precio_hora: 0,
-        //         estado: 'Activo',
-        //         telefono: '',
-        //         email: '',
-        //         direccion: '',
-        //         horarios: '',
-        //         descripcion: '',
-        //         usuario_id: nuevoUsuario.id // Relación
-        //     });
-        // }
+        // Generar token de verificación
+        const token = crypto.randomBytes(32).toString('hex');
+        // Crear usuario como no verificado
+        const nuevoUsuario = await usuarioQueries.createUsuario({
+            ...req.body,
+            verificado: false,
+            tokenVerificacion: token
+        });
+
+        // Configurar Nodemailer
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'gestparzedic@gmail.com',
+                pass: 'bakmbvndonibatee'
+            }
+        });
+
+        const urlVerificacion = `https://gest-par-zedic.onrender.com/api/usuarios/verificar/${token}`;
+
+        // Enviar correo de verificación
+        await transporter.sendMail({
+            from: 'gestparzedic@gmail.com',
+            to: nuevoUsuario.correo,
+            subject: 'Verifica tu correo',
+            html: `<p>Haz clic en el siguiente enlace para verificar tu cuenta:</p>
+                   <a href="${urlVerificacion}">${urlVerificacion}</a>`
+        });
+
         res.status(201).json({
             success: true,
-            data: nuevoUsuario
+            data: nuevoUsuario,
+            message: 'Usuario creado. Se ha enviado un correo de verificación.'
         });
     } catch (error) {
         console.error('Error al crear usuario (detalle):', error);
@@ -235,6 +249,21 @@ router.post('/verificar-correo-existente', async (req, res) => {
         return res.json({ isValid: false });
     } catch (error) {
         res.status(500).json({ error: 'Error al verificar el dominio del correo' });
+    }
+});
+
+// Endpoint para verificar el correo electrónico
+router.get('/verificar/:token', async (req, res) => {
+    const { token } = req.params;
+    try {
+        const usuario = await usuarioQueries.getUsuarioByToken(token);
+        if (!usuario) {
+            return res.status(400).send('Token inválido o expirado');
+        }
+        await usuarioQueries.verificarUsuario(usuario.id);
+        res.send('¡Correo verificado correctamente! Ya puedes iniciar sesión.');
+    } catch (error) {
+        res.status(500).send('Error al verificar el correo.');
     }
 });
 
