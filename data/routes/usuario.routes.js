@@ -1,8 +1,12 @@
 import express from 'express';
 import { usuarioQueries } from '../queries/usuario.queries.js';
 import { parqueaderoQueries } from '../queries/parqueadero.queries.js';
+import dns from 'dns';
+import { promisify } from 'util';
 
 const router = express.Router();
+
+const resolveMx = promisify(dns.resolveMx);
 
 // Obtener usuario por correo
 router.get('/correo/:correo', async (req, res) => {
@@ -200,6 +204,37 @@ router.post('/google-auth', async (req, res) => {
             message: 'Error en la autenticación con Google',
             error: error.message
         });
+    }
+});
+
+// Endpoint para verificar si un correo ya está registrado
+router.post('/verificar-email', async (req, res) => {
+    try {
+        const { email } = req.body;
+        // Buscar usuario por correo en la base de datos
+        const usuario = await usuarioQueries.getUsuarioByCorreo(email);
+        res.json({ exists: !!usuario });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al verificar el correo electrónico' });
+    }
+});
+
+// Endpoint para verificar si el dominio del correo es válido (tiene MX)
+router.post('/verificar-correo-existente', async (req, res) => {
+    try {
+        const { email } = req.body;
+        const domain = email.split('@')[1];
+        try {
+            const mxRecords = await resolveMx(domain);
+            if (mxRecords && mxRecords.length > 0) {
+                return res.json({ isValid: true });
+            }
+        } catch (error) {
+            return res.json({ isValid: false });
+        }
+        return res.json({ isValid: false });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al verificar el dominio del correo' });
     }
 });
 
