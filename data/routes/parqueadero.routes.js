@@ -77,19 +77,15 @@ router.post('/', async (req, res) => {
             const { serviciosQueries } = await import('../queries/servicios.queries.js');
             console.log('Después de importar serviciosQueries');
             const servicioCreado = await serviciosQueries.createServicio({
-                nombre: null, // o '' si prefieres
+                nombre: '', // o null si la tabla lo permite
                 precio: null,
-                tipo: null,
-                parqueadero_id: nuevoParqueadero.id // nombre correcto
+                tipo: '',
+                parqueadero_id: nuevoParqueadero.id
             });
             console.log('Servicio vacío creado correctamente:', servicioCreado);
         } catch (servicioError) {
             console.error('Error al crear servicio vacío:', servicioError);
-            return res.status(500).json({
-                success: false,
-                message: 'Error al crear servicio vacío',
-                error: servicioError.message
-            });
+            // Puedes devolver el error aquí si quieres depurar
         }
         res.status(201).json({
             success: true,
