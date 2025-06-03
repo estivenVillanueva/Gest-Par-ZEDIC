@@ -68,6 +68,7 @@ router.get('/:id', async (req, res) => {
 
 // Crear un nuevo parqueadero
 router.post('/', async (req, res) => {
+    console.log('Llamada a POST /api/parqueaderos con body:', req.body);
     try {
         const nuevoParqueadero = await parqueaderoQueries.createParqueadero(req.body);
         // Crear automáticamente un servicio vacío asociado a este parqueadero
