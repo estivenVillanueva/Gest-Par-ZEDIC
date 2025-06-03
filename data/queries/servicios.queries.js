@@ -28,17 +28,19 @@ export const serviciosQueries = {
     },
 
     // Actualizar servicio
-    async updateServicio(id, { nombre, precio, tipo, idParqueadero }) {
+    async updateServicio(id, { nombre, descripcion, precio, duracion, estado, parqueadero_id }) {
         const query = `
             UPDATE servicios
             SET nombre = $1,
-                precio = $2,
-                tipo = $3,
-                id_parqueadero = $4
-            WHERE id = $5
+                descripcion = $2,
+                precio = $3,
+                duracion = $4,
+                estado = $5,
+                parqueadero_id = $6
+            WHERE id = $7
             RETURNING *
         `;
-        const values = [nombre, precio, tipo, idParqueadero, id];
+        const values = [nombre, descripcion, precio, duracion, estado, parqueadero_id, id];
         const result = await pool.query(query, values);
         return result.rows[0];
     },
