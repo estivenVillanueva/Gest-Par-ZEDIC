@@ -74,17 +74,22 @@ router.post('/', async (req, res) => {
         try {
             // Importar aquí para evitar dependencias circulares
             const { serviciosQueries } = await import('../queries/servicios.queries.js');
-            console.log('Creando servicio vacío para parqueadero:', nuevoParqueadero.id);
-            await serviciosQueries.createServicio({
+            console.log('Intentando crear servicio vacío para parqueadero:', nuevoParqueadero.id);
+            const servicioCreado = await serviciosQueries.createServicio({
                 nombre: null, // o '' si prefieres
                 precio: null,
                 tipo: null,
                 parqueadero_id: nuevoParqueadero.id // nombre correcto
             });
-            console.log('Servicio vacío creado correctamente');
+            console.log('Servicio vacío creado correctamente:', servicioCreado);
         } catch (servicioError) {
-            // No detener la creación del parqueadero si falla el servicio, pero informar
+            // Devolver el error en la respuesta para depuración
             console.error('Error al crear servicio vacío:', servicioError);
+            return res.status(500).json({
+                success: false,
+                message: 'Error al crear servicio vacío',
+                error: servicioError.message
+            });
         }
         res.status(201).json({
             success: true,

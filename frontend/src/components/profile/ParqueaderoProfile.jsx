@@ -527,7 +527,7 @@ const ParqueaderoProfile = () => {
                     nombre: editValue.tipo,
                     precio: editValue.tarifa,
                     tipo: editValue.tipo,
-                    idParqueadero: parqueaderoInfo.id
+                    parqueadero_id: parqueaderoInfo.id
                   })
                 })
                   .then(res => res.json())
@@ -549,7 +549,7 @@ const ParqueaderoProfile = () => {
                     nombre: editValue.tipo,
                     precio: editValue.tarifa,
                     tipo: editValue.tipo,
-                    idParqueadero: parqueaderoInfo.id
+                    parqueadero_id: parqueaderoInfo.id
                   })
                 })
                   .then(res => res.json())
