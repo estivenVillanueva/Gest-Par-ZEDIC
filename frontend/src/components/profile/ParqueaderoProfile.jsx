@@ -86,6 +86,7 @@ const ParqueaderoProfile = () => {
     }
   });
   const [showWelcome, setShowWelcome] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   useEffect(() => {
     // Mostrar mensaje de bienvenida solo si es la primera vez
@@ -226,6 +227,23 @@ const ParqueaderoProfile = () => {
     setSnackbar(prev => ({ ...prev, open: false }));
   };
 
+  const handleDeleteAccount = async () => {
+    try {
+      const response = await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/${currentUser.id}`, {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        // Si tienes un método de logout en tu contexto de auth, úsalo aquí
+        // logout();
+        navigate('/login');
+      } else {
+        setSnackbar({ open: true, message: 'Error al eliminar la cuenta', severity: 'error' });
+      }
+    } catch (error) {
+      setSnackbar({ open: true, message: 'Error al eliminar la cuenta', severity: 'error' });
+    }
+  };
+
   if (showWelcome) {
     return (
       <Container maxWidth="sm" sx={{ py: 8 }}>
@@ -255,7 +273,7 @@ const ParqueaderoProfile = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+      <Paper elevation={3} sx={{ p: 3, borderRadius: 2, position: 'relative' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Avatar
@@ -352,7 +370,8 @@ const ParqueaderoProfile = () => {
 
           <Grid item xs={12}>
             <Divider sx={{ my: 3 }} />
-            
+          </Grid>
+          <Grid item xs={12}>
             <Typography variant="h6" gutterBottom>
               Descripción
             </Typography>
@@ -368,7 +387,6 @@ const ParqueaderoProfile = () => {
                 Editar descripción
               </Button>
             </Paper>
-
             <Typography variant="h6" gutterBottom>
               Servicios Ofrecidos
             </Typography>
@@ -478,6 +496,14 @@ const ParqueaderoProfile = () => {
             </Grid>
           </Grid>
         </Grid>
+        <Button
+          variant="outlined"
+          color="error"
+          onClick={() => setOpenDeleteDialog(true)}
+          sx={{ position: 'absolute', bottom: 24, right: 24 }}
+        >
+          Eliminar cuenta
+        </Button>
       </Paper>
 
       <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
@@ -650,6 +676,19 @@ const ParqueaderoProfile = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenAdminModal(false)}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
+        <DialogTitle>¿Estás seguro de que deseas eliminar tu cuenta?</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Esta acción no se puede deshacer. Se eliminarán todos tus datos, parqueadero y servicios asociados.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDeleteDialog(false)}>Cancelar</Button>
+          <Button color="error" onClick={handleDeleteAccount}>Eliminar</Button>
         </DialogActions>
       </Dialog>
 
