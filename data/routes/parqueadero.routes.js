@@ -71,11 +71,11 @@ router.post('/', async (req, res) => {
     console.log('Llamada a POST /api/parqueaderos con body:', req.body);
     try {
         const nuevoParqueadero = await parqueaderoQueries.createParqueadero(req.body);
-        // Crear automáticamente un servicio vacío asociado a este parqueadero
+        console.log('Parqueadero creado:', nuevoParqueadero);
         try {
-            // Importar aquí para evitar dependencias circulares
+            console.log('Antes de importar serviciosQueries');
             const { serviciosQueries } = await import('../queries/servicios.queries.js');
-            console.log('Intentando crear servicio vacío para parqueadero:', nuevoParqueadero.id);
+            console.log('Después de importar serviciosQueries');
             const servicioCreado = await serviciosQueries.createServicio({
                 nombre: null, // o '' si prefieres
                 precio: null,
@@ -84,7 +84,6 @@ router.post('/', async (req, res) => {
             });
             console.log('Servicio vacío creado correctamente:', servicioCreado);
         } catch (servicioError) {
-            // Devolver el error en la respuesta para depuración
             console.error('Error al crear servicio vacío:', servicioError);
             return res.status(500).json({
                 success: false,
