@@ -70,6 +70,22 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const nuevoParqueadero = await parqueaderoQueries.createParqueadero(req.body);
+        // Crear automáticamente un servicio vacío asociado a este parqueadero
+        try {
+            // Importar aquí para evitar dependencias circulares
+            const { serviciosQueries } = await import('../queries/servicios.queries.js');
+            console.log('Creando servicio vacío para parqueadero:', nuevoParqueadero.id);
+            await serviciosQueries.createServicio({
+                nombre: null, // o '' si prefieres
+                precio: null,
+                tipo: null,
+                parqueadero_id: nuevoParqueadero.id // nombre correcto
+            });
+            console.log('Servicio vacío creado correctamente');
+        } catch (servicioError) {
+            // No detener la creación del parqueadero si falla el servicio, pero informar
+            console.error('Error al crear servicio vacío:', servicioError);
+        }
         res.status(201).json({
             success: true,
             data: nuevoParqueadero

@@ -54,6 +54,7 @@ const InfoItem = ({ icon, title, value, onEdit }) => (
 );
 
 const PARQUEADERO_API_URL = 'https://gest-par-zedic.onrender.com/api/parqueaderos'; // URL correcta del backend
+const SERVICIOS_API_URL = 'https://gest-par-zedic.onrender.com/api/servicios';
 
 const ParqueaderoProfile = () => {
   const { currentUser } = useAuth();
@@ -102,7 +103,17 @@ const ParqueaderoProfile = () => {
         if (!response.ok) throw new Error('Error al obtener datos');
         const data = await response.json();
         console.log('Respuesta de la API al cargar parqueadero:', data);
-        setParqueaderoInfo(data.data);
+        const parqueadero = data.data;
+        // Obtener servicios reales del backend
+        let servicios = [];
+        if (parqueadero && parqueadero.id) {
+          const serviciosRes = await fetch(`${SERVICIOS_API_URL}/parqueadero/${parqueadero.id}`);
+          if (serviciosRes.ok) {
+            const serviciosData = await serviciosRes.json();
+            servicios = serviciosData.data || [];
+          }
+        }
+        setParqueaderoInfo({ ...parqueadero, servicios });
       } catch (error) {
         console.error('Error al cargar parqueadero:', error);
         setSnackbar({
@@ -358,67 +369,82 @@ const ParqueaderoProfile = () => {
               Servicios Ofrecidos
             </Typography>
             <Grid container spacing={2} sx={{ mb: 3 }}>
-              {(parqueaderoInfo.servicios || []).map((servicio, index) => (
-                <Grid item xs={12} sm={4} key={index}>
-                  <Paper
-                    variant="outlined"
-                    sx={{
-                      p: 2,
-                      minHeight: 100,
-                      borderRadius: 3,
-                      boxShadow: '0 2px 8px rgba(43,108,163,0.04)',
-                      position: 'relative',
-                      transition: 'box-shadow 0.2s',
-                      '&:hover': {
-                        boxShadow: '0 4px 16px rgba(43,108,163,0.10)',
-                        '.servicio-actions': { opacity: 1 }
-                      }
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
-                        {servicio.tipo}
-                      </Typography>
-                      <Typography variant="h6" color="primary" sx={{ fontWeight: 700 }}>
-                        {servicio.tarifa}
-                      </Typography>
-                    </Box>
-                    <Box
-                      className="servicio-actions"
-                      sx={{
-                        position: 'absolute',
-                        top: 8,
-                        right: 8,
-                        display: 'flex',
-                        gap: 1,
-                        opacity: 0,
-                        transition: 'opacity 0.2s',
-                      }}
-                    >
-                      <IconButton
-                        size="small"
-                        onClick={() => handleEdit('servicio', { ...servicio, index })}
-                        aria-label="Editar servicio"
-                      >
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          setParqueaderoInfo(prev => ({
-                            ...prev,
-                            servicios: prev.servicios.filter((_, i) => i !== index)
-                          }));
-                          setSnackbar({ open: true, message: 'Servicio eliminado', severity: 'success' });
+              {(parqueaderoInfo.servicios || [])
+                .filter(servicio => servicio && (servicio.tipo || servicio.nombre || servicio.precio))
+                .map((servicio, index) => {
+                  // Usar nombre/tipo y precio/tarifa según lo que venga del backend
+                  const tipoServicio = servicio.tipo || servicio.nombre || 'Sin tipo';
+                  const tarifaServicio = servicio.tarifa || servicio.precio || 'Sin tarifa';
+                  return (
+                    <Grid item xs={12} sm={4} key={index}>
+                      <Paper
+                        variant="outlined"
+                        sx={{
+                          p: 2,
+                          minHeight: 100,
+                          borderRadius: 3,
+                          boxShadow: '0 2px 8px rgba(43,108,163,0.04)',
+                          position: 'relative',
+                          transition: 'box-shadow 0.2s',
+                          '&:hover': {
+                            boxShadow: '0 4px 16px rgba(43,108,163,0.10)',
+                            '.servicio-actions': { opacity: 1 }
+                          }
                         }}
-                        aria-label="Eliminar servicio"
                       >
-                        <span style={{ fontWeight: 'bold', fontSize: 18, lineHeight: 1 }}>×</span>
-                      </IconButton>
-                    </Box>
-                  </Paper>
-                </Grid>
-              ))}
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
+                            {tipoServicio}
+                          </Typography>
+                          <Typography variant="h6" color="primary" sx={{ fontWeight: 700 }}>
+                            {tarifaServicio}
+                          </Typography>
+                        </Box>
+                        <Box
+                          className="servicio-actions"
+                          sx={{
+                            position: 'absolute',
+                            top: 8,
+                            right: 8,
+                            display: 'flex',
+                            gap: 1,
+                            opacity: 0,
+                            transition: 'opacity 0.2s',
+                          }}
+                        >
+                          <IconButton
+                            size="small"
+                            onClick={() => handleEdit('servicio', { ...servicio, index })}
+                            aria-label="Editar servicio"
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton
+                            size="small"
+                            onClick={async () => {
+                              // Eliminar servicio del backend
+                              const servicioId = parqueaderoInfo.servicios[index].id;
+                              try {
+                                const res = await fetch(`${SERVICIOS_API_URL}/${servicioId}`, { method: 'DELETE' });
+                                if (res.ok) {
+                                  setParqueaderoInfo(prev => ({ ...prev, servicios: prev.servicios.filter((_, i) => i !== index) }));
+                                  setSnackbar({ open: true, message: 'Servicio eliminado', severity: 'success' });
+                                } else {
+                                  setSnackbar({ open: true, message: 'Error al eliminar el servicio', severity: 'error' });
+                                }
+                              } catch {
+                                setSnackbar({ open: true, message: 'Error al eliminar el servicio', severity: 'error' });
+                              }
+                            }}
+                            aria-label="Eliminar servicio"
+                          >
+                            <span style={{ fontWeight: 'bold', fontSize: 18, lineHeight: 1 }}>×</span>
+                          </IconButton>
+                        </Box>
+                      </Paper>
+                    </Grid>
+                  );
+                })}
               <Grid item xs={12} sm={4}>
                 <Paper
                   variant="outlined"
@@ -486,17 +512,60 @@ const ParqueaderoProfile = () => {
           <Button onClick={() => setOpenEdit(false)}>Cancelar</Button>
           <Button onClick={() => {
             if (editField === 'servicio') {
-              setParqueaderoInfo(prev => {
-                const servicios = [...prev.servicios];
-                if (editValue.index === -1) {
-                  servicios.push({ tipo: editValue.tipo, tarifa: editValue.tarifa });
-                } else {
-                  servicios[editValue.index] = { tipo: editValue.tipo, tarifa: editValue.tarifa };
-                }
-                return { ...prev, servicios };
-              });
-              setSnackbar({ open: true, message: 'Servicio guardado', severity: 'success' });
-              setOpenEdit(false);
+              // CRUD de servicios conectado al backend
+              if (!parqueaderoInfo.id) {
+                setSnackbar({ open: true, message: 'No se encontró el parqueadero para agregar servicio.', severity: 'error' });
+                setOpenEdit(false);
+                return;
+              }
+              if (editValue.index === -1) {
+                // Crear servicio
+                fetch(SERVICIOS_API_URL, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    nombre: editValue.tipo,
+                    precio: editValue.tarifa,
+                    tipo: editValue.tipo,
+                    idParqueadero: parqueaderoInfo.id
+                  })
+                })
+                  .then(res => res.json())
+                  .then(data => {
+                    setParqueaderoInfo(prev => ({ ...prev, servicios: [...prev.servicios, data.data] }));
+                    setSnackbar({ open: true, message: 'Servicio guardado', severity: 'success' });
+                    setOpenEdit(false);
+                  })
+                  .catch(() => {
+                    setSnackbar({ open: true, message: 'Error al guardar el servicio', severity: 'error' });
+                  });
+              } else {
+                // Editar servicio
+                const servicioId = parqueaderoInfo.servicios[editValue.index].id;
+                fetch(`${SERVICIOS_API_URL}/${servicioId}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    nombre: editValue.tipo,
+                    precio: editValue.tarifa,
+                    tipo: editValue.tipo,
+                    idParqueadero: parqueaderoInfo.id
+                  })
+                })
+                  .then(res => res.json())
+                  .then(data => {
+                    setParqueaderoInfo(prev => {
+                      const servicios = [...prev.servicios];
+                      servicios[editValue.index] = data.data;
+                      return { ...prev, servicios };
+                    });
+                    setSnackbar({ open: true, message: 'Servicio actualizado', severity: 'success' });
+                    setOpenEdit(false);
+                  })
+                  .catch(() => {
+                    setSnackbar({ open: true, message: 'Error al actualizar el servicio', severity: 'error' });
+                  });
+              }
             } else {
               handleSave();
             }

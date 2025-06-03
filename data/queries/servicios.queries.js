@@ -2,13 +2,13 @@ import { pool } from '../postgres.js';
 
 export const serviciosQueries = {
     // Crear un nuevo servicio
-    async createServicio({ nombre, precio, tipo, idParqueadero }) {
+    async createServicio({ nombre, precio, tipo, parqueadero_id }) {
         const query = `
-            INSERT INTO servicios (nombre, precio, tipo, id_parqueadero)
+            INSERT INTO servicios (nombre, precio, tipo, parqueadero_id)
             VALUES ($1, $2, $3, $4)
             RETURNING *
         `;
-        const values = [nombre, precio, tipo, idParqueadero];
+        const values = [nombre, precio, tipo, parqueadero_id];
         const result = await pool.query(query, values);
         return result.rows[0];
     },
