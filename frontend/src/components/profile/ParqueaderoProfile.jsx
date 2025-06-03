@@ -370,11 +370,10 @@ const ParqueaderoProfile = () => {
             </Typography>
             <Grid container spacing={2} sx={{ mb: 3 }}>
               {(parqueaderoInfo.servicios || [])
-                .filter(servicio => servicio && (servicio.tipo || servicio.nombre || servicio.precio))
+                .filter(servicio => servicio && (servicio.nombre || servicio.precio))
                 .map((servicio, index) => {
-                  // Usar nombre/tipo y precio/tarifa según lo que venga del backend
-                  const tipoServicio = servicio.tipo || servicio.nombre || 'Sin tipo';
-                  const tarifaServicio = servicio.tarifa || servicio.precio || 'Sin tarifa';
+                  const tipoServicio = servicio.nombre || 'Sin tipo';
+                  const tarifaServicio = servicio.precio || 'Sin tarifa';
                   return (
                     <Grid item xs={12} sm={4} key={index}>
                       <Paper
@@ -422,7 +421,6 @@ const ParqueaderoProfile = () => {
                           <IconButton
                             size="small"
                             onClick={async () => {
-                              // Eliminar servicio del backend
                               const servicioId = parqueaderoInfo.servicios[index].id;
                               try {
                                 const res = await fetch(`${SERVICIOS_API_URL}/${servicioId}`, { method: 'DELETE' });
@@ -463,7 +461,7 @@ const ParqueaderoProfile = () => {
                       background: 'rgba(43,108,163,0.04)',
                     }
                   }}
-                  onClick={() => handleEdit('servicio', { tipo: '', tarifa: '', index: -1 })}
+                  onClick={() => handleEdit('servicio', { nombre: '', descripcion: '', precio: '', duracion: '', estado: '', index: -1 })}
                 >
                   <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <Typography variant="h4" sx={{ fontWeight: 400, mb: 0.5 }}>+</Typography>
@@ -486,15 +484,36 @@ const ParqueaderoProfile = () => {
               <TextField
                 fullWidth
                 label="Tipo de servicio"
-                value={editValue.tipo}
-                onChange={e => setEditValue({ ...editValue, tipo: e.target.value })}
+                value={editValue.nombre}
+                onChange={e => setEditValue({ ...editValue, nombre: e.target.value })}
                 sx={{ mb: 2 }}
               />
               <TextField
                 fullWidth
-                label="Tarifa"
-                value={editValue.tarifa}
-                onChange={e => setEditValue({ ...editValue, tarifa: e.target.value })}
+                label="Descripción"
+                value={editValue.descripcion}
+                onChange={e => setEditValue({ ...editValue, descripcion: e.target.value })}
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                fullWidth
+                label="Precio"
+                value={editValue.precio}
+                onChange={e => setEditValue({ ...editValue, precio: e.target.value })}
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                fullWidth
+                label="Duración"
+                value={editValue.duracion}
+                onChange={e => setEditValue({ ...editValue, duracion: e.target.value })}
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                fullWidth
+                label="Estado"
+                value={editValue.estado}
+                onChange={e => setEditValue({ ...editValue, estado: e.target.value })}
               />
             </Box>
           ) : (
@@ -512,7 +531,6 @@ const ParqueaderoProfile = () => {
           <Button onClick={() => setOpenEdit(false)}>Cancelar</Button>
           <Button onClick={() => {
             if (editField === 'servicio') {
-              // CRUD de servicios conectado al backend
               if (!parqueaderoInfo.id) {
                 setSnackbar({ open: true, message: 'No se encontró el parqueadero para agregar servicio.', severity: 'error' });
                 setOpenEdit(false);
@@ -524,9 +542,11 @@ const ParqueaderoProfile = () => {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
-                    nombre: editValue.tipo,
-                    precio: editValue.tarifa,
-                    tipo: editValue.tipo,
+                    nombre: editValue.nombre,
+                    descripcion: editValue.descripcion,
+                    precio: editValue.precio,
+                    duracion: editValue.duracion,
+                    estado: editValue.estado,
                     parqueadero_id: parqueaderoInfo.id
                   })
                 })
@@ -546,9 +566,11 @@ const ParqueaderoProfile = () => {
                   method: 'PUT',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
-                    nombre: editValue.tipo,
-                    precio: editValue.tarifa,
-                    tipo: editValue.tipo,
+                    nombre: editValue.nombre,
+                    descripcion: editValue.descripcion,
+                    precio: editValue.precio,
+                    duracion: editValue.duracion,
+                    estado: editValue.estado,
                     parqueadero_id: parqueaderoInfo.id
                   })
                 })

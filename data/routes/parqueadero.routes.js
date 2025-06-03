@@ -73,13 +73,14 @@ router.post('/', async (req, res) => {
         const nuevoParqueadero = await parqueaderoQueries.createParqueadero(req.body);
         console.log('Parqueadero creado:', nuevoParqueadero);
         try {
-            console.log('Antes de importar serviciosQueries');
             const { serviciosQueries } = await import('../queries/servicios.queries.js');
-            console.log('Después de importar serviciosQueries');
+            // Crear servicio vacío asociado al parqueadero
             const servicioCreado = await serviciosQueries.createServicio({
-                nombre: '', // o null si la tabla lo permite
+                nombre: '',
+                descripcion: '',
                 precio: null,
-                tipo: '',
+                duracion: null,
+                estado: '',
                 parqueadero_id: nuevoParqueadero.id
             });
             console.log('Servicio vacío creado correctamente:', servicioCreado);
