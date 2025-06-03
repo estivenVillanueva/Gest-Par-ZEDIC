@@ -22,7 +22,7 @@ export const serviciosQueries = {
 
     // Obtener servicios por parqueadero
     async getServiciosByParqueadero(idParqueadero) {
-        const query = 'SELECT * FROM servicios WHERE id_parqueadero = $1';
+        const query = 'SELECT * FROM servicios WHERE parqueadero_id = $1';
         const result = await pool.query(query, [idParqueadero]);
         return result.rows;
     },

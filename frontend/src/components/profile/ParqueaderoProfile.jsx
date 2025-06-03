@@ -98,13 +98,15 @@ const ParqueaderoProfile = () => {
       console.log('Intentando cargar parqueadero para usuario:', currentUser?.id);
       if (!currentUser || !currentUser.id) return; // Validación para evitar id=undefined
       try {
+        // 1. Obtener parqueadero por usuario
         const response = await fetch(`${PARQUEADERO_API_URL}/usuario/${currentUser.id}`);
         console.log('Respuesta fetch:', response);
         if (!response.ok) throw new Error('Error al obtener datos');
         const data = await response.json();
         console.log('Respuesta de la API al cargar parqueadero:', data);
         const parqueadero = data.data;
-        // Obtener servicios reales del backend
+
+        // 2. Obtener servicios por parqueadero
         let servicios = [];
         if (parqueadero && parqueadero.id) {
           const serviciosRes = await fetch(`${SERVICIOS_API_URL}/parqueadero/${parqueadero.id}`);
@@ -113,6 +115,8 @@ const ParqueaderoProfile = () => {
             servicios = serviciosData.data || [];
           }
         }
+
+        // 3. Actualizar el estado con los servicios
         setParqueaderoInfo({ ...parqueadero, servicios });
       } catch (error) {
         console.error('Error al cargar parqueadero:', error);
