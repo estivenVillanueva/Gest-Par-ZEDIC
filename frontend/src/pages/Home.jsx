@@ -59,6 +59,7 @@ const Home = () => {
         const response = await fetch('https://gest-par-zedic.onrender.com/api/parqueaderos');
         const data = await response.json();
         setParqueaderos(data.data || []);
+        console.log('Respuesta parqueaderos:', data.data);
       } catch (error) {
         console.error('Error al obtener parqueaderos:', error);
         setParqueaderos([]);
@@ -170,16 +171,16 @@ const Home = () => {
                       >
                         <CardContent>
                           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-                            <Typography variant="h6">{parqueadero.nombre || parqueadero.name || `Parqueadero ${idx+1}`}</Typography>
+                            <Typography variant="h6">{parqueadero.nombre}</Typography>
                           </Stack>
                           <Typography variant="body2" color="text.secondary" gutterBottom>
-                            {parqueadero.direccion || parqueadero.address}
+                            {parqueadero.direccion || parqueadero.ubicacion}
                           </Typography>
                           <Stack direction="row" spacing={1} mb={2}>
-                            <Chip label={parqueadero.horarios || '24/7'} size="small" />
+                            <Chip label={parqueadero.horarios} size="small" />
                           </Stack>
                           <Typography variant="body2" gutterBottom>
-                            Capacidad: {parqueadero.capacidad || 0} vehículos
+                            Capacidad: {parqueadero.capacidad} vehículos
                           </Typography>
                           <StyledButton 
                             variant="contained" 
@@ -193,6 +194,13 @@ const Home = () => {
                       </ParqueaderoCard>
                     </Grid>
                   ))}
+                  {parqueaderos.length === 0 && (
+                    <Grid item xs={12}>
+                      <Typography variant="body1" color="text.secondary" align="center">
+                        No hay parqueaderos registrados.
+                      </Typography>
+                    </Grid>
+                  )}
                 </Grid>
               )}
             </Grid>

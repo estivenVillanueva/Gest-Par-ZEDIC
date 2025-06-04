@@ -16,7 +16,8 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:5173',
   'https://gest-par-zedic.onrender.com',
-  'https://gest-par-zedic-9gcy.vercel.app'
+  'https://gest-par-zedic-9gcy.vercel.app',
+  'https://gest-par-zedic-9gcy-301zqwufh-estivenvillanuevas-projects.vercel.app'
 ];
 
 app.use(cors({
