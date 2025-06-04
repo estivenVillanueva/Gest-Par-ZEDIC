@@ -161,7 +161,7 @@ const Home = () => {
                         justifyContent: 'center'
                       }}
                     >
-                      <ParqueaderoCard 
+                      <ParqueaderoCard
                         elevation={1}
                         sx={{
                           width: '100%',
@@ -182,8 +182,8 @@ const Home = () => {
                           <Typography variant="body2" gutterBottom>
                             Capacidad: {parqueadero.capacidad} vehículos
                           </Typography>
-                          <StyledButton 
-                            variant="contained" 
+                          <StyledButton
+                            variant="contained"
                             fullWidth
                             onClick={() => handleOpenDetails(parqueadero)}
                             sx={{ mt: 2 }}
