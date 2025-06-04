@@ -512,12 +512,33 @@ const ParqueaderoProfile = () => {
           {editField === 'servicio' ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
               <TextField
+                select
                 fullWidth
-                label="Tipo de servicio"
-                value={editValue.nombre}
-                onChange={e => setEditValue({ ...editValue, nombre: e.target.value })}
+                label="Nombre del servicio"
+                value={["mes", "hora", "minuto", "semanal", "quincenal", "días", "otro"].includes(editValue.nombre) ? editValue.nombre : "otro"}
+                onChange={e => {
+                  const value = e.target.value;
+                  setEditValue({ ...editValue, nombre: value === 'otro' ? '' : value, nombrePersonalizado: value === 'otro' ? (editValue.nombrePersonalizado || '') : '' });
+                }}
                 sx={{ mb: 2 }}
-              />
+              >
+                <MenuItem value="mes">Mes</MenuItem>
+                <MenuItem value="hora">Hora</MenuItem>
+                <MenuItem value="minuto">Minuto</MenuItem>
+                <MenuItem value="semanal">Semanal</MenuItem>
+                <MenuItem value="quincenal">Quincenal</MenuItem>
+                <MenuItem value="días">Días</MenuItem>
+                <MenuItem value="otro">Otro</MenuItem>
+              </TextField>
+              {((!['mes','hora','minuto','semanal','quincenal','días'].includes(editValue.nombre) && editValue.nombre !== '') || editValue.nombre === '') && (
+                <TextField
+                  fullWidth
+                  label="Nombre personalizado del servicio"
+                  value={editValue.nombrePersonalizado || ''}
+                  onChange={e => setEditValue({ ...editValue, nombrePersonalizado: e.target.value, nombre: e.target.value })}
+                  sx={{ mb: 2 }}
+                />
+              )}
               <TextField
                 fullWidth
                 label="Descripción"
@@ -533,18 +554,43 @@ const ParqueaderoProfile = () => {
                 sx={{ mb: 2 }}
               />
               <TextField
+                select
                 fullWidth
                 label="Duración"
-                value={editValue.duracion}
-                onChange={e => setEditValue({ ...editValue, duracion: e.target.value })}
+                value={["mes", "hora", "minuto", "semanal", "quincenal", "días", "otro"].includes(editValue.duracion) ? editValue.duracion : "otro"}
+                onChange={e => {
+                  const value = e.target.value;
+                  setEditValue({ ...editValue, duracion: value === 'otro' ? '' : value, duracionPersonalizada: value === 'otro' ? (editValue.duracionPersonalizada || '') : '' });
+                }}
                 sx={{ mb: 2 }}
-              />
+              >
+                <MenuItem value="mes">Mes</MenuItem>
+                <MenuItem value="hora">Hora</MenuItem>
+                <MenuItem value="minuto">Minuto</MenuItem>
+                <MenuItem value="semanal">Semanal</MenuItem>
+                <MenuItem value="quincenal">Quincenal</MenuItem>
+                <MenuItem value="días">Días</MenuItem>
+                <MenuItem value="otro">Otro</MenuItem>
+              </TextField>
+              {((!['mes','hora','minuto','semanal','quincenal','días'].includes(editValue.duracion) && editValue.duracion !== '') || editValue.duracion === '') && (
+                <TextField
+                  fullWidth
+                  label="Duración personalizada"
+                  value={editValue.duracionPersonalizada || ''}
+                  onChange={e => setEditValue({ ...editValue, duracionPersonalizada: e.target.value, duracion: e.target.value })}
+                  sx={{ mb: 2 }}
+                />
+              )}
               <TextField
+                select
                 fullWidth
                 label="Estado"
                 value={editValue.estado}
                 onChange={e => setEditValue({ ...editValue, estado: e.target.value })}
-              />
+              >
+                <MenuItem value="activo">Activo</MenuItem>
+                <MenuItem value="inactivo">Inactivo</MenuItem>
+              </TextField>
             </Box>
           ) : (
             <TextField
@@ -658,18 +704,6 @@ const ParqueaderoProfile = () => {
                 title="Email"
                 value={currentUser?.correo || 'No especificado'}
                 onEdit={() => handleEdit('usuario.correo', currentUser?.correo)}
-              />
-              <InfoItem
-                icon={<BusinessIcon color="primary" />}
-                title="Tipo de Usuario"
-                value={currentUser?.tipo_usuario || 'No especificado'}
-                onEdit={() => handleEdit('usuario.tipo_usuario', currentUser?.tipo_usuario)}
-              />
-              <InfoItem
-                icon={<AccessTimeIcon color="primary" />}
-                title="Fecha de Registro"
-                value={currentUser?.created_at ? currentUser.created_at.split('T')[0] : 'No especificado'}
-                onEdit={() => handleEdit('created_at', currentUser?.created_at)}
               />
             </Grid>
           </Grid>
