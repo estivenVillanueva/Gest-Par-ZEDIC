@@ -110,7 +110,7 @@ const ParkingInfo = ({ parkingData, onClose }) => {
       <Box sx={{ p: { xs: 2, md: 4 } }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
           <LocalParkingIcon sx={{ fontSize: 40, color: '#2563eb' }} />
-          <Typography variant="h4" fontWeight={800} color="#2563eb">{parkingData?.name}</Typography>
+          <Typography variant="h4" fontWeight={800} color="#2563eb">{parkingData?.nombre || parkingData?.name || ''}</Typography>
         </Box>
         <Divider sx={{ mb: 2 }} />
         <Grid container spacing={2}>
@@ -119,50 +119,46 @@ const ParkingInfo = ({ parkingData, onClose }) => {
               <LocationOnIcon sx={{ color: '#64748b' }} />
               <Typography variant="subtitle1" fontWeight={600}>Dirección:</Typography>
             </Box>
-            <Typography variant="body1" color="text.secondary" mb={2}>{parkingData?.address}</Typography>
+            <Typography variant="body1" color="text.secondary" mb={2}>{parkingData?.direccion || parkingData?.address || ''}</Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
               <AccessTimeIcon sx={{ color: '#64748b' }} />
               <Typography variant="subtitle1" fontWeight={600}>Horario:</Typography>
             </Box>
-            <Typography variant="body1" color="text.secondary" mb={2}>{parkingData?.schedule}</Typography>
+            <Typography variant="body1" color="text.secondary" mb={2}>{parkingData?.horarios || parkingData?.schedule || ''}</Typography>
           </Grid>
           <Grid item xs={12} md={6}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
               <DirectionsCarIcon sx={{ color: '#64748b' }} />
               <Typography variant="subtitle1" fontWeight={600}>Capacidad:</Typography>
             </Box>
-            <Typography variant="body1" color="text.secondary" mb={2}>{parkingData?.capacity} vehículos</Typography>
+            <Typography variant="body1" color="text.secondary" mb={2}>{parkingData?.capacidad || parkingData?.capacity || 0} vehículos</Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
               <SecurityIcon sx={{ color: '#64748b' }} />
               <Typography variant="subtitle1" fontWeight={600}>Seguridad:</Typography>
             </Box>
-            <Typography variant="body1" color="text.secondary" mb={2}>24/7, cámaras y personal</Typography>
+            <Typography variant="body1" color="text.secondary" mb={2}>{parkingData?.seguridad || '24/7, cámaras y personal'}</Typography>
           </Grid>
         </Grid>
         <Divider sx={{ my: 3 }} />
-        <Typography variant="h6" fontWeight={700} color="#2563eb" mb={2}>Servicios Destacados</Typography>
+        <Typography variant="h6" fontWeight={700} color="#2563eb" mb={2}>Servicios Ofrecidos</Typography>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={4}>
-            <Box sx={{ bgcolor: '#e3f2fd', borderRadius: 2, p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: 1 }}>
-              <SecurityIcon sx={{ color: '#2563eb', fontSize: 32, mb: 1 }} />
-              <Typography fontWeight={600}>Seguridad 24/7</Typography>
-              <Typography variant="body2" color="text.secondary" align="center">Vigilancia permanente y cámaras de seguridad</Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Box sx={{ bgcolor: '#e3f2fd', borderRadius: 2, p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: 1 }}>
-              <DirectionsCarIcon sx={{ color: '#2563eb', fontSize: 32, mb: 1 }} />
-              <Typography fontWeight={600}>Espacios amplios</Typography>
-              <Typography variant="body2" color="text.secondary" align="center">Cómodo acceso para todo tipo de vehículos</Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Box sx={{ bgcolor: '#e3f2fd', borderRadius: 2, p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: 1 }}>
-              <AccessTimeIcon sx={{ color: '#2563eb', fontSize: 32, mb: 1 }} />
-              <Typography fontWeight={600}>Horario flexible</Typography>
-              <Typography variant="body2" color="text.secondary" align="center">Opciones de estacionamiento adaptadas a tu rutina</Typography>
-            </Box>
-          </Grid>
+          {Array.isArray(parkingData?.servicios) && parkingData.servicios.length > 0 ? (
+            parkingData.servicios.map((servicio, idx) => (
+              <Grid item xs={12} sm={4} key={servicio.id || idx}>
+                <Box sx={{ bgcolor: '#e3f2fd', borderRadius: 2, p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: 1 }}>
+                  <Typography fontWeight={600}>{servicio.nombre}</Typography>
+                  <Typography variant="body2" color="text.secondary" align="center">{servicio.descripcion}</Typography>
+                  <Typography variant="body2" color="text.secondary" align="center">Precio: {servicio.precio}</Typography>
+                  <Typography variant="body2" color="text.secondary" align="center">Duración: {servicio.duracion}</Typography>
+                  <Typography variant="body2" color="text.secondary" align="center">Estado: {servicio.estado}</Typography>
+                </Box>
+              </Grid>
+            ))
+          ) : (
+            <Grid item xs={12}>
+              <Typography variant="body2" color="text.secondary">Este parqueadero no ha registrado servicios ofrecidos.</Typography>
+            </Grid>
+          )}
         </Grid>
       </Box>
       <InfoDialog

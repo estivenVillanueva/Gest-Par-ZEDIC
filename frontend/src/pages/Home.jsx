@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Typography, 
   Box, 
@@ -51,37 +51,21 @@ const Home = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [openDetails, setOpenDetails] = useState(false);
   const [selectedParking, setSelectedParking] = useState(null);
+  const [parqueaderos, setParqueaderos] = useState([]);
 
-  const mockParkings = [
-    {
-      id: 1,
-      name: 'Parqueadero 1',
-      address: 'Carrera 5 #10-50',
-      capacity: 50,
-      schedule: '24/7',
-    },
-    {
-      id: 2,
-      name: 'Parqueadero 2',
-      address: 'Carrera 5 #10-50',
-      capacity: 50,
-      schedule: '24/7',
-    },
-    {
-      id: 3,
-      name: 'Parqueadero 3',
-      address: 'Carrera 5 #10-50',
-      capacity: 50,
-      schedule: '24/7',
-    },
-    {
-      id: 4,
-      name: 'Parqueadero 4',
-      address: 'Carrera 5 #10-50',
-      capacity: 50,
-      schedule: '24/7',
-    },
-  ];
+  useEffect(() => {
+    const fetchParqueaderos = async () => {
+      try {
+        const response = await fetch('https://gest-par-zedic.onrender.com/api/parqueaderos');
+        const data = await response.json();
+        setParqueaderos(data.data || []);
+      } catch (error) {
+        console.error('Error al obtener parqueaderos:', error);
+        setParqueaderos([]);
+      }
+    };
+    fetchParqueaderos();
+  }, []);
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
@@ -91,15 +75,15 @@ const Home = () => {
     setSearchView(prev => prev === 'map' ? 'list' : 'map');
   };
 
-  // Ejemplo de función para obtener parqueaderos
-  const fetchParqueaderos = async () => {
+  const handleOpenDetails = async (parqueadero) => {
     try {
-      const response = await fetch('TU_API_ENDPOINT/parqueaderos');
+      const response = await fetch(`https://gest-par-zedic.onrender.com/api/servicios/parqueadero/${parqueadero.id}`);
       const data = await response.json();
-      return data;
+      setSelectedParking({ ...parqueadero, servicios: data.data || [] });
+      setOpenDetails(true);
     } catch (error) {
-      console.error('Error al obtener parqueaderos:', error);
-      return [];
+      setSelectedParking({ ...parqueadero, servicios: [] });
+      setOpenDetails(true);
     }
   };
 
@@ -151,7 +135,7 @@ const Home = () => {
             <Grid item xs={12} md={searchView === 'map' ? 8 : 12}>
               {searchView === 'map' ? (
                 <MapContainer>
-                  <MapaParqueaderos parqueaderos={fetchParqueaderos()} />
+                  <MapaParqueaderos parqueaderos={parqueaderos} />
                 </MapContainer>
               ) : (
                 <Grid 
@@ -164,13 +148,13 @@ const Home = () => {
                     px: 2 
                   }}
                 >
-                  {[1, 2, 3, 4].map((item, idx) => (
+                  {parqueaderos.map((parqueadero, idx) => (
                     <Grid 
                       item 
                       xs={12} 
                       sm={6} 
                       md={3} 
-                      key={item}
+                      key={parqueadero.id}
                       sx={{
                         display: 'flex',
                         justifyContent: 'center'
@@ -186,31 +170,21 @@ const Home = () => {
                       >
                         <CardContent>
                           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-                            <Typography variant="h6">Parqueadero {item}</Typography>
-                            <Chip 
-                              icon={<StarIcon sx={{ fontSize: 16 }} />}
-                              label="4.5"
-                              size="small"
-                              color="primary"
-                            />
+                            <Typography variant="h6">{parqueadero.nombre || parqueadero.name || `Parqueadero ${idx+1}`}</Typography>
                           </Stack>
                           <Typography variant="body2" color="text.secondary" gutterBottom>
-                            Carrera 5 #10-50
+                            {parqueadero.direccion || parqueadero.address}
                           </Typography>
                           <Stack direction="row" spacing={1} mb={2}>
-                            <Chip label="24/7" size="small" />
-                            <Chip label="Disponible" size="small" color="success" />
+                            <Chip label={parqueadero.horarios || '24/7'} size="small" />
                           </Stack>
                           <Typography variant="body2" gutterBottom>
-                            Capacidad: 50 vehículos
+                            Capacidad: {parqueadero.capacidad || 0} vehículos
                           </Typography>
                           <StyledButton 
                             variant="contained" 
                             fullWidth
-                            onClick={() => {
-                              setSelectedParking(mockParkings[idx]);
-                              setOpenDetails(true);
-                            }}
+                            onClick={() => handleOpenDetails(parqueadero)}
                             sx={{ mt: 2 }}
                           >
                             Ver detalles
