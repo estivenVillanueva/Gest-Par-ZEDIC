@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
 import { Box, Typography, Paper, Button } from '@mui/material';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
@@ -7,6 +7,7 @@ import { MapContainer } from '../../styles/components/MapaParqueaderos.styles';
 const MapaParqueaderos = ({ parqueaderos = [] }) => {
   const [selectedParking, setSelectedParking] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
+  const mapRef = useRef(null);
 
   const mapStyles = {
     height: "400px",
@@ -21,6 +22,12 @@ const MapaParqueaderos = ({ parqueaderos = [] }) => {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: 'AIzaSyBpMO-fMglRKpQoBYcIwy_WR8ZxjomX21U'
   });
+
+  useEffect(() => {
+    if (userLocation && mapRef.current) {
+      mapRef.current.panTo(userLocation);
+    }
+  }, [userLocation]);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -40,10 +47,11 @@ const MapaParqueaderos = ({ parqueaderos = [] }) => {
 
   if (!isLoaded) return <div>Cargando mapa...</div>;
 
-  // Centrar el mapa en el primer parqueadero si hay, si no en defaultCenter
-  const center = parqueaderos.length > 0 && parqueaderos[0].latitud && parqueaderos[0].longitud
-    ? { lat: Number(parqueaderos[0].latitud), lng: Number(parqueaderos[0].longitud) }
-    : defaultCenter;
+  const center = userLocation
+    ? userLocation
+    : (parqueaderos.length > 0 && parqueaderos[0].latitud && parqueaderos[0].longitud
+      ? { lat: Number(parqueaderos[0].latitud), lng: Number(parqueaderos[0].longitud) }
+      : defaultCenter);
 
   // DEPURACIÓN: Verifica los datos que llegan
   console.log('Parqueaderos para el mapa:', parqueaderos);
@@ -53,7 +61,8 @@ const MapaParqueaderos = ({ parqueaderos = [] }) => {
       <GoogleMap
         mapContainerStyle={mapStyles}
         zoom={14}
-        center={userLocation || center}
+        center={center}
+        onLoad={map => (mapRef.current = map)}
         options={{
           zoomControl: true,
           mapTypeControl: false,
