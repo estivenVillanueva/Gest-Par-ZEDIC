@@ -61,5 +61,18 @@ export const parqueaderoQueries = {
         const query = 'SELECT * FROM parqueaderos WHERE usuario_id = $1';
         const result = await pool.query(query, [usuario_id]);
         return result.rows[0];
+    },
+
+    // Actualizar latitud y longitud de un parqueadero
+    async updateParqueaderoLatLng(id, latitud, longitud) {
+        const query = `
+            UPDATE parqueaderos
+            SET latitud = $1, longitud = $2
+            WHERE id = $3
+            RETURNING *
+        `;
+        const values = [latitud, longitud, id];
+        const result = await pool.query(query, values);
+        return result.rows[0];
     }
 }; 

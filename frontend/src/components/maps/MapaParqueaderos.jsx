@@ -1,26 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
-import { Box, Typography, Paper, Button, Rating } from '@mui/material';
+import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
+import { Box, Typography, Paper, Button } from '@mui/material';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import { MapContainer } from '../../styles/components/MapaParqueaderos.styles';
 
 const MapaParqueaderos = ({ parqueaderos = [] }) => {
   const [selectedParking, setSelectedParking] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
-  const [map, setMap] = useState(null);
 
   const mapStyles = {
-    height: "100%",
+    height: "400px",
     width: "100%"
   };
 
   const defaultCenter = {
-    lat: 4.570868, // Coordenadas por defecto (Colombia)
-    lng: -74.297333
+    lat: 4.710989,
+    lng: -74.072090
   };
 
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: 'AIzaSyBpMO-fMglRKpQoBYcIwy_WR8ZxjomX21U'
+  });
+
   useEffect(() => {
-    // Obtener la ubicación del usuario
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -36,119 +38,84 @@ const MapaParqueaderos = ({ parqueaderos = [] }) => {
     }
   }, []);
 
-  const handleMarkerClick = (parking) => {
-    setSelectedParking(parking);
-  };
+  if (!isLoaded) return <div>Cargando mapa...</div>;
 
-  // Datos de ejemplo de parqueaderos (en una aplicación real vendrían de una API)
-  const parqueaderosData = [
-    {
-      id: 1,
-      nombre: "Parqueadero Central",
-      position: { lat: 4.570868, lng: -74.297333 },
-      direccion: "Calle 123 #45-67",
-      disponible: true,
-      espacios: 25,
-      rating: 4.5,
-      precio: "5.000/hora"
-    },
-    {
-      id: 2,
-      nombre: "Estacionamiento Plaza",
-      position: { lat: 4.572868, lng: -74.295333 },
-      direccion: "Carrera 78 #90-12",
-      disponible: true,
-      espacios: 15,
-      rating: 4.2,
-      precio: "4.500/hora"
-    },
-    // Aquí se pueden agregar más parqueaderos
-  ];
+  // Centrar el mapa en el primer parqueadero si hay, si no en defaultCenter
+  const center = parqueaderos.length > 0 && parqueaderos[0].latitud && parqueaderos[0].longitud
+    ? { lat: Number(parqueaderos[0].latitud), lng: Number(parqueaderos[0].longitud) }
+    : defaultCenter;
+
+  // DEPURACIÓN: Verifica los datos que llegan
+  console.log('Parqueaderos para el mapa:', parqueaderos);
 
   return (
     <MapContainer>
-      <LoadScript googleMapsApiKey="TU_API_KEY_AQUI">
-        <GoogleMap
-          mapContainerStyle={mapStyles}
-          zoom={14}
-          center={userLocation || defaultCenter}
-          onLoad={map => setMap(map)}
-          options={{
-            styles: [
-              {
-                featureType: "poi.business",
-                elementType: "labels",
-                stylers: [{ visibility: "on" }]
-              }
-            ],
-            zoomControl: true,
-            mapTypeControl: false,
-            streetViewControl: false,
-            fullscreenControl: true,
-          }}
-        >
-          {/* Marcador de la ubicación del usuario */}
-          {userLocation && (
+      <GoogleMap
+        mapContainerStyle={mapStyles}
+        zoom={14}
+        center={userLocation || center}
+        options={{
+          zoomControl: true,
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: true,
+        }}
+      >
+        {/* Marcador de la ubicación del usuario */}
+        {userLocation && (
+          <Marker
+            position={userLocation}
+            icon={{
+              url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+            }}
+          />
+        )}
+
+        {/* Marcadores de parqueaderos reales */}
+        {parqueaderos.map((p) => (
+          p.latitud && p.longitud && (
             <Marker
-              position={userLocation}
+              key={p.id}
+              position={{ lat: Number(p.latitud), lng: Number(p.longitud) }}
+              onClick={() => setSelectedParking(p)}
               icon={{
-                url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                url: "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
               }}
             />
-          )}
+          )
+        ))}
 
-          {/* Marcadores de parqueaderos */}
-          {parqueaderosData.map((parking) => (
-            <Marker
-              key={parking.id}
-              position={parking.position}
-              onClick={() => handleMarkerClick(parking)}
-              icon={{
-                url: parking.disponible
-                  ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
-                  : "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
-              }}
-            />
-          ))}
-
-          {/* Ventana de información del parqueadero */}
-          {selectedParking && (
-            <InfoWindow
-              position={selectedParking.position}
-              onCloseClick={() => setSelectedParking(null)}
-            >
-              <Paper sx={{ p: 2, maxWidth: 300 }}>
-                <Typography variant="h6" gutterBottom>
-                  {selectedParking.nombre}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  {selectedParking.direccion}
-                </Typography>
-                <Box display="flex" alignItems="center" gap={1} mb={1}>
-                  <Rating value={selectedParking.rating} readOnly size="small" />
-                  <Typography variant="body2">
-                    ({selectedParking.rating})
-                  </Typography>
-                </Box>
-                <Typography variant="body2" gutterBottom>
-                  Espacios disponibles: {selectedParking.espacios}
-                </Typography>
-                <Typography variant="body2" color="primary" gutterBottom>
-                  {selectedParking.precio}
-                </Typography>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  startIcon={<LocalParkingIcon />}
-                  sx={{ mt: 1 }}
-                >
-                  Reservar
-                </Button>
-              </Paper>
-            </InfoWindow>
-          )}
-        </GoogleMap>
-      </LoadScript>
+        {/* Ventana de información del parqueadero */}
+        {selectedParking && (
+          <InfoWindow
+            position={{
+              lat: Number(selectedParking.latitud),
+              lng: Number(selectedParking.longitud)
+            }}
+            onCloseClick={() => setSelectedParking(null)}
+          >
+            <Paper sx={{ p: 2, maxWidth: 300 }}>
+              <Typography variant="h6" gutterBottom>
+                {selectedParking.nombre}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                {selectedParking.direccion || selectedParking.ubicacion}
+              </Typography>
+              <Typography variant="body2" gutterBottom>
+                Capacidad: {selectedParking.capacidad}
+              </Typography>
+              <Button
+                variant="contained"
+                fullWidth
+                startIcon={<LocalParkingIcon />}
+                sx={{ mt: 1 }}
+              >
+                Ver detalles
+              </Button>
+            </Paper>
+          </InfoWindow>
+        )}
+      </GoogleMap>
     </MapContainer>
   );
 };

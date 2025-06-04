@@ -14,7 +14,8 @@ import {
   IconButton,
   Drawer,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
+  Container
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
@@ -38,10 +39,10 @@ import {
   MapContainer,
   ParqueaderoCard
 } from '../styles/pages/Home.styles';
-import MapaParqueaderos from '../components/maps/MapaParqueaderos';
 import WhyChooseUs from '../components/WhyChooseUs';
 import ParkingInfo from '../components/parking/ParkingInfo';
 import Dialog from '@mui/material/Dialog';
+import MapaParqueaderos from '../components/maps/MapaParqueaderos';
 
 const Home = () => {
   const [searchView, setSearchView] = useState('map'); // 'map' o 'list'
@@ -135,9 +136,67 @@ const Home = () => {
           <Grid container spacing={3}>
             <Grid item xs={12} md={searchView === 'map' ? 8 : 12}>
               {searchView === 'map' ? (
-                <MapContainer>
-                  <MapaParqueaderos parqueaderos={parqueaderos} />
-                </MapContainer>
+                <Container maxWidth="md" sx={{ my: 6, px: 0 }}>
+                  <Box display="flex" flexDirection="column" alignItems="center">
+                    <Typography variant="h5" fontWeight={700} mb={3} align="center">
+                      Encuentra tu parqueadero en el mapa
+                    </Typography>
+                    <Box sx={{
+                      width: '100%',
+                      borderRadius: 2,
+                      boxShadow: '0 4px 24px rgba(33, 150, 243, 0.10)',
+                      overflow: 'hidden',
+                      bgcolor: '#fff',
+                      mb: 4,
+                      mx: 'auto',
+                      display: 'flex',
+                      justifyContent: 'center'
+                    }}>
+                      <MapaParqueaderos parqueaderos={parqueaderos} />
+                    </Box>
+                    <Grid container spacing={3} justifyContent="center" sx={{ mx: 'auto' }}>
+                      {parqueaderos.map((parqueadero, idx) => (
+                        <Grid item xs={12} sm={6} md={4} key={parqueadero.id} sx={{ display: 'flex', justifyContent: 'center' }}>
+                          <ParqueaderoCard
+                            elevation={1}
+                            sx={{
+                              borderRadius: 2,
+                              boxShadow: '0 2px 8px rgba(33, 150, 243, 0.08)',
+                              bgcolor: '#fff',
+                              p: 2,
+                              minWidth: 260,
+                              maxWidth: 320,
+                              mx: 'auto'
+                            }}
+                          >
+                            <CardContent>
+                              <Typography variant="h6" fontWeight={600} sx={{ mb: 0.5 }}>
+                                {parqueadero.nombre}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                                {parqueadero.direccion || parqueadero.ubicacion}
+                              </Typography>
+                              <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+                                <Chip label={parqueadero.horarios} size="small" variant="outlined" />
+                              </Stack>
+                              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                                Capacidad: {parqueadero.capacidad} vehículos
+                              </Typography>
+                              <StyledButton
+                                variant="contained"
+                                fullWidth
+                                onClick={() => handleOpenDetails(parqueadero)}
+                                sx={{ mt: 2 }}
+                              >
+                                Ver detalles
+                              </StyledButton>
+                            </CardContent>
+                          </ParqueaderoCard>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Box>
+                </Container>
               ) : (
                 <Grid 
                   container 
@@ -204,27 +263,6 @@ const Home = () => {
                 </Grid>
               )}
             </Grid>
-            {searchView === 'map' && !isMobile && (
-              <Grid item md={4}>
-                <Typography variant="h6" gutterBottom>
-                  Parqueaderos cercanos
-                </Typography>
-                <Stack spacing={2}>
-                  {[1, 2, 3].map((item) => (
-                    <ParqueaderoCard key={item} elevation={1}>
-                      <CardContent>
-                        <Typography variant="subtitle1">
-                          Parqueadero {item}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          A 500m de tu ubicación
-                        </Typography>
-                      </CardContent>
-                    </ParqueaderoCard>
-                  ))}
-                </Stack>
-              </Grid>
-            )}
           </Grid>
         </StyledContainer>
       </Box>

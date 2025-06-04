@@ -2,18 +2,11 @@
 // Conexión a PostgreSQL Cloud SQL usando variables de entorno
 
 import pg from 'pg';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const { Pool } = pg;
 
 export const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST, // La IP pública de tu instancia de Cloud SQL
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
+    connectionString: 'postgres://adminGest-Par-Zedic:%7Bt17T%3ExJgq%3FKj%5Eoh@35.225.217.73:5432/gest-par-zedic-database',
     ssl: {
         rejectUnauthorized: false // Necesario para conexiones SSL con Cloud SQL
     }
