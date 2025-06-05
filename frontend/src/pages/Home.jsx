@@ -169,7 +169,7 @@ const Home = () => {
         <StyledContainer>
           <Grid container spacing={3}>
             <Grid item xs={12}>
-              <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', mb: 4 }}>
+              <Box sx={{ width: '230%', maxWidth: 1200, mx: 'auto', mb: 4 }}>
                 <Typography variant="h3" fontWeight={800} align="center" sx={{ mb: 4 }}>
                   Encuentra tu parqueadero en el mapa
                 </Typography>
