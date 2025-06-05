@@ -106,7 +106,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     // Autenticación con Google
-    const loginWithGoogle = async (credentialResponse) => {
+    const loginWithGoogle = async (credentialResponse, tipo_usuario) => {
         try {
             setError('');
             setLoading(true);
@@ -118,12 +118,12 @@ export const AuthProvider = ({ children }) => {
                     email: decoded.email,
                     nombre: decoded.name,
                     foto: decoded.picture,
-                    googleId: decoded.sub
+                    googleId: decoded.sub,
+                    tipo_usuario
                 })
             });
             const usuario = await response.json();
             if (!response.ok) {
-                // Mostrar el mensaje específico del backend si existe
                 throw new Error(usuario.message || 'Error en la autenticación con Google');
             }
             setCurrentUser(usuario.data);

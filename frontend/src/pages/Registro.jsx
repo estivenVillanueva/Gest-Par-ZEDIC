@@ -174,8 +174,22 @@ const Registro = () => {
     try {
       setError('');
       setLoading(true);
-      const result = await loginWithGoogle(credentialResponse);
-      navigate('/seleccion-tipo-usuario');
+      // Validar que el tipo de usuario esté seleccionado
+      if (!formData.tipoUsuario) {
+        setError('Debes seleccionar un tipo de usuario antes de continuar con Google.');
+        setLoading(false);
+        return;
+      }
+      const result = await loginWithGoogle(credentialResponse, formData.tipoUsuario);
+      // Redirige según el tipo de usuario
+      const tipo = result?.data?.tipo_usuario;
+      if (tipo === 'admin') {
+        navigate('/dashboard/parqueadero');
+      } else if (tipo === 'dueno') {
+        navigate('/vehiculo/inicio');
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       // El error ya se maneja en el contexto
     } finally {
