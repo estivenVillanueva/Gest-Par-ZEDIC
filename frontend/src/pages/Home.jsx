@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Typography, 
   Box, 
@@ -53,6 +53,8 @@ const Home = () => {
   const [openDetails, setOpenDetails] = useState(false);
   const [selectedParking, setSelectedParking] = useState(null);
   const [parqueaderos, setParqueaderos] = useState([]);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const carouselInterval = useRef(null);
 
   useEffect(() => {
     const fetchParqueaderos = async () => {
@@ -88,6 +90,38 @@ const Home = () => {
       setOpenDetails(true);
     }
   };
+
+  // Filtrado de parqueaderos
+  const filteredParqueaderos = searchQuery.trim()
+    ? parqueaderos.filter((p) =>
+        (p.nombre && p.nombre.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (p.ubicacion && p.ubicacion.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (p.direccion && p.direccion.toLowerCase().includes(searchQuery.toLowerCase()))
+      )
+    : parqueaderos;
+
+  // Rotación automática solo si no hay búsqueda activa
+  useEffect(() => {
+    if (!searchQuery.trim() && filteredParqueaderos.length > 6) {
+      carouselInterval.current = setInterval(() => {
+        setCarouselIndex((prev) => (prev + 6) % filteredParqueaderos.length);
+      }, 4000); // 4 segundos
+      return () => clearInterval(carouselInterval.current);
+    } else {
+      setCarouselIndex(0);
+      if (carouselInterval.current) clearInterval(carouselInterval.current);
+    }
+  }, [searchQuery, filteredParqueaderos.length]);
+
+  // Obtener los parqueaderos a mostrar
+  const visibleParqueaderos = filteredParqueaderos.slice(
+    carouselIndex,
+    carouselIndex + 6
+  ).concat(
+    carouselIndex + 6 > filteredParqueaderos.length
+      ? filteredParqueaderos.slice(0, (carouselIndex + 6) % filteredParqueaderos.length)
+      : []
+  );
 
   return (
     <Box sx={{ width: '100%', margin: 0, padding: 0, overflow: 'hidden' }}>
@@ -144,13 +178,13 @@ const Home = () => {
                           Encuentra tu parqueadero en el mapa
                         </Typography>
                         <Box sx={{ width: '100%' }}>
-                          <MapaParqueaderos parqueaderos={parqueaderos} />
+                          <MapaParqueaderos parqueaderos={visibleParqueaderos} />
                         </Box>
                       </Box>
                     </Grid>
                     <Grid item xs={12} md={6}>
                       <Grid container spacing={3} justifyContent="center">
-                        {parqueaderos.map((parqueadero, idx) => (
+                        {visibleParqueaderos.map((parqueadero, idx) => (
                           <Grid item xs={12} sm={6} md={12} key={parqueadero.id} sx={{ display: 'flex', justifyContent: 'center' }}>
                             <ParqueaderoCard
                               elevation={1}
@@ -205,7 +239,7 @@ const Home = () => {
                     px: 2 
                   }}
                 >
-                  {parqueaderos.map((parqueadero, idx) => (
+                  {visibleParqueaderos.map((parqueadero, idx) => (
                     <Grid 
                       item 
                       xs={12} 
@@ -250,7 +284,7 @@ const Home = () => {
                       </ParqueaderoCard>
                     </Grid>
                   ))}
-                  {parqueaderos.length === 0 && (
+                  {visibleParqueaderos.length === 0 && (
                     <Grid item xs={12}>
                       <Typography variant="body1" color="text.secondary" align="center">
                         No hay parqueaderos registrados.
