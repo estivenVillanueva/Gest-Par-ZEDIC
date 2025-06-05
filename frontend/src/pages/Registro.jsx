@@ -258,7 +258,7 @@ const Registro = () => {
 
             <FormField>
               <InputLabel>
-                Correo electrónico o teléfono
+                Correo electrónico
               </InputLabel>
               <StyledTextField
                 fullWidth
@@ -285,7 +285,7 @@ const Registro = () => {
               <StyledTextField
                 fullWidth
                 name="ubicacion"
-                placeholder="Ciudad, País"
+                placeholder="Ciudad"
                 value={formData.ubicacion}
                 onChange={handleChange}
                 required

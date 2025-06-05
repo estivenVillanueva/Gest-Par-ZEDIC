@@ -132,7 +132,7 @@ const Acceder = () => {
             fullWidth
             name="email"
             type="email"
-            placeholder="Correo electrónico o teléfono"
+            placeholder="Correo electrónico"
             value={formData.email}
             onChange={handleChange}
             required
