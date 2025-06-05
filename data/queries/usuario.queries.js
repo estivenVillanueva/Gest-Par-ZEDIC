@@ -36,21 +36,24 @@ export const usuarioQueries = {
         const result = await pool.query(query, values);
         const usuario = result.rows[0];
 
-        // Si el usuario es admin, crear parqueadero asociado automáticamente
+        // Si el usuario es admin, crear parqueadero asociado automáticamente SOLO si no existe uno
         if (usuario.tipo_usuario === 'admin') {
-            await parqueaderoQueries.createParqueadero({
-                nombre: 'Parqueadero de ' + usuario.nombre,
-                ubicacion: usuario.ubicacion || '',
-                capacidad: 0,
-                precio_hora: 0,
-                estado: 'Activo',
-                telefono: usuario.telefono || '',
-                email: usuario.correo,
-                direccion: usuario.ubicacion || '',
-                horarios: '',
-                descripcion: '',
-                usuario_id: usuario.id
-            });
+            const existente = await parqueaderoQueries.getParqueaderoByUsuarioId(usuario.id);
+            if (!existente) {
+                await parqueaderoQueries.createParqueadero({
+                    nombre: 'Parqueadero de ' + usuario.nombre,
+                    ubicacion: usuario.ubicacion || '',
+                    capacidad: 0,
+                    precio_hora: 0,
+                    estado: 'Activo',
+                    telefono: usuario.telefono || '',
+                    email: usuario.correo,
+                    direccion: usuario.ubicacion || '',
+                    horarios: '',
+                    descripcion: '',
+                    usuario_id: usuario.id
+                });
+            }
         }
 
         return usuario;
