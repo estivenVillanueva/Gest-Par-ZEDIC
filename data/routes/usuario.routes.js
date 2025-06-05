@@ -195,7 +195,7 @@ router.post('/login', async (req, res) => {
 // Google Auth: registrar o loguear usuario con Google
 router.post('/google-auth', async (req, res) => {
     try {
-        const { email, nombre, foto, googleId } = req.body;
+        const { email, nombre, foto, googleId, tipo_usuario } = req.body;
         // Buscar usuario por correo
         let usuario = await usuarioQueries.getUsuarioByCorreo(email);
         if (usuario) {
@@ -214,36 +214,39 @@ router.post('/google-auth', async (req, res) => {
             }
         }
         // Si no existe, crear nuevo usuario
+        const tipoUsuarioFinal = tipo_usuario || 'dueno';
         usuario = await usuarioQueries.createUsuario({
             nombre,
             correo: email,
             foto,
             googleId,
-            tipo_usuario: 'dueno', // o el tipo que prefieras por defecto
+            tipo_usuario: tipoUsuarioFinal,
         });
         console.log('Usuario creado con Google:', usuario);
-        // Crear parqueadero asociado automáticamente
-        try {
-            console.log('Antes de importar parqueaderoQueries para usuario Google:', usuario);
-            const { parqueaderoQueries } = await import('../queries/parqueadero.queries.js');
-            const parqueaderoData = {
-                nombre: `Parqueadero de ${usuario.nombre}`,
-                ubicacion: usuario.ubicacion || '',
-                capacidad: 0,
-                precio_hora: 0,
-                estado: 'Activo',
-                telefono: usuario.telefono || '',
-                email: usuario.correo,
-                direccion: usuario.ubicacion || '',
-                horarios: '',
-                descripcion: '',
-                usuario_id: usuario.id
-            };
-            console.log('Datos para crear parqueadero:', parqueaderoData);
-            const parqueadero = await parqueaderoQueries.createParqueadero(parqueaderoData);
-            console.log('Parqueadero creado para usuario Google:', parqueadero);
-        } catch (parqueaderoError) {
-            console.error('Error al crear parqueadero para usuario Google:', parqueaderoError);
+        // Solo crear parqueadero si es admin
+        if (tipoUsuarioFinal === 'admin') {
+            try {
+                console.log('Antes de importar parqueaderoQueries para usuario Google:', usuario);
+                const { parqueaderoQueries } = await import('../queries/parqueadero.queries.js');
+                const parqueaderoData = {
+                    nombre: `Parqueadero de ${usuario.nombre}`,
+                    ubicacion: usuario.ubicacion || '',
+                    capacidad: 0,
+                    precio_hora: 0,
+                    estado: 'Activo',
+                    telefono: usuario.telefono || '',
+                    email: usuario.correo,
+                    direccion: usuario.ubicacion || '',
+                    horarios: '',
+                    descripcion: '',
+                    usuario_id: usuario.id
+                };
+                console.log('Datos para crear parqueadero:', parqueaderoData);
+                const parqueadero = await parqueaderoQueries.createParqueadero(parqueaderoData);
+                console.log('Parqueadero creado para usuario Google:', parqueadero);
+            } catch (parqueaderoError) {
+                console.error('Error al crear parqueadero para usuario Google:', parqueaderoError);
+            }
         }
         res.json({
             success: true,
