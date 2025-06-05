@@ -173,7 +173,7 @@ const Home = () => {
                 <Typography variant="h3" fontWeight={800} align="center" sx={{ mb: 4 }}>
                   Encuentra tu parqueadero en el mapa
                 </Typography>
-                <Box sx={{ width: '270%', height: 410 }}>
+                <Box sx={{ width: '110%', height: 400 }}>
                   <MapaParqueaderos parqueaderos={visibleParqueaderos} />
                 </Box>
               </Box>

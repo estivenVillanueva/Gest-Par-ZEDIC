@@ -4,13 +4,13 @@ import { Box } from '@mui/material';
 export const MapContainer = styled(Box)`
   width: 100%;
   height: 100%;
-  border-radius: 24px !important;
+  border-radius: 0;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   position: relative;
 
   .gm-style {
-    border-radius: 24px !important;
+    border-radius: 0 !important;
   }
 
   .gm-style-iw {
