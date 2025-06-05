@@ -70,28 +70,28 @@ const Contacto = () => {
 
   const contactInfo = [
     {
-      icon: <EmailIcon />,
+      icon: <EmailIcon sx={{ fontSize: 32, color: '#2B6CA3' }} />,
       title: 'Email',
-      content: 'contacto@mckaz.com',
-      action: 'mailto:contacto@mckaz.com'
+      content: 'gestparzedic@gmail.com',
+      action: 'mailto:gestparzedic@gmail.com'
     },
     {
-      icon: <PhoneIcon />,
+      icon: <PhoneIcon sx={{ fontSize: 32, color: '#2B6CA3' }} />,
       title: 'Teléfono',
-      content: '+57 300 123 4567',
-      action: 'tel:+573001234567'
+      content: '3219861509',
+      action: 'tel:3219861509'
     },
     {
-      icon: <WhatsAppIcon />,
+      icon: <WhatsAppIcon sx={{ fontSize: 32, color: '#25D366' }} />,
       title: 'WhatsApp',
-      content: '+57 300 123 4567',
-      action: 'https://wa.me/573001234567'
+      content: '3219861509',
+      action: 'https://wa.me/573219861509'
     },
     {
-      icon: <LocationOnIcon />,
+      icon: <LocationOnIcon sx={{ fontSize: 32, color: '#E53935' }} />,
       title: 'Dirección',
-      content: 'Calle Principal #123, Ciudad',
-      action: 'https://maps.google.com'
+      content: 'Cra. 18 #7-58, Armenia, Quindío',
+      action: 'https://maps.google.com/?q=Cra.+18+%237-58,+Armenia,+Quindío'
     }
   ];
 
@@ -109,25 +109,28 @@ const Contacto = () => {
 
         <Grid container spacing={4}>
           {/* Información de contacto */}
-          <Grid item xs={12} md={4}>
-            <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Grid container spacing={3} justifyContent="center" alignItems="stretch" direction={{ xs: 'column', md: 'row' }}>
               {contactInfo.map((info, index) => (
-                <Grid item xs={12} key={index}>
-                  <ContactInfoCard>
-                    <ContactIcon>
+                <Grid item xs={12} md={3} key={index}>
+                  <ContactInfoCard sx={{ mb: { xs: 2, md: 0 }, boxShadow: 4, border: '1.5px solid #e3e9f1', minHeight: 180, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                    <ContactIcon sx={{ backgroundColor: 'rgba(43,108,163,0.12)', mb: 1, width: 56, height: 56 }}>
                       {info.icon}
                     </ContactIcon>
-                    <Typography variant="h6" gutterBottom>
+                    <Typography variant="h6" gutterBottom sx={{ color: '#2B6CA3', fontWeight: 700, fontSize: '1.1rem', mb: 0.5 }}>
                       {info.title}
                     </Typography>
                     <Typography 
                       component="a" 
                       href={info.action}
                       sx={{ 
-                        color: 'white',
+                        color: '#1a4971',
                         textDecoration: 'none',
+                        fontWeight: 500,
+                        fontSize: '1.08rem',
                         '&:hover': {
-                          textDecoration: 'underline'
+                          textDecoration: 'underline',
+                          color: '#2B6CA3'
                         }
                       }}
                     >
@@ -137,12 +140,17 @@ const Contacto = () => {
                 </Grid>
               ))}
             </Grid>
+            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4, mb: 2 }}>
+              <SocialButton href="https://facebook.com" target="_blank" variant="outlined" startIcon={<FacebookIcon sx={{ color: '#1877F3' }} />}>Facebook</SocialButton>
+              <SocialButton href="https://twitter.com" target="_blank" variant="outlined" startIcon={<TwitterIcon sx={{ color: '#1DA1F2' }} />}>Twitter</SocialButton>
+              <SocialButton href="https://instagram.com" target="_blank" variant="outlined" startIcon={<InstagramIcon sx={{ color: '#E4405F' }} />}>Instagram</SocialButton>
+            </Box>
           </Grid>
 
           {/* Formulario de contacto */}
           <Grid item xs={12} md={8}>
-            <ContactCard>
-              <Typography variant="h5" gutterBottom sx={{ color: 'primary.main', mb: 4 }}>
+            <ContactCard sx={{ background: 'linear-gradient(120deg, #f8fafc 80%, #e3e9f1 100%)', boxShadow: 6, border: '1.5px solid #e3e9f1', mt: 4 }}>
+              <Typography variant="h5" gutterBottom sx={{ color: '#2B6CA3', mb: 4, fontWeight: 700, textAlign: 'center' }}>
                 Envíanos un mensaje
               </Typography>
               <ContactForm onSubmit={handleSubmit}>
@@ -156,6 +164,7 @@ const Contacto = () => {
                       onChange={handleChange}
                       required
                       variant="outlined"
+                      sx={{ mb: 2 }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -168,6 +177,7 @@ const Contacto = () => {
                       onChange={handleChange}
                       required
                       variant="outlined"
+                      sx={{ mb: 2 }}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -179,6 +189,7 @@ const Contacto = () => {
                       onChange={handleChange}
                       required
                       variant="outlined"
+                      sx={{ mb: 2 }}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -192,17 +203,29 @@ const Contacto = () => {
                       multiline
                       rows={4}
                       variant="outlined"
+                      sx={{ mb: 2 }}
                     />
                   </Grid>
                   <Grid item xs={12}>
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                       <SubmitButton
                         type="submit"
-                        variant="contained"
-                        color="primary"
-                        size="large"
+                        sx={{
+                          background: 'linear-gradient(90deg, #2B6CA3 60%, #1a4971 100%)',
+                          color: 'white',
+                          fontWeight: 700,
+                          fontSize: '1.1rem',
+                          px: 5,
+                          py: 1.5,
+                          borderRadius: 2,
+                          boxShadow: '0 6px 16px rgba(43, 108, 163, 0.18)',
+                          '&:hover': {
+                            background: 'linear-gradient(90deg, #1a4971 60%, #2B6CA3 100%)',
+                            color: 'white',
+                          }
+                        }}
                       >
-                        Enviar Mensaje
+                        Enviar mensaje
                       </SubmitButton>
                     </Box>
                   </Grid>
@@ -210,42 +233,20 @@ const Contacto = () => {
               </ContactForm>
             </ContactCard>
           </Grid>
-
-          {/* Redes sociales */}
-          <Grid item xs={12}>
-            <ContactCard>
-              <Typography variant="h5" gutterBottom sx={{ color: 'primary.main', mb: 4 }}>
-                Síguenos en redes sociales
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
-                <SocialButton
-                  startIcon={<FacebookIcon />}
-                  variant="outlined"
-                  href="https://facebook.com"
-                  target="_blank"
-                >
-                  Facebook
-                </SocialButton>
-                <SocialButton
-                  startIcon={<TwitterIcon />}
-                  variant="outlined"
-                  href="https://twitter.com"
-                  target="_blank"
-                >
-                  Twitter
-                </SocialButton>
-                <SocialButton
-                  startIcon={<InstagramIcon />}
-                  variant="outlined"
-                  href="https://instagram.com"
-                  target="_blank"
-                >
-                  Instagram
-                </SocialButton>
-              </Box>
-            </ContactCard>
-          </Grid>
         </Grid>
+        {/* Mapa de ubicación */}
+        <Box sx={{ mt: 8, display: 'flex', justifyContent: 'center' }}>
+          <iframe
+            title="Ubicación Gest-Par ZEDIC"
+            src="https://www.google.com/maps?q=Cra.+18+%237-58,+Armenia,+Quindío&output=embed"
+            width="100%"
+            height="350"
+            style={{ border: 0, borderRadius: 16, maxWidth: 700 }}
+            allowFullScreen=""
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </Box>
       </Container>
 
       <Snackbar
