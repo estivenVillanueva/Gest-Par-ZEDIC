@@ -136,67 +136,64 @@ const Home = () => {
           <Grid container spacing={3}>
             <Grid item xs={12} md={searchView === 'map' ? 8 : 12}>
               {searchView === 'map' ? (
-                <Container maxWidth="md" sx={{ my: 6, px: 0 }}>
-                  <Box display="flex" flexDirection="column" alignItems="center">
-                    <Typography variant="h5" fontWeight={700} mb={3} align="center">
-                      Encuentra tu parqueadero en el mapa
-                    </Typography>
-                    <Box sx={{
-                      width: '100%',
-                      borderRadius: 2,
-                      boxShadow: '0 4px 24px rgba(33, 150, 243, 0.10)',
-                      overflow: 'hidden',
-                      bgcolor: '#fff',
-                      mb: 4,
-                      mx: 'auto',
-                      display: 'flex',
-                      justifyContent: 'center'
-                    }}>
-                      <MapaParqueaderos parqueaderos={parqueaderos} />
-                    </Box>
-                    <Grid container spacing={3} justifyContent="center" sx={{ mx: 'auto' }}>
-                      {parqueaderos.map((parqueadero, idx) => (
-                        <Grid item xs={12} sm={6} md={4} key={parqueadero.id} sx={{ display: 'flex', justifyContent: 'center' }}>
-                          <ParqueaderoCard
-                            elevation={1}
-                            sx={{
-                              borderRadius: 2,
-                              boxShadow: '0 2px 8px rgba(33, 150, 243, 0.08)',
-                              bgcolor: '#fff',
-                              p: 2,
-                              minWidth: 260,
-                              maxWidth: 320,
-                              mx: 'auto'
-                            }}
-                          >
-                            <CardContent>
-                              <Typography variant="h6" fontWeight={600} sx={{ mb: 0.5 }}>
-                                {parqueadero.nombre}
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                                {parqueadero.direccion || parqueadero.ubicacion}
-                              </Typography>
-                              <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-                                <Chip label={parqueadero.horarios} size="small" variant="outlined" />
-                              </Stack>
-                              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                                Capacidad: {parqueadero.capacidad} vehículos
-                              </Typography>
-                              <StyledButton
-                                variant="contained"
-                                fullWidth
-                                onClick={() => handleOpenDetails(parqueadero)}
-                                sx={{ mt: 2 }}
-                              >
-                                Ver detalles
-                              </StyledButton>
-                            </CardContent>
-                          </ParqueaderoCard>
-                        </Grid>
-                      ))}
+                <StyledContainer sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <Grid container spacing={4} justifyContent="center" alignItems="flex-start">
+                    <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'center' }}>
+                      <Box sx={{ width: '100%', maxWidth: 600 }}>
+                        <Typography variant="h5" fontWeight={700} mb={3} align="center">
+                          Encuentra tu parqueadero en el mapa
+                        </Typography>
+                        <Box sx={{ width: '100%' }}>
+                          <MapaParqueaderos parqueaderos={parqueaderos} />
+                        </Box>
+                      </Box>
                     </Grid>
-                  </Box>
-                </Container>
+                    <Grid item xs={12} md={6}>
+                      <Grid container spacing={3} justifyContent="center">
+                        {parqueaderos.map((parqueadero, idx) => (
+                          <Grid item xs={12} sm={6} md={12} key={parqueadero.id} sx={{ display: 'flex', justifyContent: 'center' }}>
+                            <ParqueaderoCard
+                              elevation={1}
+                              sx={{
+                                borderRadius: 2,
+                                boxShadow: '0 2px 8px rgba(33, 150, 243, 0.08)',
+                                bgcolor: '#fff',
+                                p: 2,
+                                minWidth: 260,
+                                maxWidth: 320,
+                                mx: 'auto',
+                                mb: 2
+                              }}
+                            >
+                              <CardContent>
+                                <Typography variant="h6" fontWeight={600} sx={{ mb: 0.5 }}>
+                                  {parqueadero.nombre}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                                  {parqueadero.direccion || parqueadero.ubicacion}
+                                </Typography>
+                                <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+                                  <Chip label={parqueadero.horarios} size="small" variant="outlined" />
+                                </Stack>
+                                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                                  Capacidad: {parqueadero.capacidad} vehículos
+                                </Typography>
+                                <StyledButton
+                                  variant="contained"
+                                  fullWidth
+                                  onClick={() => handleOpenDetails(parqueadero)}
+                                  sx={{ mt: 2 }}
+                                >
+                                  Ver detalles
+                                </StyledButton>
+                              </CardContent>
+                            </ParqueaderoCard>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </StyledContainer>
               ) : (
                 <Grid 
                   container 

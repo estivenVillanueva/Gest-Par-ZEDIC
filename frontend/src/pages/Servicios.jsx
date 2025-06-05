@@ -151,23 +151,23 @@ const Servicios = () => {
             alignItems: 'center',
             justifyContent: 'center',
             textAlign: 'center',
-            maxWidth: 600,
+            maxWidth: 900,
             mx: 'auto',
             py: 4
           }}>
             <Typography 
               variant="h4" 
               gutterBottom 
-              sx={{ 
-                fontWeight: 'bold',
-                mb: 3
-              }}
+              sx={{ fontWeight: 'bold', mb: 1 }}
             >
               Beneficios Adicionales
             </Typography>
-            <List sx={{ width: '100%', mb: 4 }}>
+            <Typography variant="subtitle1" sx={{ mb: 3, opacity: 0.85 }}>
+              Descubre todas las ventajas exclusivas que ofrecemos para tu tranquilidad y comodidad.
+            </Typography>
+            <Box sx={{ width: '100%', display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2, mb: 4 }}>
               {beneficios.map((beneficio, index) => (
-                <BeneficioListItem key={index} elevation={0} sx={{ justifyContent: 'center' }}>
+                <BeneficioListItem key={index} elevation={0} sx={{ justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
                   <ListItemIcon sx={{ minWidth: 40 }}>
                     <Box sx={{
                       bgcolor: 'rgba(43,108,163,0.18)',
@@ -178,7 +178,7 @@ const Servicios = () => {
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}>
-                      <CheckCircleIcon sx={{ color: 'white', fontSize: 22 }} />
+                      <CheckCircleIcon sx={{ color: '#2B6CA3', fontSize: 22 }} />
                     </Box>
                   </ListItemIcon>
                   <ListItemText 
@@ -192,17 +192,19 @@ const Servicios = () => {
                   />
                 </BeneficioListItem>
               ))}
-            </List>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-              <Box sx={{ bgcolor: 'rgba(255,255,255,0.13)', borderRadius: '50%', p: 2 }}>
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', gap: 4, mt: 2 }}>
+              <Box sx={{ bgcolor: 'rgba(255,255,255,0.13)', borderRadius: '50%', p: 2, mb: { xs: 2, sm: 0 } }}>
                 <SpeedIcon sx={{ fontSize: 48, color: 'white' }} />
               </Box>
-              <Typography variant="h5" align="center" sx={{ fontWeight: 'bold', mb: 1 }}>
-                Tecnología de Punta
-              </Typography>
-              <Typography variant="body1" align="center" sx={{ mb: 2 }}>
-                Utilizamos los sistemas más avanzados para garantizar la seguridad y comodidad de tu vehículo.
-              </Typography>
+              <Box>
+                <Typography variant="h5" align="center" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  Tecnología de Punta
+                </Typography>
+                <Typography variant="body1" align="center" sx={{ mb: 2 }}>
+                  Utilizamos los sistemas más avanzados para garantizar la seguridad y comodidad de tu vehículo.
+                </Typography>
+              </Box>
               <Box sx={{ bgcolor: 'rgba(255,255,255,0.13)', borderRadius: '50%', p: 2 }}>
                 <VerifiedUserIcon sx={{ fontSize: 48, color: 'white' }} />
               </Box>
