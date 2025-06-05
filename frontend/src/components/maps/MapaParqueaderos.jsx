@@ -10,8 +10,8 @@ const MapaParqueaderos = ({ parqueaderos = [] }) => {
   const mapRef = useRef(null);
 
   const mapStyles = {
-    height: "400px",
-    width: "100%"
+    width: "100%",
+    height: "100%"
   };
 
   const defaultCenter = {

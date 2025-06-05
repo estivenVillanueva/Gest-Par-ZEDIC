@@ -2,15 +2,15 @@ import { styled } from '@mui/material';
 import { Box } from '@mui/material';
 
 export const MapContainer = styled(Box)`
-  height: 600px;
   width: 100%;
-  border-radius: 24px;
+  height: 100%;
+  border-radius: 24px !important;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   position: relative;
 
   .gm-style {
-    border-radius: 24px;
+    border-radius: 24px !important;
   }
 
   .gm-style-iw {

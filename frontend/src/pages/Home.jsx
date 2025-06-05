@@ -168,131 +168,66 @@ const Home = () => {
       <Box sx={{ py: 4, bgcolor: 'background.default' }}>
         <StyledContainer>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={searchView === 'map' ? 8 : 12}>
-              {searchView === 'map' ? (
-                <StyledContainer sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <Grid container spacing={4} justifyContent="center" alignItems="flex-start">
-                    <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'center' }}>
-                      <Box sx={{ width: '100%', maxWidth: 600 }}>
-                        <Typography variant="h5" fontWeight={700} mb={3} align="center">
-                          Encuentra tu parqueadero en el mapa
-                        </Typography>
-                        <Box sx={{ width: '100%' }}>
-                          <MapaParqueaderos parqueaderos={visibleParqueaderos} />
-                        </Box>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <Grid container spacing={3} justifyContent="center">
-                        {visibleParqueaderos.map((parqueadero, idx) => (
-                          <Grid item xs={12} sm={6} md={12} key={parqueadero.id} sx={{ display: 'flex', justifyContent: 'center' }}>
-                            <ParqueaderoCard
-                              elevation={1}
-                              sx={{
-                                borderRadius: 2,
-                                boxShadow: '0 2px 8px rgba(33, 150, 243, 0.08)',
-                                bgcolor: '#fff',
-                                p: 2,
-                                minWidth: 260,
-                                maxWidth: 320,
-                                mx: 'auto',
-                                mb: 2
-                              }}
-                            >
-                              <CardContent>
-                                <Typography variant="h6" fontWeight={600} sx={{ mb: 0.5 }}>
-                                  {parqueadero.nombre}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                                  {parqueadero.direccion || parqueadero.ubicacion}
-                                </Typography>
-                                <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-                                  <Chip label={parqueadero.horarios} size="small" variant="outlined" />
-                                </Stack>
-                                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                                  Capacidad: {parqueadero.capacidad} vehículos
-                                </Typography>
-                                <StyledButton
-                                  variant="contained"
-                                  fullWidth
-                                  onClick={() => handleOpenDetails(parqueadero)}
-                                  sx={{ mt: 2 }}
-                                >
-                                  Ver detalles
-                                </StyledButton>
-                              </CardContent>
-                            </ParqueaderoCard>
-                          </Grid>
-                        ))}
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </StyledContainer>
-              ) : (
-                <Grid 
-                  container 
-                  spacing={3} 
-                  justifyContent="center"
-                  sx={{ 
-                    width: '100%',
-                    margin: '0 auto',
-                    px: 2 
-                  }}
-                >
-                  {visibleParqueaderos.map((parqueadero, idx) => (
-                    <Grid 
-                      item 
-                      xs={12} 
-                      sm={6} 
-                      md={3} 
-                      key={parqueadero.id}
+            <Grid item xs={12}>
+              <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', mb: 4 }}>
+                <Typography variant="h3" fontWeight={800} align="center" sx={{ mb: 4 }}>
+                  Encuentra tu parqueadero en el mapa
+                </Typography>
+                <Box sx={{ width: '270%', height: 410 }}>
+                  <MapaParqueaderos parqueaderos={visibleParqueaderos} />
+                </Box>
+              </Box>
+            </Grid>
+            <Grid item xs={12}>
+              <Grid container spacing={3} justifyContent="center">
+                {visibleParqueaderos.map((parqueadero, idx) => (
+                  <Grid item xs={12} sm={6} md={4} key={parqueadero.id} sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <ParqueaderoCard
+                      elevation={1}
                       sx={{
-                        display: 'flex',
-                        justifyContent: 'center'
+                        borderRadius: 2,
+                        boxShadow: '0 2px 8px rgba(33, 150, 243, 0.08)',
+                        bgcolor: '#fff',
+                        p: 2,
+                        minWidth: 260,
+                        maxWidth: 320,
+                        mx: 'auto',
+                        mb: 2
                       }}
                     >
-                      <ParqueaderoCard
-                        elevation={1}
-                        sx={{
-                          width: '100%',
-                          maxWidth: '280px',
-                          m: 1
-                        }}
-                      >
-                        <CardContent>
-                          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-                            <Typography variant="h6">{parqueadero.nombre}</Typography>
-                          </Stack>
-                          <Typography variant="body2" color="text.secondary" gutterBottom>
-                            {parqueadero.direccion || parqueadero.ubicacion}
-                          </Typography>
-                          <Stack direction="row" spacing={1} mb={2}>
-                            <Chip label={parqueadero.horarios} size="small" />
-                          </Stack>
-                          <Typography variant="body2" gutterBottom>
-                            Capacidad: {parqueadero.capacidad} vehículos
-                          </Typography>
-                          <StyledButton
-                            variant="contained"
-                            fullWidth
-                            onClick={() => handleOpenDetails(parqueadero)}
-                            sx={{ mt: 2 }}
-                          >
-                            Ver detalles
-                          </StyledButton>
-                        </CardContent>
-                      </ParqueaderoCard>
-                    </Grid>
-                  ))}
-                  {visibleParqueaderos.length === 0 && (
-                    <Grid item xs={12}>
-                      <Typography variant="body1" color="text.secondary" align="center">
-                        No hay parqueaderos registrados.
-                      </Typography>
-                    </Grid>
-                  )}
-                </Grid>
-              )}
+                      <CardContent>
+                        <Typography variant="h6" fontWeight={600} sx={{ mb: 0.5 }}>
+                          {parqueadero.nombre}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                          {parqueadero.direccion || parqueadero.ubicacion}
+                        </Typography>
+                        <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+                          <Chip label={parqueadero.horarios} size="small" variant="outlined" />
+                        </Stack>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                          Capacidad: {parqueadero.capacidad} vehículos
+                        </Typography>
+                        <StyledButton
+                          variant="contained"
+                          fullWidth
+                          onClick={() => handleOpenDetails(parqueadero)}
+                          sx={{ mt: 2 }}
+                        >
+                          Ver detalles
+                        </StyledButton>
+                      </CardContent>
+                    </ParqueaderoCard>
+                  </Grid>
+                ))}
+                {visibleParqueaderos.length === 0 && (
+                  <Grid item xs={12}>
+                    <Typography variant="body1" color="text.secondary" align="center">
+                      No hay parqueaderos registrados.
+                    </Typography>
+                  </Grid>
+                )}
+              </Grid>
             </Grid>
           </Grid>
         </StyledContainer>
