@@ -71,17 +71,36 @@ export const ContactCard = styled(Paper)(({ theme }) => ({
 export const ContactInfoCard = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
   borderRadius: theme.spacing(2),
-  background: 'linear-gradient(135deg, #2B6CA3 0%, #1a4971 100%)',
-  color: 'white',
+  background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)',
+  color: '#fff',
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
   textAlign: 'center',
   transition: 'transform 0.3s ease-in-out',
+  boxShadow: '0 6px 24px 0 rgba(30, 58, 138, 0.18)',
   '&:hover': {
-    transform: 'scale(1.01)',
+    transform: 'scale(1.03)',
   },
+  '& h6': {
+    color: '#fff',
+    fontWeight: 700,
+    marginBottom: theme.spacing(1),
+    fontSize: '1.1rem',
+  },
+  '& a': {
+    color: '#fff',
+    fontWeight: 500,
+    fontSize: '1.08rem',
+    textDecoration: 'none',
+    wordBreak: 'break-all',
+    transition: 'color 0.3s',
+    '&:hover': {
+      color: '#60a5fa',
+      textDecoration: 'underline',
+    }
+  }
 }));
 
 export const ContactForm = styled('form')(({ theme }) => ({
