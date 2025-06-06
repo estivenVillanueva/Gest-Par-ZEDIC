@@ -101,10 +101,13 @@ const ParkingInfo = ({ parkingData, onClose }) => {
     }
   ];
 
+  // Banner superior con imagen SIEMPRE aleatoria de Unsplash
+  const headerImage = `https://source.unsplash.com/800x180/?parking,${encodeURIComponent(parkingData?.nombre || parkingData?.name || 'parking')}`;
+
   return (
     <Paper elevation={4} sx={{ overflow: 'hidden', bgcolor: '#f8fafc' }}>
-      {/* Banner superior con imagen */}
-      <Box sx={{ width: '100%', height: 180, background: 'url(https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80) center/cover', position: 'relative' }}>
+      {/* Banner superior con imagen personalizada */}
+      <Box sx={{ width: '100%', height: 180, background: `url(${headerImage}) center/cover`, position: 'relative' }}>
         <Button onClick={onClose} sx={{ position: 'absolute', top: 16, right: 16, bgcolor: 'rgba(255,255,255,0.8)', color: '#2563eb', fontWeight: 700, borderRadius: 2, px: 2, boxShadow: 2, '&:hover': { bgcolor: '#2563eb', color: 'white' } }}>Cerrar</Button>
       </Box>
       <Box sx={{ p: { xs: 2, md: 4 } }}>
@@ -112,6 +115,12 @@ const ParkingInfo = ({ parkingData, onClose }) => {
           <LocalParkingIcon sx={{ fontSize: 40, color: '#2563eb' }} />
           <Typography variant="h4" fontWeight={800} color="#2563eb">{parkingData?.nombre || parkingData?.name || ''}</Typography>
         </Box>
+        {/* Descripción del parqueadero */}
+        {parkingData?.descripcion || parkingData?.description ? (
+          <Typography variant="body1" color="text.secondary" mb={2}>
+            {parkingData.descripcion || parkingData.description}
+          </Typography>
+        ) : null}
         <Divider sx={{ mb: 2 }} />
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
