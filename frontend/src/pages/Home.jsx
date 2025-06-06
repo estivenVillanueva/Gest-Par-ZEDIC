@@ -27,6 +27,8 @@ import MapIcon from '@mui/icons-material/Map';
 import ListIcon from '@mui/icons-material/List';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import StarIcon from '@mui/icons-material/Star';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import {
   HeroSection,
   StyledContainer,
@@ -43,6 +45,7 @@ import WhyChooseUs from '../components/WhyChooseUs';
 import ParkingInfo from '../components/parking/ParkingInfo';
 import Dialog from '@mui/material/Dialog';
 import MapaParqueaderos from '../components/maps/MapaParqueaderos';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Home = () => {
   const [searchView, setSearchView] = useState('map'); // 'map' o 'list'
@@ -55,6 +58,10 @@ const Home = () => {
   const [parqueaderos, setParqueaderos] = useState([]);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const carouselInterval = useRef(null);
+  const [fadeKey, setFadeKey] = useState(0);
+  const [pendingIndex, setPendingIndex] = useState(null);
+  const [isFading, setIsFading] = useState(false);
+  const [userInteracted, setUserInteracted] = useState(false);
 
   useEffect(() => {
     const fetchParqueaderos = async () => {
@@ -102,16 +109,31 @@ const Home = () => {
 
   // Rotación automática solo si no hay búsqueda activa
   useEffect(() => {
-    if (!searchQuery.trim() && filteredParqueaderos.length > 6) {
+    if (!searchQuery.trim() && filteredParqueaderos.length > 6 && !userInteracted) {
       carouselInterval.current = setInterval(() => {
-        setCarouselIndex((prev) => (prev + 6) % filteredParqueaderos.length);
-      }, 4000); // 4 segundos
+        setIsFading(true);
+        setPendingIndex((prev) => ((prev === null ? carouselIndex : prev) + 6) % filteredParqueaderos.length);
+      }, 4000);
       return () => clearInterval(carouselInterval.current);
     } else {
       setCarouselIndex(0);
+      setPendingIndex(null);
       if (carouselInterval.current) clearInterval(carouselInterval.current);
     }
-  }, [searchQuery, filteredParqueaderos.length]);
+  }, [searchQuery, filteredParqueaderos.length, userInteracted]);
+
+  // Manejar el cross-fade
+  useEffect(() => {
+    if (isFading && pendingIndex !== null) {
+      const timeout = setTimeout(() => {
+        setCarouselIndex(pendingIndex);
+        setFadeKey((k) => k + 1);
+        setIsFading(false);
+        setPendingIndex(null);
+      }, 400); // Duración del fade-out
+      return () => clearTimeout(timeout);
+    }
+  }, [isFading, pendingIndex]);
 
   // Obtener los parqueaderos a mostrar
   const visibleParqueaderos = filteredParqueaderos.slice(
@@ -122,6 +144,18 @@ const Home = () => {
       ? filteredParqueaderos.slice(0, (carouselIndex + 6) % filteredParqueaderos.length)
       : []
   );
+
+  const handleNext = () => {
+    setIsFading(true);
+    setPendingIndex((prev) => ((prev === null ? carouselIndex : prev) + 6) % filteredParqueaderos.length);
+    setUserInteracted(true);
+  };
+
+  const handlePrev = () => {
+    setIsFading(true);
+    setPendingIndex((prev) => ((prev === null ? carouselIndex : prev) - 6 + filteredParqueaderos.length) % filteredParqueaderos.length);
+    setUserInteracted(true);
+  };
 
   return (
     <Box sx={{ width: '100%', margin: 0, padding: 0, overflow: 'hidden' }}>
@@ -179,52 +213,79 @@ const Home = () => {
               </Box>
             </Grid>
             <Grid item xs={12}>
-              <Grid container spacing={3} justifyContent="center">
-                {visibleParqueaderos.map((parqueadero, idx) => (
-                  <Grid item xs={12} sm={6} md={4} key={parqueadero.id} sx={{ display: 'flex', justifyContent: 'center' }}>
-                    <ParqueaderoCard
-                      elevation={1}
-                      sx={{
-                        borderRadius: 2,
-                        boxShadow: '0 2px 8px rgba(33, 150, 243, 0.08)',
-                        bgcolor: '#fff',
-                        p: 2,
-                        minWidth: 260,
-                        maxWidth: 320,
-                        mx: 'auto',
-                        mb: 2
-                      }}
-                    >
-                      <CardContent>
-                        <Typography variant="h6" fontWeight={600} sx={{ mb: 0.5 }}>
-                          {parqueadero.nombre}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                          {parqueadero.direccion || parqueadero.ubicacion}
-                        </Typography>
-                        <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-                          <Chip label={parqueadero.horarios} size="small" variant="outlined" />
-                        </Stack>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                          Capacidad: {parqueadero.capacidad} vehículos
-                        </Typography>
-                        <StyledButton
-                          variant="contained"
-                          fullWidth
-                          onClick={() => handleOpenDetails(parqueadero)}
-                          sx={{ mt: 2 }}
-                        >
-                          Ver detalles
-                        </StyledButton>
-                      </CardContent>
-                    </ParqueaderoCard>
+              <Grid container spacing={3} justifyContent="center" alignItems="center">
+                {filteredParqueaderos.length > 6 && (
+                  <Grid item>
+                    <IconButton onClick={handlePrev} size="large" sx={{ bgcolor: '#fff', boxShadow: 1, mr: 2 }}>
+                      <ArrowBackIosNewIcon />
+                    </IconButton>
                   </Grid>
-                ))}
-                {visibleParqueaderos.length === 0 && (
-                  <Grid item xs={12}>
-                    <Typography variant="body1" color="text.secondary" align="center">
-                      No hay parqueaderos registrados.
-                    </Typography>
+                )}
+                <Grid item xs>
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.div
+                      key={fadeKey}
+                      initial={{ opacity: 1 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.4 }}
+                      style={{ width: '100%', display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}
+                    >
+                      {visibleParqueaderos.map((parqueadero) => (
+                        <Grid item xs={12} sm={6} md={4} key={parqueadero.id} sx={{ display: 'flex', justifyContent: 'center' }}>
+                          <ParqueaderoCard
+                            elevation={1}
+                            sx={{
+                              borderRadius: 2,
+                              boxShadow: '0 2px 8px rgba(33, 150, 243, 0.08)',
+                              bgcolor: '#fff',
+                              p: 2,
+                              minWidth: 260,
+                              maxWidth: 320,
+                              mx: 'auto',
+                              mb: 2
+                            }}
+                          >
+                            <CardContent>
+                              <Typography variant="h6" fontWeight={600} sx={{ mb: 0.5 }}>
+                                {parqueadero.nombre}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                                {parqueadero.direccion || parqueadero.ubicacion}
+                              </Typography>
+                              <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+                                <Chip label={parqueadero.horarios} size="small" variant="outlined" />
+                              </Stack>
+                              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                                Capacidad: {parqueadero.capacidad} vehículos
+                              </Typography>
+                              <StyledButton
+                                variant="contained"
+                                fullWidth
+                                onClick={() => handleOpenDetails(parqueadero)}
+                                sx={{ mt: 2 }}
+                              >
+                                Ver detalles
+                              </StyledButton>
+                            </CardContent>
+                          </ParqueaderoCard>
+                        </Grid>
+                      ))}
+                      {visibleParqueaderos.length === 0 && (
+                        <Grid item xs={12}>
+                          <Typography variant="body1" color="text.secondary" align="center">
+                            No hay parqueaderos registrados.
+                          </Typography>
+                        </Grid>
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+                </Grid>
+                {filteredParqueaderos.length > 6 && (
+                  <Grid item>
+                    <IconButton onClick={handleNext} size="large" sx={{ bgcolor: '#fff', boxShadow: 1, ml: 2 }}>
+                      <ArrowForwardIosIcon />
+                    </IconButton>
                   </Grid>
                 )}
               </Grid>
