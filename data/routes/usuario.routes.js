@@ -179,9 +179,20 @@ router.post('/login', async (req, res) => {
                 message: 'Credenciales inválidas'
             });
         }
+
+        // Buscar parqueadero asociado si es admin
+        let parqueadero_id = null;
+        if (usuario.tipo_usuario === 'admin') {
+            const parqueadero = await parqueaderoQueries.getParqueaderoByUsuarioId(usuario.id);
+            if (parqueadero) {
+                parqueadero_id = parqueadero.id;
+            }
+        }
+
+        // Devolver usuario + parqueadero_id
         res.json({
             success: true,
-            data: usuario
+            data: { ...usuario, parqueadero_id }
         });
     } catch (error) {
         // Si el error es por usuario no verificado o credenciales, devolver 401 y el mensaje
