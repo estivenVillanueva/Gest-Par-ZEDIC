@@ -183,6 +183,8 @@ router.post('/login', async (req, res) => {
         // Buscar parqueadero asociado si es admin
         let parqueadero_id = null;
         if (usuario.tipo_usuario === 'admin') {
+            // Importar aquí para evitar problemas de dependencias circulares
+            const { parqueaderoQueries } = require('../queries/parqueadero.queries.js');
             const parqueadero = await parqueaderoQueries.getParqueaderoByUsuarioId(usuario.id);
             if (parqueadero) {
                 parqueadero_id = parqueadero.id;
