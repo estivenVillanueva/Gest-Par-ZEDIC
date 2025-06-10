@@ -8,7 +8,13 @@ import {
   Tooltip,
   TextField,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  MenuItem
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
@@ -19,6 +25,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import SearchIcon from '@mui/icons-material/Search';
 import { MinimalCard, MinimalIcon, MinimalBadge, MinimalFab, MinimalGrid, MinimalFilterBar } from '../../styles/pages/Vehiculos.styles';
+import { useVehiculo } from '../../../logic/VehiculoContext';
 
 const getVehiculoIcon = (tipo) => {
   switch (tipo?.toLowerCase()) {
@@ -56,6 +63,66 @@ const VehiculoCard = ({ vehiculo, onVerInfo }) => (
   </MinimalCard>
 );
 
+const tiposVehiculo = [
+  'carro',
+  'moto',
+  'bicicleta',
+  'camion',
+  'otro'
+];
+
+const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => {
+  const [form, setForm] = useState(initialData || {
+    placa: '',
+    marca: '',
+    modelo: '',
+    color: '',
+    tipo: '',
+    usuario_id: ''
+  });
+
+  React.useEffect(() => {
+    setForm(initialData || {
+      placa: '', marca: '', modelo: '', color: '', tipo: '', usuario_id: ''
+    });
+  }, [initialData, open]);
+
+  const handleChange = e => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = e => {
+    e.preventDefault();
+    onGuardar(form);
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>{initialData ? 'Editar Vehículo' : 'Registrar Vehículo'}</DialogTitle>
+      <form onSubmit={handleSubmit}>
+        <DialogContent>
+          <TextField margin="normal" fullWidth label="Placa" name="placa" value={form.placa} onChange={handleChange} required disabled={!!initialData} />
+          <TextField margin="normal" fullWidth label="Marca" name="marca" value={form.marca} onChange={handleChange} required />
+          <TextField margin="normal" fullWidth label="Modelo" name="modelo" value={form.modelo} onChange={handleChange} required />
+          <TextField margin="normal" fullWidth label="Color" name="color" value={form.color} onChange={handleChange} required />
+          <TextField margin="normal" fullWidth select label="Tipo" name="tipo" value={form.tipo} onChange={handleChange} required>
+            {tiposVehiculo.map(tipo => <MenuItem key={tipo} value={tipo}>{tipo}</MenuItem>)}
+          </TextField>
+          <TextField margin="normal" fullWidth label="ID de usuario (opcional)" name="usuario_id" value={form.usuario_id} onChange={handleChange} />
+        </DialogContent>
+        <DialogActions>
+          {initialData && (
+            <Button color="error" onClick={() => { onEliminar(initialData.placa); onClose(); }}>Eliminar</Button>
+          )}
+          <Button onClick={onClose}>Cancelar</Button>
+          <Button type="submit" variant="contained">Guardar</Button>
+        </DialogActions>
+      </form>
+    </Dialog>
+  );
+};
+
 const Vehiculos = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFrom, setDateFrom] = useState('');
@@ -65,24 +132,33 @@ const Vehiculos = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const [vehiculos, setVehiculos] = useState([
-    { id: 1, placa: 'ABC123', propietario: 'Juan Pérez', tipoVehiculo: 'carro', color: 'Rojo', puesto: 'A1', tipoServicio: 'mensual', fecha: '2024-06-01', entradas: '2024-06-01,2024-06-10' },
-    { id: 2, placa: 'XYZ789', propietario: 'María García', tipoVehiculo: 'moto', color: 'Negro', puesto: 'B2', tipoServicio: 'diario', fecha: '2024-06-05', entradas: '2024-06-05,2024-06-12' },
-  ]);
+  const { vehiculos, loading, error, agregarVehiculo, actualizarVehiculo, eliminarVehiculo } = useVehiculo();
 
   const handleVerInfo = (vehiculo) => {
     setSelectedVehiculo(vehiculo);
     setOpenForm(true);
   };
 
+  const handleGuardar = async (data) => {
+    if (selectedVehiculo) {
+      await actualizarVehiculo(selectedVehiculo.placa, data);
+    } else {
+      await agregarVehiculo(data);
+    }
+  };
+
+  const handleEliminar = async (placa) => {
+    await eliminarVehiculo(placa);
+  };
+
   // Filtrado avanzado
   const filteredVehiculos = vehiculos.filter((vehiculo) => {
-    const matchGeneral = searchTerm === '' || vehiculo.placa.toLowerCase().includes(searchTerm.toLowerCase()) || vehiculo.propietario.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchGeneral = searchTerm === '' || vehiculo.placa.toLowerCase().includes(searchTerm.toLowerCase()) || (vehiculo.propietario || '').toLowerCase().includes(searchTerm.toLowerCase());
     let matchFecha = true;
-    if (dateFrom) {
+    if (dateFrom && vehiculo.fecha) {
       matchFecha = vehiculo.fecha >= dateFrom;
     }
-    if (dateTo && matchFecha) {
+    if (dateTo && matchFecha && vehiculo.fecha) {
       matchFecha = vehiculo.fecha <= dateTo;
     }
     return matchGeneral && matchFecha;
@@ -96,16 +172,29 @@ const Vehiculos = () => {
         <TextField type="date" variant="outlined" value={dateFrom} onChange={e => setDateFrom(e.target.value)} label="Desde" InputLabelProps={{ shrink: true }} />
         <TextField type="date" variant="outlined" value={dateTo} onChange={e => setDateTo(e.target.value)} label="Hasta" InputLabelProps={{ shrink: true }} />
       </MinimalFilterBar>
-      <MinimalGrid container spacing={4}>
-        {filteredVehiculos.map((vehiculo) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={vehiculo.id}>
-            <VehiculoCard vehiculo={vehiculo} onVerInfo={handleVerInfo} />
-          </Grid>
-        ))}
-      </MinimalGrid>
+      {loading ? (
+        <Typography variant="body1">Cargando vehículos...</Typography>
+      ) : error ? (
+        <Typography variant="body1" color="error">{error}</Typography>
+      ) : (
+        <MinimalGrid container spacing={4}>
+          {filteredVehiculos.map((vehiculo) => (
+            <Grid item xs={12} sm={6} md={4} lg={3} key={vehiculo.id}>
+              <VehiculoCard vehiculo={vehiculo} onVerInfo={handleVerInfo} />
+            </Grid>
+          ))}
+        </MinimalGrid>
+      )}
       <MinimalFab color="primary" aria-label="add" onClick={() => { setSelectedVehiculo(null); setOpenForm(true); }}>
         <AddIcon />
       </MinimalFab>
+      <FormVehiculo
+        open={openForm}
+        onClose={() => setOpenForm(false)}
+        initialData={selectedVehiculo}
+        onGuardar={handleGuardar}
+        onEliminar={handleEliminar}
+      />
     </Box>
   );
 };

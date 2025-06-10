@@ -3,6 +3,47 @@ import { vehiculoQueries } from '../queries/vehiculo.queries.js';
 
 const router = express.Router();
 
+// Obtener todos los vehículos (opcional: filtrar por parqueadero_id)
+router.get('/', async (req, res) => {
+    try {
+        const { parqueadero_id } = req.query;
+        const vehiculos = await vehiculoQueries.getVehiculos({ parqueadero_id });
+        res.json({
+            success: true,
+            data: vehiculos
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener vehículos',
+            error: error.message
+        });
+    }
+});
+
+// Obtener vehículo por ID
+router.get('/:id', async (req, res) => {
+    try {
+        const vehiculo = await vehiculoQueries.getVehiculoById(req.params.id);
+        if (!vehiculo) {
+            return res.status(404).json({
+                success: false,
+                message: 'Vehículo no encontrado'
+            });
+        }
+        res.json({
+            success: true,
+            data: vehiculo
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener vehículo',
+            error: error.message
+        });
+    }
+});
+
 // Obtener vehículo por placa
 router.get('/placa/:placa', async (req, res) => {
     try {
@@ -26,27 +67,11 @@ router.get('/placa/:placa', async (req, res) => {
     }
 });
 
-// Obtener vehículos por parqueadero
-router.get('/parqueadero/:idParqueadero', async (req, res) => {
-    try {
-        const vehiculos = await vehiculoQueries.getVehiculosByParqueadero(req.params.idParqueadero);
-        res.json({
-            success: true,
-            data: vehiculos
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener vehículos',
-            error: error.message
-        });
-    }
-});
-
 // Crear un nuevo vehículo
 router.post('/', async (req, res) => {
     try {
-        const nuevoVehiculo = await vehiculoQueries.createVehiculo(req.body);
+        const { placa, marca, modelo, color, tipo, usuario_id, parqueadero_id } = req.body;
+        const nuevoVehiculo = await vehiculoQueries.createVehiculo({ placa, marca, modelo, color, tipo, usuario_id, parqueadero_id });
         res.status(201).json({
             success: true,
             data: nuevoVehiculo
@@ -63,7 +88,8 @@ router.post('/', async (req, res) => {
 // Actualizar vehículo
 router.put('/:placa', async (req, res) => {
     try {
-        const vehiculoActualizado = await vehiculoQueries.updateVehiculo(req.params.placa, req.body);
+        const { marca, modelo, color, tipo, usuario_id, parqueadero_id } = req.body;
+        const vehiculoActualizado = await vehiculoQueries.updateVehiculo(req.params.placa, { marca, modelo, color, tipo, usuario_id, parqueadero_id });
         if (!vehiculoActualizado) {
             return res.status(404).json({
                 success: false,
@@ -101,26 +127,6 @@ router.delete('/:placa', async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error al eliminar vehículo',
-            error: error.message
-        });
-    }
-});
-
-// Verificar disponibilidad de puesto
-router.get('/verificar-puesto/:puesto/:idParqueadero', async (req, res) => {
-    try {
-        const disponible = await vehiculoQueries.checkPuestoDisponible(
-            req.params.puesto,
-            req.params.idParqueadero
-        );
-        res.json({
-            success: true,
-            data: { disponible }
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Error al verificar disponibilidad',
             error: error.message
         });
     }
