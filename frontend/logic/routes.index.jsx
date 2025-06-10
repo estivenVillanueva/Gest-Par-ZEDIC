@@ -18,6 +18,7 @@ import UserTypeSelection from '../src/components/UserTypeSelection';
 import Inicio from '../src/pages/vehiculo/Inicio';
 import MisVehiculos from '../src/pages/vehiculo/MisVehiculos';
 import Reservas from '../src/pages/vehiculo/Reservas';
+import AdminInicio from '../src/pages/dashboard/Inicio';
 import { useAuth } from './AuthContext';
 import OwnerProfile from '../src/components/profile/OwnerProfile';
 
@@ -53,7 +54,7 @@ const AppRoutes = () => {
       {/* Rutas del dashboard del administrador */}
       <Route path="/dashboard" element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
-          <Route index element={<Navigate to="/dashboard/parqueadero" />} />
+          <Route index element={<AdminInicio />} />
           <Route path="parqueadero" element={<Parqueadero />} />
           <Route path="vehiculos" element={<Vehiculos />} />
           <Route path="pagos" element={<Pagos />} />
@@ -72,7 +73,6 @@ const AppRoutes = () => {
           <Route path="inicio" element={<Inicio />} />
           <Route path="mis-vehiculos" element={<MisVehiculos />} />
           <Route path="reservas" element={<Reservas />} />
-          <Route path="pagos" element={<div>Pagos (En desarrollo)</div>} />
           <Route path="perfil" element={<OwnerProfile />} />
         </Route>
       </Route>

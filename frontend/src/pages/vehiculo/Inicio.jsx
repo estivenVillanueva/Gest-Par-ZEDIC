@@ -154,7 +154,7 @@ const Inicio = () => {
         </Grid>
       </Paper>
 
-      {/* Próximas Reservas y Últimos Pagos */}
+      {/* Próximas Reservas */}
       <Paper elevation={2} sx={{
         width: '100%',
         maxWidth: 1200,
@@ -180,23 +180,6 @@ const Inicio = () => {
             <CardContent>
               <Typography variant="body2" color="text.secondary">
                 No tienes reservas programadas
-              </Typography>
-            </CardContent>
-          </Card>
-        </Box>
-        <Box flex={1}>
-          <Card sx={{ borderRadius: 4, boxShadow: '0 2px 12px rgba(52,152,243,0.06)' }}>
-            <CardHeader
-              title={<Typography variant="h6">Últimos Pagos</Typography>}
-              action={
-                <IconButton onClick={() => navigate('/vehiculo/pagos')}>
-                  <PaymentIcon />
-                </IconButton>
-              }
-            />
-            <CardContent>
-              <Typography variant="body2" color="text.secondary">
-                No hay pagos recientes
               </Typography>
             </CardContent>
           </Card>

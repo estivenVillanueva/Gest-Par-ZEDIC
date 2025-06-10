@@ -27,6 +27,11 @@ import { useAuth } from '../../../logic/AuthContext';
 
 const navigationItems = [
   { 
+    label: 'Inicio', 
+    path: '/dashboard',
+    icon: <DirectionsCarIcon />
+  },
+  { 
     label: 'Vehículos', 
     path: '/dashboard/vehiculos',
     icon: <DirectionsCarIcon />

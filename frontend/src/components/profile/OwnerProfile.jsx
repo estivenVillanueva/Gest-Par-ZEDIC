@@ -284,10 +284,6 @@ const OwnerProfile = () => {
                 <Typography variant="h4" fontWeight={700} color="primary.main">{profile.reservas || 0}</Typography>
                 <Typography variant="body2" color="text.secondary">Reservas</Typography>
               </Box>
-              <Box sx={{ textAlign: 'center', flex: 1 }}>
-                <Typography variant="h4" fontWeight={700} color="primary.main">{profile.pagos || 0}</Typography>
-                <Typography variant="body2" color="text.secondary">Pagos</Typography>
-              </Box>
             </Box>
             <Divider sx={{ my: 2 }} />
             <Typography variant="h6" fontWeight={600} mb={2} color="primary.main">

@@ -37,11 +37,6 @@ const navigationItems = [
     label: 'Reservas', 
     path: '/vehiculo/reservas',
     icon: <CalendarMonthIcon />
-  },
-  { 
-    label: 'Pagos', 
-    path: '/vehiculo/pagos',
-    icon: <PaymentIcon />
   }
 ];
 

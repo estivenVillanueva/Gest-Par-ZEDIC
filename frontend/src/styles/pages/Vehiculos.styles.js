@@ -1,208 +1,78 @@
 import { styled } from '@mui/material';
-import { Card, Box, Paper } from '@mui/material';
-import { TextField } from '@mui/material';
+import { Card, Box, Fab, Grid, Chip } from '@mui/material';
 
-export const VehiculoCardStyled = styled(Card)`
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  border-radius: 20px;
-  background: linear-gradient(145deg, #ffffff, #f5f5f5);
-  color: #2B6CA3;
-  transition: all 0.3s ease;
-  border: 1px solid rgba(43, 108, 163, 0.1);
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
-  
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(43, 108, 163, 0.12);
-    border-color: rgba(43, 108, 163, 0.2);
-  }
-`;
+export const MinimalCard = styled(Card)(({ theme }) => ({
+  position: 'relative',
+  minHeight: 260,
+  maxWidth: 320,
+  margin: '0 auto',
+  borderRadius: 20,
+  background: '#fff',
+  boxShadow: '0 4px 24px 0 rgba(31, 38, 135, 0.07)',
+  border: '1.5px solid #f0f4fa',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  padding: theme.spacing(3, 2, 2, 2),
+  transition: 'all 0.25s cubic-bezier(0.4,0,0.2,1)',
+  cursor: 'pointer',
+  '&:hover': {
+    boxShadow: '0 12px 32px 0 rgba(31, 38, 135, 0.13)',
+    borderColor: theme.palette.primary.main,
+    transform: 'translateY(-4px) scale(1.03)',
+  },
+}));
 
-export const CardImageContainer = styled(Box)`
-  width: 100%;
-  height: 140px;
-  background: linear-gradient(135deg, #2B6CA3, #1a4971);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
+export const MinimalIcon = styled(Box)(({ theme }) => ({
+  width: 56,
+  height: 56,
+  borderRadius: '50%',
+  background: 'linear-gradient(135deg, #3498f3 0%, #2B6CA3 100%)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color: '#fff',
+  fontSize: 32,
+  boxShadow: '0 2px 8px rgba(52,152,243,0.10)',
+  marginBottom: theme.spacing(2),
+}));
 
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(
-      45deg,
-      rgba(255, 255, 255, 0.1) 0%,
-      rgba(255, 255, 255, 0) 100%
-    );
-  }
+export const MinimalBadge = styled(Chip)(({ theme }) => ({
+  fontWeight: 600,
+  fontSize: '0.85rem',
+  borderRadius: 7,
+  background: '#f5f7fa',
+  color: theme.palette.primary.main,
+  marginRight: theme.spacing(0.5),
+  marginBottom: theme.spacing(0.5),
+}));
 
-  svg {
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-    transition: transform 0.3s ease;
-  }
+export const MinimalFab = styled(Fab)(({ theme }) => ({
+  position: 'fixed',
+  bottom: 32,
+  right: 32,
+  zIndex: 100,
+  boxShadow: '0 8px 32px rgba(52,152,243,0.13)',
+  background: 'linear-gradient(135deg, #3498f3 0%, #2B6CA3 100%)',
+  color: '#fff',
+  '&:hover': {
+    background: 'linear-gradient(135deg, #2B6CA3 0%, #3498f3 100%)',
+  },
+}));
 
-  ${VehiculoCardStyled}:hover & svg {
-    transform: scale(1.1);
-  }
-`;
+export const MinimalGrid = styled(Grid)(({ theme }) => ({
+  marginTop: theme.spacing(3),
+  justifyContent: 'flex-start',
+}));
 
-export const CardInfoContainer = styled(Box)`
-  padding: 20px;
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  .MuiTypography-h6 {
-    color: #2B6CA3;
-    font-size: 1.25rem;
-    letter-spacing: 0.5px;
-  }
-
-  .MuiTypography-body2 {
-    color: #546e7a;
-    font-size: 0.875rem;
-  }
-`;
-
-export const CardActionContainer = styled(Box)`
-  padding: 16px 20px;
-  margin-top: auto;
-  text-align: center;
-  background-color: white;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
-
-  .MuiButton-root {
-    color: #2B6CA3;
-    font-weight: 600;
-    text-transform: none;
-    padding: 8px 24px;
-    border-radius: 12px;
-    background-color: rgba(43, 108, 163, 0.04);
-    transition: all 0.3s ease;
-    
-    &:hover {
-      background-color: rgba(43, 108, 163, 0.1);
-      transform: translateY(-1px);
-    }
-
-    .MuiSvgIcon-root {
-      font-size: 1.2rem;
-      margin-right: 8px;
-    }
-  }
-`;
-
-export const AddVehiculoCard = styled(Card)`
-  height: 100%;
-  min-height: 320px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 20px;
-  cursor: pointer;
-  background: linear-gradient(145deg, #ffffff, #f5f5f5);
-  border: 2px dashed rgba(43, 108, 163, 0.2);
-  transition: all 0.3s ease;
-  
-  &:hover {
-    border-color: #2B6CA3;
-    background: linear-gradient(145deg, #f5f5f5, #ffffff);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(43, 108, 163, 0.08);
-
-    svg {
-      transform: scale(1.1);
-      color: #2B6CA3;
-    }
-  }
-
-  svg {
-    transition: all 0.3s ease;
-    color: rgba(43, 108, 163, 0.6);
-  }
-`;
-
-export const SearchContainer = styled(Box)`
-  margin-bottom: 32px;
-
-  .MuiTextField-root {
-    background-color: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
-    transition: all 0.3s ease;
-
-    &:hover {
-      box-shadow: 0 6px 12px rgba(43, 108, 163, 0.08);
-    }
-    
-    .MuiOutlinedInput-root {
-      border-radius: 16px;
-      
-      &:hover .MuiOutlinedInput-notchedOutline {
-        border-color: #2B6CA3;
-      }
-      
-      &.Mui-focused .MuiOutlinedInput-notchedOutline {
-        border-color: #2B6CA3;
-        border-width: 2px;
-      }
-
-      .MuiInputAdornment-root {
-        .MuiSvgIcon-root {
-          color: #2B6CA3;
-          font-size: 1.3rem;
-        }
-      }
-    }
-  }
-`;
-
-export const ContentContainer = styled(Box)`
-  padding: 32px;
-  border-radius: 24px;
-  background-color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-`;
-
-export const FormTextField = styled(TextField)`
-  & .MuiOutlinedInput-root {
-    border-radius: 12px;
-    background-color: #f8f9fa;
-    
-    &:hover .MuiOutlinedInput-notchedOutline {
-      border-color: #2B6CA3;
-    }
-    
-    &.Mui-focused .MuiOutlinedInput-notchedOutline {
-      border-color: #2B6CA3;
-      border-width: 2px;
-    }
-  }
-  
-  & .MuiOutlinedInput-notchedOutline {
-    border-color: rgba(0,0,0,0.1);
-  }
-  
-  & .MuiInputLabel-root {
-    color: #2B6CA3;
-    
-    &.Mui-focused {
-      color: #2B6CA3;
-    }
-  }
-  
-  & .MuiInputBase-input::placeholder {
-    color: rgba(0,0,0,0.4);
-    opacity: 1;
-  }
-`; 
+export const MinimalFilterBar = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: theme.spacing(2),
+  alignItems: 'center',
+  marginBottom: theme.spacing(3),
+  flexWrap: 'wrap',
+  background: '#fff',
+  borderRadius: 14,
+  boxShadow: '0 2px 12px rgba(52,152,243,0.05)',
+  padding: theme.spacing(2, 3),
+})); 
