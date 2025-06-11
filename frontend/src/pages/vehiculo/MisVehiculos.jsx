@@ -22,6 +22,7 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import { useAuth } from '../../logic/AuthContext';
 
 const MOCK_VEHICULOS = [
   {
@@ -164,19 +165,35 @@ const MisVehiculos = () => {
   const [openForm, setOpenForm] = useState(false);
   const [editData, setEditData] = useState(null);
   const [infoVehiculo, setInfoVehiculo] = useState(null);
+  const { currentUser } = useAuth();
 
   const handleAgregar = () => {
     setEditData(null);
     setOpenForm(true);
   };
 
-  const handleGuardar = (data) => {
-    if (editData) {
-      setVehiculos(vehiculos.map(v => v.id === editData.id ? { ...editData, ...data } : v));
-    } else {
-      setVehiculos([...vehiculos, { ...data, id: (vehiculos.length + 1).toString() }]);
+  const handleGuardar = async (data) => {
+    try {
+      // Construir el objeto para el backend
+      const vehiculoData = {
+        placa: data.placa,
+        tipo: data.tipoVehiculo,
+        color: data.color,
+        modelo: data.modelo,
+        usuario_id: currentUser.id,
+        parqueadero_id: currentUser.parqueadero_id || null
+      };
+      const response = await fetch('https://gest-par-zedic.onrender.com/api/vehiculos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(vehiculoData)
+      });
+      if (!response.ok) throw new Error('Error al agregar el vehículo');
+      // Opcional: actualizar la lista de vehículos desde el backend
+      setOpenForm(false);
+    } catch (error) {
+      alert(error.message);
     }
-    setOpenForm(false);
   };
 
   const handleEditar = (vehiculo) => {
