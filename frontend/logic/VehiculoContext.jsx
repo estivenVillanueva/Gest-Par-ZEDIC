@@ -69,10 +69,15 @@ export const VehiculoProvider = ({ children }) => {
     setLoading(true);
     try {
       if (!currentUser?.parqueadero_id) throw new Error('No hay parqueadero asociado');
+      // Solo incluir usuario_id si está presente y no vacío
+      const dataToSend = { ...vehiculoData, parqueadero_id: currentUser.parqueadero_id };
+      if (!dataToSend.usuario_id || dataToSend.usuario_id === '') {
+        delete dataToSend.usuario_id;
+      }
       const response = await fetch(`${API_URL}/api/vehiculos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...vehiculoData, parqueadero_id: currentUser.parqueadero_id })
+        body: JSON.stringify(dataToSend)
       });
       if (!response.ok) throw new Error('Error al agregar el vehículo');
       await cargarVehiculos();
