@@ -60,8 +60,11 @@ export const AuthProvider = ({ children }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ correo: email, password })
             });
+            console.log('Respuesta cruda:', response);
+            const text = await response.text();
+            console.log('Texto de respuesta:', text);
             if (!response.ok) throw new Error('Credenciales inválidas');
-            const usuario = await response.json();
+            const usuario = JSON.parse(text);
             setCurrentUser(usuario.data);
             console.log('Usuario guardado en contexto:', usuario.data);
             localStorage.setItem('user', JSON.stringify(usuario.data));
