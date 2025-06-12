@@ -53,7 +53,7 @@ const Acceder = () => {
     setLoading(true);
     try {
       const usuario = await login(formData.email, formData.password);
-      console.log('Respuesta del backend:', usuario);
+      console.log('Respuesta del backend', usuario);
       const tipo = usuario?.data?.tipo_usuario || usuario?.tipo_usuario;
       console.log('Tipo de usuario:', tipo);
       if (tipo === 'admin') {
