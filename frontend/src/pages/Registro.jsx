@@ -50,6 +50,14 @@ const Registro = () => {
     // Limpia el error al montar el componente o cambiar de ruta
   }, [setError]);
 
+  // Mostrar mensaje de bienvenida si está en localStorage
+  useEffect(() => {
+    if (localStorage.getItem('showWelcome')) {
+      setShowWelcome(true);
+      localStorage.removeItem('showWelcome');
+    }
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -160,6 +168,7 @@ const Registro = () => {
       if (response.ok) {
         // Mostrar solo el mensaje de verificación, no iniciar sesión automáticamente
         setShowWelcome(true);
+        localStorage.setItem('showWelcome', '1');
       } else {
         setError(data.message || 'Error al registrar usuario');
       }
@@ -184,6 +193,7 @@ const Registro = () => {
       // Si la respuesta contiene mensaje de verificación, mostrar mensaje y no navegar
       if (result && result.message) {
         setShowWelcome(true);
+        localStorage.setItem('showWelcome', '1');
         return;
       }
       // Redirige según el tipo de usuario
