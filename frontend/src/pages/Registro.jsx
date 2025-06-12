@@ -181,6 +181,11 @@ const Registro = () => {
         return;
       }
       const result = await loginWithGoogle(credentialResponse, formData.tipoUsuario);
+      // Si la respuesta contiene mensaje de verificación, mostrar mensaje y no navegar
+      if (result && result.message) {
+        setShowWelcome(true);
+        return;
+      }
       // Redirige según el tipo de usuario
       const tipo = result?.data?.tipo_usuario;
       if (tipo === 'admin') {
@@ -248,163 +253,160 @@ const Registro = () => {
             ¡Registro exitoso! Te hemos enviado un correo de verificación. Por favor, revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.
           </div>
         ) : (
-          <AuthForm onSubmit={handleSubmit}>
-            <FormField>
-              <InputLabel>
-                Nombre completo
-              </InputLabel>
-              <StyledTextField
-                fullWidth
-                name="nombre"
-                placeholder="John Doe"
-                value={formData.nombre}
-                onChange={handleChange}
-                required
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <PersonIcon sx={{ color: '#9CA3AF', fontSize: '1.2rem' }} />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </FormField>
-
-            <FormField>
-              <InputLabel>
-                Correo electrónico
-              </InputLabel>
-              <StyledTextField
-                fullWidth
-                name="email"
-                type="email"
-                placeholder="ejemplo@email.com"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <EmailIcon sx={{ color: '#9CA3AF', fontSize: '1.2rem' }} />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </FormField>
-
-            <FormField>
-              <InputLabel>
-                Ubicación
-              </InputLabel>
-              <StyledTextField
-                fullWidth
-                name="ubicacion"
-                placeholder="Ciudad"
-                value={formData.ubicacion}
-                onChange={handleChange}
-                required
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LocationOnIcon sx={{ color: '#9CA3AF', fontSize: '1.2rem' }} />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </FormField>
-
-            <FormField>
-              <InputLabel>
-                Tipo de usuario
-              </InputLabel>
-              <FormControl fullWidth required>
-                <Select
-                  name="tipoUsuario"
-                  value={formData.tipoUsuario}
+          <>
+            <AuthForm onSubmit={handleSubmit}>
+              <FormField>
+                <InputLabel>
+                  Nombre completo
+                </InputLabel>
+                <StyledTextField
+                  fullWidth
+                  name="nombre"
+                  placeholder="John Doe"
+                  value={formData.nombre}
                   onChange={handleChange}
-                  displayEmpty
-                >
-                  <MenuItem value="" disabled>Selecciona el tipo de usuario</MenuItem>
-                  <MenuItem value="admin">Administrador Parqueadero</MenuItem>
-                  <MenuItem value="dueno">Dueño del Vehículo</MenuItem>
-                </Select>
-              </FormControl>
-            </FormField>
+                  required
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <PersonIcon sx={{ color: '#9CA3AF', fontSize: '1.2rem' }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </FormField>
 
-            <FormField>
-              <InputLabel>
-                Contraseña
-              </InputLabel>
-              <StyledTextField
+              <FormField>
+                <InputLabel>
+                  Correo electrónico
+                </InputLabel>
+                <StyledTextField
+                  fullWidth
+                  name="email"
+                  type="email"
+                  placeholder="ejemplo@email.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <EmailIcon sx={{ color: '#9CA3AF', fontSize: '1.2rem' }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </FormField>
+
+              <FormField>
+                <InputLabel>
+                  Ubicación
+                </InputLabel>
+                <StyledTextField
+                  fullWidth
+                  name="ubicacion"
+                  placeholder="Ciudad"
+                  value={formData.ubicacion}
+                  onChange={handleChange}
+                  required
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LocationOnIcon sx={{ color: '#9CA3AF', fontSize: '1.2rem' }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </FormField>
+
+              <FormField>
+                <InputLabel>
+                  Tipo de usuario
+                </InputLabel>
+                <FormControl fullWidth required>
+                  <Select
+                    name="tipoUsuario"
+                    value={formData.tipoUsuario}
+                    onChange={handleChange}
+                    displayEmpty
+                  >
+                    <MenuItem value="" disabled>Selecciona el tipo de usuario</MenuItem>
+                    <MenuItem value="admin">Administrador Parqueadero</MenuItem>
+                    <MenuItem value="dueno">Dueño del Vehículo</MenuItem>
+                  </Select>
+                </FormControl>
+              </FormField>
+
+              <FormField>
+                <InputLabel>
+                  Contraseña
+                </InputLabel>
+                <StyledTextField
+                  fullWidth
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                          sx={{ color: '#9CA3AF' }}
+                        >
+                          {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </FormField>
+
+              <RegisterButton
+                type="submit"
                 fullWidth
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                        sx={{ color: '#9CA3AF' }}
-                      >
-                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </FormField>
-
-            <RegisterButton
-              type="submit"
-              fullWidth
-              disabled={loading}
-            >
-              {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
-            </RegisterButton>
-          </AuthForm>
-        )}
-
-        <StyledDivider>
-          <span>o continúa con</span>
-        </StyledDivider>
-
-        <div style={{ display: 'flex', justifyContent: 'center', margin: '16px 0' }}>
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={() => setError('Error al iniciar sesión con Google')}
-            useOneTap={false}
-            auto_select={false}
-            prompt="select_account"
-            render={renderProps => (
-              <button
-                onClick={renderProps.onClick}
-                disabled={renderProps.disabled}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: '#fff',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '24px',
-                  padding: '10px 24px',
-                  fontWeight: 500,
-                  fontSize: '1rem',
-                  cursor: 'pointer',
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                  transition: 'box-shadow 0.2s',
-                }}
+                disabled={loading}
               >
-                <img src={GoogleIcon} alt="Google" style={{ width: 24, height: 24, marginRight: 12 }} />
-                Continuar con Google
-              </button>
-            )}
-          />
-        </div>
+                {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
+              </RegisterButton>
+            </AuthForm>
+            <StyledDivider>
+              <span>o continúa con</span>
+            </StyledDivider>
+            <div style={{ display: 'flex', justifyContent: 'center', margin: '16px 0' }}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError('Error al iniciar sesión con Google')}
+                useOneTap={false}
+                auto_select={false}
+                prompt="select_account"
+                render={renderProps => (
+                  <button
+                    onClick={renderProps.onClick}
+                    disabled={renderProps.disabled}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: '#fff',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '24px',
+                      padding: '10px 24px',
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <img src={GoogleIcon} alt="Google" style={{ width: 24, marginRight: 12 }} />
+                    Continuar con Google
+                  </button>
+                )}
+              />
+            </div>
+          </>
+        )}
 
         <AuthFooter>
           ¿Ya tienes una cuenta?{' '}

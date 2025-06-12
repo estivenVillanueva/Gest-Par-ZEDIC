@@ -129,6 +129,10 @@ export const AuthProvider = ({ children }) => {
             if (!response.ok) {
                 throw new Error(usuario.message || 'Error en la autenticación con Google');
             }
+            // Si la respuesta contiene un mensaje de verificación, devolverlo sin guardar usuario ni navegar
+            if (usuario.message && !usuario.data) {
+                return { message: usuario.message };
+            }
             setCurrentUser(usuario.data);
             localStorage.setItem('user', JSON.stringify(usuario.data));
             // Redirección automática según tipo de usuario
