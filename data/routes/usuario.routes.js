@@ -212,9 +212,16 @@ router.post('/google-auth', async (req, res) => {
         if (usuario) {
             if (usuario.googleId || usuario.googleid) {
                 // Ya está registrado con Google, permitir login
+                let parqueadero_id = null;
+                if (usuario.tipo_usuario === 'admin') {
+                    const parqueadero = await parqueaderoQueries.getParqueaderoByUsuarioId(usuario.id);
+                    if (parqueadero) {
+                        parqueadero_id = parqueadero.id;
+                    }
+                }
                 return res.json({
                     success: true,
-                    data: usuario
+                    data: { ...usuario, parqueadero_id }
                 });
             } else {
                 // Existe con ese correo pero no con Google
@@ -235,6 +242,14 @@ router.post('/google-auth', async (req, res) => {
             verificado: false,
             tokenVerificacion: token
         });
+        // Buscar parqueadero asociado si es admin
+        let parqueadero_id = null;
+        if (usuario.tipo_usuario === 'admin') {
+            const parqueadero = await parqueaderoQueries.getParqueaderoByUsuarioId(usuario.id);
+            if (parqueadero) {
+                parqueadero_id = parqueadero.id;
+            }
+        }
         // Configurar Nodemailer
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -267,7 +282,8 @@ router.post('/google-auth', async (req, res) => {
         });
         res.json({
             success: true,
-            message: 'Te hemos enviado un correo de verificación. Por favor, revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.'
+            message: 'Te hemos enviado un correo de verificación. Por favor, revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.',
+            data: { ...usuario, parqueadero_id }
         });
     } catch (error) {
         console.error('Error en google-auth:', error);
