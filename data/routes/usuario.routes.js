@@ -224,19 +224,50 @@ router.post('/google-auth', async (req, res) => {
                 });
             }
         }
-        // Si no existe, crear nuevo usuario
-        const tipoUsuarioFinal = tipo_usuario || 'dueno';
+        // Si no existe, crear nuevo usuario con verificación
+        const token = crypto.randomBytes(32).toString('hex');
         usuario = await usuarioQueries.createUsuario({
             nombre,
             correo: email,
             foto,
             googleId,
-            tipo_usuario: tipoUsuarioFinal,
+            tipo_usuario: tipo_usuario || 'dueno',
+            verificado: false,
+            tokenVerificacion: token
         });
-        console.log('Usuario creado con Google:', usuario);
+        // Configurar Nodemailer
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'gestparzedic@gmail.com',
+                pass: 'bakmbvndonibatee'
+            }
+        });
+        const urlVerificacion = `https://gest-par-zedic.onrender.com/api/usuarios/verificar/${token}`;
+        const htmlContent = `
+            <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px; padding: 24px; background: #fafbfc;">
+                <h2 style="color: #2563EB;">¡Bienvenido/a a Gest-Par-ZEDIC!</h2>
+                <p>Hola <b>${usuario.nombre}</b>,</p>
+                <p>Gracias por registrarte en nuestra plataforma con Google. Para activar tu cuenta y poder acceder a todas las funcionalidades, por favor haz clic en el siguiente botón o enlace:</p>
+                <div style="text-align: center; margin: 24px 0;">
+                    <a href="${urlVerificacion}" style="background: #2563EB; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Verificar mi cuenta</a>
+                </div>
+                <p>Si el botón no funciona, copia y pega este enlace en tu navegador:</p>
+                <p style="word-break: break-all;">${urlVerificacion}</p>
+                <hr style="margin: 24px 0;">
+                <p style="color: #6b7280; font-size: 0.95em;">Si no creaste esta cuenta, puedes ignorar este mensaje.</p>
+                <p style="color: #6b7280; font-size: 0.95em;">Equipo Gest-Par-ZEDIC</p>
+            </div>
+        `;
+        await transporter.sendMail({
+            from: 'Gest-Par-ZEDIC <gestparzedic@gmail.com>',
+            to: usuario.correo,
+            subject: 'Confirma tu cuenta en Gest-Par-ZEDIC',
+            html: htmlContent
+        });
         res.json({
             success: true,
-            data: usuario
+            message: 'Te hemos enviado un correo de verificación. Por favor, revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.'
         });
     } catch (error) {
         console.error('Error en google-auth:', error);

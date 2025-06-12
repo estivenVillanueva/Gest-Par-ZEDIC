@@ -63,5 +63,12 @@ export const vehiculoQueries = {
         const query = 'SELECT * FROM vehiculos WHERE id = $1';
         const result = await pool.query(query, [id]);
         return result.rows[0];
+    },
+
+    // Eliminar todos los vehículos de un parqueadero
+    async deleteVehiculosByParqueaderoId(parqueadero_id) {
+        const query = 'DELETE FROM vehiculos WHERE parqueadero_id = $1';
+        const result = await pool.query(query, [parqueadero_id]);
+        return result.rowCount; // Devuelve el número de vehículos eliminados
     }
 }; 

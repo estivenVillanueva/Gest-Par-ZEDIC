@@ -132,4 +132,22 @@ router.delete('/:placa', async (req, res) => {
     }
 });
 
+// Eliminar todos los vehículos de un parqueadero
+router.delete('/parqueadero/:parqueadero_id', async (req, res) => {
+    try {
+        const { parqueadero_id } = req.params;
+        const eliminados = await vehiculoQueries.deleteVehiculosByParqueaderoId(parqueadero_id);
+        res.json({
+            success: true,
+            message: `Se eliminaron ${eliminados} vehículos del parqueadero.`
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error al eliminar los vehículos del parqueadero',
+            error: error.message
+        });
+    }
+});
+
 export const vehiculoRoutes = router; 

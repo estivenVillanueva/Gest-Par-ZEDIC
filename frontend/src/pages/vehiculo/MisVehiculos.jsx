@@ -22,6 +22,7 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import { useAuth } from '../../../logic/AuthContext';
 
 const MOCK_VEHICULOS = [
@@ -165,6 +166,7 @@ const MisVehiculos = () => {
   const [openForm, setOpenForm] = useState(false);
   const [editData, setEditData] = useState(null);
   const [infoVehiculo, setInfoVehiculo] = useState(null);
+  const [openDeleteAll, setOpenDeleteAll] = useState(false);
   const { currentUser } = useAuth();
 
   const handleAgregar = () => {
@@ -211,14 +213,32 @@ const MisVehiculos = () => {
     setInfoVehiculo(vehiculo);
   };
 
+  const handleEliminarTodos = async () => {
+    try {
+      const response = await fetch(`https://gest-par-zedic.onrender.com/api/vehiculos/parqueadero/${currentUser.parqueadero_id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Error al eliminar los vehículos');
+      setVehiculos([]); // Limpiar la lista local
+      setOpenDeleteAll(false);
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   return (
     <Box sx={{ bgcolor: '#f0f4fa', minHeight: '100vh', py: 6, display: 'flex', justifyContent: 'center' }}>
       <Paper elevation={3} sx={{ width: '100%', maxWidth: 1100, borderRadius: 4, p: { xs: 2, sm: 4, md: 6 }, boxShadow: '0 8px 32px rgba(43,108,163,0.10)', bgcolor: '#fff' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, justifyContent: 'space-between' }}>
           <Typography variant="h4" sx={{ fontWeight: 800, color: '#3498f3' }}>Tus Vehículos</Typography>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={handleAgregar} sx={{ borderRadius: 3, fontWeight: 600, bgcolor: '#3498f3', '&:hover': { bgcolor: '#2176bd' } }}>
-            Agregar Vehículo
-          </Button>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button variant="contained" startIcon={<AddIcon />} onClick={handleAgregar} sx={{ borderRadius: 3, fontWeight: 600, bgcolor: '#3498f3', '&:hover': { bgcolor: '#2176bd' } }}>
+              Agregar Vehículo
+            </Button>
+            <Button variant="outlined" color="error" startIcon={<DeleteSweepIcon />} onClick={() => setOpenDeleteAll(true)} sx={{ borderRadius: 3, fontWeight: 600 }}>
+              Eliminar todos los vehículos
+            </Button>
+          </Box>
         </Box>
         <Grid container spacing={4}>
           <Grid item xs={12} md={7}>
@@ -249,6 +269,16 @@ const MisVehiculos = () => {
           </Grid>
         </Grid>
         <InfoVehiculoDialog open={!!infoVehiculo} onClose={() => setInfoVehiculo(null)} vehiculo={infoVehiculo} />
+        <Dialog open={openDeleteAll} onClose={() => setOpenDeleteAll(false)}>
+          <DialogTitle>¿Estás seguro de que deseas eliminar todos los vehículos?</DialogTitle>
+          <DialogContent>
+            <Typography>Eliminarás todos los vehículos de tu parqueadero. Esta acción no se puede deshacer.</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenDeleteAll(false)}>Cancelar</Button>
+            <Button onClick={handleEliminarTodos} color="error" variant="contained">Eliminar</Button>
+          </DialogActions>
+        </Dialog>
       </Paper>
     </Box>
   );
