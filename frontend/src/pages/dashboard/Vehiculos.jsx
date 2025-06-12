@@ -24,8 +24,10 @@ import PedalBikeIcon from '@mui/icons-material/PedalBike';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import SearchIcon from '@mui/icons-material/Search';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import { MinimalCard, MinimalIcon, MinimalBadge, MinimalFab, MinimalGrid, MinimalFilterBar } from '../../styles/pages/Vehiculos.styles';
 import { useVehiculo } from '../../../logic/VehiculoContext';
+import { useAuth } from '../../../logic/AuthContext';
 
 const getVehiculoIcon = (tipo) => {
   switch (tipo?.toLowerCase()) {
@@ -129,10 +131,11 @@ const Vehiculos = () => {
   const [dateTo, setDateTo] = useState('');
   const [openForm, setOpenForm] = useState(false);
   const [selectedVehiculo, setSelectedVehiculo] = useState(null);
+  const [openDeleteAll, setOpenDeleteAll] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
   const { vehiculos, loading, error, agregarVehiculo, actualizarVehiculo, eliminarVehiculo } = useVehiculo();
+  const { currentUser } = useAuth();
 
   const handleVerInfo = (vehiculo) => {
     setSelectedVehiculo(vehiculo);
@@ -151,6 +154,20 @@ const Vehiculos = () => {
     await eliminarVehiculo(placa);
   };
 
+  const handleEliminarTodos = async () => {
+    try {
+      const response = await fetch(`https://gest-par-zedic.onrender.com/api/vehiculos/parqueadero/${currentUser.parqueadero_id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Error al eliminar los vehículos');
+      // Aquí deberías actualizar la lista de vehículos, por ejemplo recargando los datos
+      window.location.reload();
+      setOpenDeleteAll(false);
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   // Filtrado avanzado
   const filteredVehiculos = vehiculos.filter((vehiculo) => {
     const matchGeneral = searchTerm === '' || vehiculo.placa.toLowerCase().includes(searchTerm.toLowerCase()) || (vehiculo.propietario || '').toLowerCase().includes(searchTerm.toLowerCase());
@@ -166,7 +183,18 @@ const Vehiculos = () => {
 
   return (
     <Box sx={{ width: '100%', minHeight: '100vh', py: 5, px: { xs: 1, md: 6 }, bgcolor: '#f6f7fa' }}>
-      <Typography variant="h4" fontWeight={800} color="primary.main" sx={{ mb: 4 }}>Vehículos</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Typography variant="h4" fontWeight={800} color="primary.main">Vehículos</Typography>
+        <Button
+          variant="outlined"
+          color="error"
+          startIcon={<DeleteSweepIcon />}
+          onClick={() => setOpenDeleteAll(true)}
+          sx={{ borderRadius: 3, fontWeight: 600 }}
+        >
+          Eliminar todos los vehículos
+        </Button>
+      </Box>
       <MinimalFilterBar>
         <TextField variant="outlined" placeholder="Buscar por nombre o placa" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} InputProps={{ startAdornment: (<SearchIcon sx={{ mr: 1 }} />) }} />
         <TextField type="date" variant="outlined" value={dateFrom} onChange={e => setDateFrom(e.target.value)} label="Desde" InputLabelProps={{ shrink: true }} />
@@ -195,6 +223,16 @@ const Vehiculos = () => {
         onGuardar={handleGuardar}
         onEliminar={handleEliminar}
       />
+      <Dialog open={openDeleteAll} onClose={() => setOpenDeleteAll(false)}>
+        <DialogTitle>¿Estás seguro de que deseas eliminar todos los vehículos?</DialogTitle>
+        <DialogContent>
+          <Typography>Eliminarás todos los vehículos de tu parqueadero. Esta acción no se puede deshacer.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDeleteAll(false)}>Cancelar</Button>
+          <Button onClick={handleEliminarTodos} color="error" variant="contained">Eliminar</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
