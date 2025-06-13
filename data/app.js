@@ -7,8 +7,8 @@ import { vehiculoRoutes } from './routes/vehiculo.routes.js';
 import { serviciosRoutes } from './routes/servicios.routes.js';
 import { facturaRoutes } from './routes/factura.routes.js';
 import { rolesRoutes } from './routes/roles.routes.js';
-const ingresosRoutes = require('./routes/ingresos.routes.js');
-const reservasRoutes = require('./routes/reservas.routes.js');
+import ingresosRoutes from './routes/ingresos.routes.js';
+import reservasRoutes from './routes/reservas.routes.js';
 
 dotenv.config();
 
