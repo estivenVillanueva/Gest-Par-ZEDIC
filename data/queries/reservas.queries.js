@@ -1,8 +1,8 @@
-import db from '../postgres.js';
+import { pool } from '../postgres.js';
 
 // Crear una nueva reserva
 async function crearReserva({ usuario_id, parqueadero_id, vehiculo_id, fecha_inicio, fecha_fin, estado }) {
-  const result = await db.query(
+  const result = await pool.query(
     `INSERT INTO reservas (usuario_id, parqueadero_id, vehiculo_id, fecha_inicio, fecha_fin, estado) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
     [usuario_id, parqueadero_id, vehiculo_id, fecha_inicio, fecha_fin, estado]
   );
@@ -21,13 +21,13 @@ async function listarReservas({ parqueadero_id, usuario_id } = {}) {
     values.push(usuario_id);
   }
   query += ' ORDER BY created_at DESC';
-  const result = await db.query(query, values);
+  const result = await pool.query(query, values);
   return result.rows;
 }
 
 // Cambiar estado de reserva
 async function cambiarEstadoReserva(id, estado) {
-  const result = await db.query(
+  const result = await pool.query(
     `UPDATE reservas SET estado = $2, updated_at = NOW() WHERE id = $1 RETURNING *`,
     [id, estado]
   );
@@ -36,7 +36,7 @@ async function cambiarEstadoReserva(id, estado) {
 
 // Verificar disponibilidad de cupos (ejemplo: contar reservas aceptadas para un parqueadero en una fecha)
 async function cuposDisponibles(parqueadero_id, fecha_inicio, fecha_fin, max_cupos) {
-  const result = await db.query(
+  const result = await pool.query(
     `SELECT COUNT(*) FROM reservas WHERE parqueadero_id = $1 AND estado = 'Aprobada' AND ((fecha_inicio, fecha_fin) OVERLAPS ($2, $3))`,
     [parqueadero_id, fecha_inicio, fecha_fin]
   );
