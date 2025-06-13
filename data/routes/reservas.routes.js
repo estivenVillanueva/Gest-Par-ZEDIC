@@ -45,4 +45,4 @@ router.get('/cupos', async (req, res) => {
   }
 });
 
-module.exports = router; 
+export default router; 
