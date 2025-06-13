@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -13,33 +13,50 @@ import {
   CardContent,
   Grid,
   Chip,
+  CircularProgress,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ListAltIcon from '@mui/icons-material/ListAlt';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import axios from 'axios';
 
-const SolicitudCard = ({ solicitud }) => (
-  <Card sx={{ mb: 2, borderRadius: '12px' }}>
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
+const SolicitudCard = ({ solicitud, onAccion }) => (
+  <Card sx={{ mb: 2, borderRadius: '12px', boxShadow: 2 }}>
     <CardContent>
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
+      <Grid container spacing={2} alignItems="center">
+        <Grid item xs={12} md={8}>
           <Typography variant="h6" gutterBottom>
-            {solicitud.tipo}
+            Reserva #{solicitud.id} - {solicitud.estado}
           </Typography>
           <Typography variant="body2" color="text.secondary" gutterBottom>
-            {solicitud.descripcion}
+            <b>Parqueadero:</b> {solicitud.parqueadero_id} | <b>Vehículo:</b> {solicitud.vehiculo_id} | <b>Usuario:</b> {solicitud.usuario_id}
           </Typography>
-          <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-            <Chip 
-              label={solicitud.estado} 
-              color={solicitud.estado === 'Pendiente' ? 'warning' : 'success'}
-              size="small"
-            />
-            <Chip 
-              label={solicitud.fecha} 
-              variant="outlined"
-              size="small"
-            />
-          </Box>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            <b>Fecha inicio:</b> {solicitud.fecha_inicio} <b>Fecha fin:</b> {solicitud.fecha_fin}
+          </Typography>
+        </Grid>
+        <Grid item xs={12} md={4} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+          <Chip
+            label={solicitud.estado}
+            color={solicitud.estado === 'Aprobada' ? 'success' : solicitud.estado === 'Pendiente' ? 'warning' : 'error'}
+            icon={solicitud.estado === 'Aprobada' ? <CheckCircleIcon /> : <CancelIcon />}
+            sx={{ fontWeight: 700, fontSize: '1rem', px: 1.5, borderRadius: 2, mb: 1 }}
+          />
+          {solicitud.estado === 'Pendiente' && (
+            <Box sx={{ mt: 1, display: 'flex', gap: 1, justifyContent: { md: 'flex-end' } }}>
+              <Button variant="contained" color="success" size="small" onClick={() => onAccion(solicitud.id, 'Aprobada')}>
+                Aceptar
+              </Button>
+              <Button variant="outlined" color="error" size="small" onClick={() => onAccion(solicitud.id, 'No aprobada')}>
+                Rechazar
+              </Button>
+            </Box>
+          )}
         </Grid>
       </Grid>
     </CardContent>
@@ -53,23 +70,9 @@ const SolicitudesPanel = () => {
     descripcion: '',
     estado: 'Pendiente',
   });
-
-  const [solicitudes] = useState([
-    {
-      id: 1,
-      tipo: 'Reserva de espacio',
-      descripcion: 'Solicitud para reservar espacio mensual',
-      estado: 'Pendiente',
-      fecha: '2024-03-15'
-    },
-    {
-      id: 2,
-      tipo: 'Cambio de horario',
-      descripcion: 'Solicitud para modificar horario de acceso',
-      estado: 'Aprobado',
-      fecha: '2024-03-14'
-    }
-  ]);
+  const [solicitudes, setSolicitudes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -94,17 +97,50 @@ const SolicitudesPanel = () => {
     'Otros'
   ];
 
+  useEffect(() => {
+    fetchSolicitudes();
+  }, []);
+
+  const fetchSolicitudes = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${API_URL}/reservas`);
+      setSolicitudes(res.data);
+    } catch (e) {
+      setSolicitudes([]);
+    }
+    setLoading(false);
+  };
+
+  const handleAccion = async (id, estado) => {
+    try {
+      await axios.put(`${API_URL}/reservas/${id}/estado`, { estado });
+      setSnackbar({ open: true, message: `Reserva ${estado === 'Aprobada' ? 'aprobada' : 'rechazada'}`, severity: 'success' });
+      fetchSolicitudes();
+    } catch (e) {
+      setSnackbar({ open: true, message: 'Error al actualizar reserva', severity: 'error' });
+    }
+  };
+
   return (
     <Box sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
         <ListAltIcon sx={{ mr: 1, color: 'primary.main' }} />
-        <Typography variant="h6">Solicitudes</Typography>
+        <Typography variant="h6">Solicitudes de Reserva</Typography>
       </Box>
-
-      {solicitudes.map((solicitud) => (
-        <SolicitudCard key={solicitud.id} solicitud={solicitud} />
-      ))}
-
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 6 }}>
+          <CircularProgress />
+        </Box>
+      ) : solicitudes.length === 0 ? (
+        <Typography color="text.secondary" align="center">
+          No hay solicitudes de reserva.
+        </Typography>
+      ) : (
+        solicitudes.map((solicitud) => (
+          <SolicitudCard key={solicitud.id} solicitud={solicitud} onAccion={handleAccion} />
+        ))
+      )}
       <Button
         variant="contained"
         startIcon={<AddIcon />}
@@ -154,6 +190,13 @@ const SolicitudesPanel = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+      </Snackbar>
     </Box>
   );
 };

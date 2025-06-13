@@ -21,6 +21,7 @@ import Reservas from '../src/pages/vehiculo/Reservas';
 import AdminInicio from '../src/pages/dashboard/Inicio';
 import { useAuth } from './AuthContext';
 import OwnerProfile from '../src/components/profile/OwnerProfile';
+import Ingresos from '../src/pages/dashboard/Ingresos';
 
 const VehiculoNoDisponible = () => (
   <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -60,7 +61,7 @@ const AppRoutes = () => {
           <Route path="pagos" element={<Pagos />} />
           <Route path="reportes" element={<Reportes />} />
           <Route path="solicitudes" element={<Solicitudes />} />
-          <Route path="ingresos" element={<Parqueadero />} />
+          <Route path="ingresos" element={<Ingresos />} />
           <Route path="perfil" element={<ParqueaderoProfile />} />
           <Route path="contacto" element={<Contacto />} />
         </Route>

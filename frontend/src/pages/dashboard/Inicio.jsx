@@ -19,6 +19,8 @@ import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import RequestPageIcon from '@mui/icons-material/RequestPage';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import axios from 'axios';
 
 const StatCard = ({ title, value, icon, color, onClick }) => (
   <Card 
@@ -57,18 +59,40 @@ const StatCard = ({ title, value, icon, color, onClick }) => (
   </Card>
 );
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
 const Inicio = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   // Datos de ejemplo - Estos deberían venir de tu backend
-  const stats = {
-    vehiculos: 25,
-    pagos: 150,
-    ocupacion: '75%',
-    ingresos: '$2,500,000',
-    solicitudes: 5
+  const [stats, setStats] = React.useState({
+    vehiculos: 0,
+    pagos: 0,
+    ocupacion: '0%',
+    ingresos: '$0',
+    solicitudes: 0
+  });
+  const [ultimosVehiculos, setUltimosVehiculos] = React.useState([]);
+
+  React.useEffect(() => {
+    // Obtener estadísticas y últimos vehículos
+    fetchVehiculos();
+  }, []);
+
+  const fetchVehiculos = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/vehiculos`);
+      if (res.data && res.data.data) {
+        setStats((prev) => ({ ...prev, vehiculos: res.data.data.length }));
+        // Tomar los últimos 5 vehículos registrados (ordenados por created_at si existe)
+        const vehiculosOrdenados = [...res.data.data].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        setUltimosVehiculos(vehiculosOrdenados.slice(0, 5));
+      }
+    } catch (e) {
+      setUltimosVehiculos([]);
+    }
   };
 
   return (
@@ -139,6 +163,15 @@ const Inicio = () => {
             onClick={() => navigate('/dashboard/solicitudes')}
           />
         </Grid>
+        <Grid item xs={12} sm={6} md={4}>
+          <StatCard
+            title="Ingresos"
+            value={"Ir"}
+            icon={<MonetizationOnIcon sx={{ color: 'secondary.main' }} />}
+            color="secondary"
+            onClick={() => navigate('/dashboard/ingresos')}
+          />
+        </Grid>
       </Grid>
 
       {/* Resumen de Actividad */}
@@ -164,9 +197,17 @@ const Inicio = () => {
                 }
               />
               <CardContent>
-                <Typography variant="body2" color="text.secondary">
-                  No hay vehículos registrados recientemente
-                </Typography>
+                {ultimosVehiculos.length === 0 ? (
+                  <Typography variant="body2" color="text.secondary">
+                    No hay vehículos registrados recientemente
+                  </Typography>
+                ) : (
+                  ultimosVehiculos.map((v) => (
+                    <Typography key={v.id} variant="body2" color="text.primary">
+                      {v.placa} - {v.marca} {v.modelo} ({v.color})
+                    </Typography>
+                  ))
+                )}
               </CardContent>
             </Card>
           </Grid>

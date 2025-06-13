@@ -42,7 +42,7 @@ const navigationItems = [
     icon: <PaymentIcon />
   },
   { 
-    label: 'Reportes', 
+    label: 'Solicitudes', 
     path: '/dashboard/reportes',
     icon: <AssessmentIcon />
   },
