@@ -219,6 +219,23 @@ const OwnerProfile = () => {
             <Typography variant="h6" fontWeight={600} mb={2} color="primary.main">
               Información Personal
             </Typography>
+            {/* Mostrar el ID de usuario como el primer campo */}
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Typography sx={{ minWidth: 90, fontWeight: 500, color: 'text.secondary' }}>
+                ID:
+              </Typography>
+              <TextField
+                value={profile.id}
+                variant="standard"
+                size="small"
+                fullWidth
+                disabled
+                InputProps={{
+                  disableUnderline: true,
+                  sx: { fontWeight: 500, color: 'text.primary', pl: 1 }
+                }}
+              />
+            </Box>
             {fields.map((field) => (
               <Box key={field.key} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Typography sx={{ minWidth: 90, fontWeight: 500, color: 'text.secondary' }}>
