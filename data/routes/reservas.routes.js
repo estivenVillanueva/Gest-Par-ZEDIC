@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import reservasQueries from '../queries/reservas.queries.js';
+
 const router = express.Router();
-const reservasQueries = require('../queries/reservas.queries');
 
 // Crear reserva
 router.post('/', async (req, res) => {

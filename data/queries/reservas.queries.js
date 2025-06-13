@@ -1,4 +1,4 @@
-const db = require('../postgres');
+import db from '../postgres.js';
 
 // Crear una nueva reserva
 async function crearReserva({ usuario_id, parqueadero_id, vehiculo_id, fecha_inicio, fecha_fin, estado }) {
@@ -43,7 +43,7 @@ async function cuposDisponibles(parqueadero_id, fecha_inicio, fecha_fin, max_cup
   return max_cupos - parseInt(result.rows[0].count, 10);
 }
 
-module.exports = {
+export default {
   crearReserva,
   listarReservas,
   cambiarEstadoReserva,

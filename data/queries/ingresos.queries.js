@@ -1,5 +1,4 @@
-// Consultas para la tabla ingresos
-const db = require('../postgres');
+import db from '../postgres.js';
 
 // Registrar ingreso
 async function registrarIngreso(vehiculo_id, observaciones = null) {
@@ -35,7 +34,7 @@ async function listarHistorial() {
   return result.rows;
 }
 
-module.exports = {
+export default {
   registrarIngreso,
   registrarSalida,
   listarIngresosActuales,

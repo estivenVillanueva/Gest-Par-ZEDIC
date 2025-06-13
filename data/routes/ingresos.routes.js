@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import ingresosQueries from '../queries/ingresos.queries.js';
+
 const router = express.Router();
-const ingresosQueries = require('../queries/ingresos.queries');
 
 // Registrar ingreso
 router.post('/', async (req, res) => {
