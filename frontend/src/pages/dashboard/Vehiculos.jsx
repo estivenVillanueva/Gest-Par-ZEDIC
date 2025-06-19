@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Grid,
   Typography,
@@ -28,6 +28,7 @@ import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import { MinimalCard, MinimalIcon, MinimalBadge, MinimalFab, MinimalGrid, MinimalFilterBar } from '../../styles/pages/Vehiculos.styles';
 import { useVehiculo } from '../../../logic/VehiculoContext';
 import { useAuth } from '../../../logic/AuthContext';
+import axios from 'axios';
 
 const getVehiculoIcon = (tipo) => {
   switch (tipo?.toLowerCase()) {
@@ -80,14 +81,32 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
     modelo: '',
     color: '',
     tipo: '',
-    usuario_id: ''
+    usuario_id: '',
+    servicio_id: ''
   });
+  const [servicios, setServicios] = useState([]);
+  const { currentUser } = useAuth();
 
-  React.useEffect(() => {
+  useEffect(() => {
     setForm(initialData || {
-      placa: '', marca: '', modelo: '', color: '', tipo: '', usuario_id: ''
+      placa: '', marca: '', modelo: '', color: '', tipo: '', usuario_id: '', servicio_id: ''
     });
   }, [initialData, open]);
+
+  useEffect(() => {
+    // Obtener servicios del parqueadero
+    const fetchServicios = async () => {
+      if (!currentUser?.parqueadero_id) return;
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com/api';
+        const res = await axios.get(`${apiUrl}/servicios/parqueadero/${currentUser.parqueadero_id}`);
+        if (res.data && res.data.data) setServicios(res.data.data);
+      } catch (e) {
+        setServicios([]);
+      }
+    };
+    fetchServicios();
+  }, [currentUser]);
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -110,6 +129,11 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
           <TextField margin="normal" fullWidth label="Color" name="color" value={form.color} onChange={handleChange} required />
           <TextField margin="normal" fullWidth select label="Tipo" name="tipo" value={form.tipo} onChange={handleChange} required>
             {tiposVehiculo.map(tipo => <MenuItem key={tipo} value={tipo}>{tipo}</MenuItem>)}
+          </TextField>
+          <TextField margin="normal" fullWidth select label="Servicio" name="servicio_id" value={form.servicio_id} onChange={handleChange} required>
+            {servicios.map(servicio => (
+              <MenuItem key={servicio.id} value={servicio.id}>{servicio.nombre}</MenuItem>
+            ))}
           </TextField>
           <TextField margin="normal" fullWidth label="ID de usuario (opcional)" name="usuario_id" value={form.usuario_id} onChange={handleChange} />
         </DialogContent>

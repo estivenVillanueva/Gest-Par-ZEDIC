@@ -7,7 +7,7 @@ import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com/api';
 
 export default function Ingresos() {
   const [ingresos, setIngresos] = useState([]);
@@ -40,9 +40,13 @@ export default function Ingresos() {
   };
 
   const fetchPlacas = async () => {
-    const res = await axios.get(`${API_URL}/vehiculos`);
-    if (res.data && res.data.data) {
-      setPlacasOptions(res.data.data.map(v => v.placa));
+    try {
+      const res = await axios.get(`${API_URL}/vehiculos`);
+      if (res.data && res.data.data) {
+        setPlacasOptions(res.data.data.map(v => v.placa));
+      }
+    } catch (e) {
+      setPlacasOptions([]);
     }
   };
 
@@ -56,7 +60,7 @@ export default function Ingresos() {
       } else {
         setVehiculo(null);
       }
-    } catch {
+    } catch (e) {
       setVehiculo(null);
     }
     setLoadingPlaca(false);
