@@ -88,8 +88,8 @@ router.post('/', async (req, res) => {
 // Actualizar vehículo
 router.put('/:placa', async (req, res) => {
     try {
-        const { marca, modelo, color, tipo, usuario_id, parqueadero_id } = req.body;
-        const vehiculoActualizado = await vehiculoQueries.updateVehiculo(req.params.placa, { marca, modelo, color, tipo, usuario_id, parqueadero_id });
+        const { marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id } = req.body;
+        const vehiculoActualizado = await vehiculoQueries.updateVehiculo(req.params.placa, { marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id });
         if (!vehiculoActualizado) {
             return res.status(404).json({
                 success: false,

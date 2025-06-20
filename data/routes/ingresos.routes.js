@@ -19,8 +19,24 @@ router.put('/:id/salida', async (req, res) => {
   try {
     const { id } = req.params;
     const { valor_pagado } = req.body;
-    const salida = await ingresosQueries.registrarSalida(id, valor_pagado);
-    res.json(salida);
+
+    const ingresoInfo = await ingresosQueries.getIngresoConServicio(id);
+
+    if (!ingresoInfo) {
+      return res.status(404).json({ error: 'Registro de ingreso no encontrado' });
+    }
+
+    // Si no tiene servicio o es por uso, requiere pago
+    if (!ingresoInfo.tipo_cobro || ingresoInfo.tipo_cobro === 'uso') {
+        if (valor_pagado === undefined || valor_pagado === null) {
+            return res.status(400).json({ error: 'Se requiere el valor pagado para este tipo de servicio.' });
+        }
+        const salida = await ingresosQueries.registrarSalida(id, valor_pagado);
+        res.json(salida);
+    } else { // tipo_cobro === 'periodo'
+        const salida = await ingresosQueries.registrarSalida(id, 0);
+        res.json(salida);
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -41,6 +57,20 @@ router.get('/historial', async (req, res) => {
   try {
     const historial = await ingresosQueries.listarHistorial();
     res.json(historial);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Obtener un ingreso con la información del servicio del vehículo
+router.get('/con-servicio/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const ingresoInfo = await ingresosQueries.getIngresoConServicio(id);
+    if (!ingresoInfo) {
+      return res.status(404).json({ error: 'Registro de ingreso no encontrado' });
+    }
+    res.json(ingresoInfo);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

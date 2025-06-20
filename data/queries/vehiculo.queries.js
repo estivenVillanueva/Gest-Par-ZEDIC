@@ -33,7 +33,7 @@ export const vehiculoQueries = {
     },
 
     // Actualizar vehículo
-    async updateVehiculo(placa, { marca, modelo, color, tipo, usuario_id, parqueadero_id }) {
+    async updateVehiculo(placa, { marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id }) {
         const query = `
             UPDATE vehiculos
             SET marca = $1,
@@ -42,11 +42,12 @@ export const vehiculoQueries = {
                 tipo = $4,
                 usuario_id = $5,
                 parqueadero_id = $6,
+                servicio_id = $8,
                 updated_at = CURRENT_TIMESTAMP
             WHERE placa = $7
             RETURNING *
         `;
-        const values = [marca, modelo, color, tipo, usuario_id, parqueadero_id, placa];
+        const values = [marca, modelo, color, tipo, usuario_id, parqueadero_id, placa, servicio_id];
         const result = await pool.query(query, values);
         return result.rows[0];
     },

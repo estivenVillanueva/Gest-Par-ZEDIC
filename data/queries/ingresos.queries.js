@@ -34,9 +34,29 @@ async function listarHistorial() {
   return result.rows;
 }
 
+// Obtener un ingreso con la información del servicio del vehículo
+async function getIngresoConServicio(id) {
+  const result = await pool.query(
+    `SELECT
+        i.id AS ingreso_id,
+        i.hora_entrada,
+        v.id AS vehiculo_id,
+        s.tipo_cobro,
+        s.precio,
+        s.nombre AS servicio_nombre
+     FROM ingresos i
+     JOIN vehiculos v ON i.vehiculo_id = v.id
+     LEFT JOIN servicios s ON v.servicio_id = s.id
+     WHERE i.id = $1`,
+    [id]
+  );
+  return result.rows[0];
+}
+
 export default {
   registrarIngreso,
   registrarSalida,
   listarIngresosActuales,
-  listarHistorial
+  listarHistorial,
+  getIngresoConServicio
 }; 

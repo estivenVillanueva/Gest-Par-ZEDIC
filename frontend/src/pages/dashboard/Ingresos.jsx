@@ -6,6 +6,7 @@ import {
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
 
@@ -16,8 +17,8 @@ export default function Ingresos() {
   const [placa, setPlaca] = useState('');
   const [vehiculo, setVehiculo] = useState(null);
   const [observaciones, setObservaciones] = useState('');
+  const [salidaInfo, setSalidaInfo] = useState(null);
   const [openSalida, setOpenSalida] = useState(false);
-  const [salidaId, setSalidaId] = useState(null);
   const [valorPagado, setValorPagado] = useState('');
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [placasOptions, setPlacasOptions] = useState([]);
@@ -85,17 +86,35 @@ export default function Ingresos() {
     }
   };
 
-  const handleRegistrarSalida = async () => {
+  const handleOpenSalidaDialog = async (ingresoId) => {
     try {
-      await axios.put(`${API_URL}/api/ingresos/${salidaId}/salida`, { valor_pagado: valorPagado });
-      setSnackbar({ open: true, message: 'Salida registrada', severity: 'success' });
+      const res = await axios.get(`${API_URL}/api/ingresos/con-servicio/${ingresoId}`);
+      setSalidaInfo(res.data);
+      if (res.data.tipo_cobro === 'periodo') {
+        // Confirmar salida para servicios de periodo
+        if (window.confirm(`El vehículo tiene un servicio de ${res.data.servicio_nombre}. ¿Confirmas la salida sin costo?`)) {
+          handleRegistrarSalida(ingresoId, 0);
+        }
+      } else {
+        // Abrir diálogo para servicios por uso
+        setOpenSalida(true);
+      }
+    } catch (e) {
+      setSnackbar({ open: true, message: 'Error al verificar el servicio', severity: 'error' });
+    }
+  };
+
+  const handleRegistrarSalida = async (id, valor) => {
+    try {
+      await axios.put(`${API_URL}/api/ingresos/${id}/salida`, { valor_pagado: valor });
+      setSnackbar({ open: true, message: 'Salida registrada correctamente', severity: 'success' });
       setOpenSalida(false);
-      setSalidaId(null);
+      setSalidaInfo(null);
       setValorPagado('');
       fetchIngresos();
       fetchHistorial();
     } catch (e) {
-      setSnackbar({ open: true, message: 'Error al registrar salida', severity: 'error' });
+      setSnackbar({ open: true, message: 'Error al registrar la salida', severity: 'error' });
     }
   };
 
@@ -128,7 +147,7 @@ export default function Ingresos() {
                 <TableCell>{new Date(ing.hora_entrada).toLocaleString()}</TableCell>
                 <TableCell>{ing.observaciones}</TableCell>
                 <TableCell>
-                  <Button variant="outlined" color="secondary" sx={{ borderRadius: 2 }} onClick={() => { setOpenSalida(true); setSalidaId(ing.id); }}>
+                  <Button variant="outlined" color="secondary" sx={{ borderRadius: 2 }} onClick={() => handleOpenSalidaDialog(ing.id)}>
                     Registrar Salida
                   </Button>
                 </TableCell>
@@ -235,6 +254,7 @@ export default function Ingresos() {
       <Dialog open={openSalida} onClose={() => setOpenSalida(false)} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ fontWeight: 700, color: 'primary.main' }}>Registrar Salida</DialogTitle>
         <DialogContent>
+          <Typography>Vehículo con servicio por uso. Por favor, ingrese el valor a pagar.</Typography>
           <TextField
             label="Valor Pagado"
             value={valorPagado}
@@ -247,7 +267,7 @@ export default function Ingresos() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenSalida(false)} color="secondary">Cancelar</Button>
-          <Button onClick={handleRegistrarSalida} variant="contained" color="primary" sx={{ borderRadius: 2 }}>
+          <Button onClick={() => handleRegistrarSalida(salidaInfo.ingreso_id, valorPagado)} variant="contained" color="primary" sx={{ borderRadius: 2 }}>
             Registrar Salida
           </Button>
         </DialogActions>
