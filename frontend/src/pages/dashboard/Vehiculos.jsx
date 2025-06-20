@@ -88,25 +88,39 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
   const { currentUser } = useAuth();
 
   useEffect(() => {
-    setForm(initialData || {
-      placa: '', marca: '', modelo: '', color: '', tipo: '', usuario_id: '', servicio_id: ''
-    });
+    const initialFormState = {
+      placa: '',
+      marca: '',
+      modelo: '',
+      color: '',
+      tipo: '',
+      usuario_id: '',
+      servicio_id: ''
+    };
+    setForm(initialData || initialFormState);
+
+    if (initialData && initialData.servicio_id) {
+      setForm(prevForm => ({ ...prevForm, servicio_id: initialData.servicio_id }));
+    }
   }, [initialData, open]);
 
   useEffect(() => {
-    // Obtener servicios del parqueadero
     const fetchServicios = async () => {
-      if (!currentUser?.parqueadero_id) return;
-      try {
-        const apiUrl = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com/api';
-        const res = await axios.get(`${apiUrl}/servicios/parqueadero/${currentUser.parqueadero_id}`);
-        if (res.data && res.data.data) setServicios(res.data.data);
-      } catch (e) {
-        setServicios([]);
+      if (open && currentUser?.parqueadero_id) {
+        try {
+          const apiUrl = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
+          const res = await axios.get(`${apiUrl}/api/servicios/parqueadero/${currentUser.parqueadero_id}`);
+          if (res.data && res.data.data) {
+            setServicios(res.data.data);
+          }
+        } catch (e) {
+          console.error("Error al cargar servicios:", e);
+          setServicios([]);
+        }
       }
     };
     fetchServicios();
-  }, [currentUser]);
+  }, [currentUser, open]);
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
