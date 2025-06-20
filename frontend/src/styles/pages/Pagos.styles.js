@@ -1,5 +1,5 @@
 import { styled } from '@mui/material';
-import { Box, Paper, Card, Fab } from '@mui/material';
+import { Box, Paper, Card, Fab, TextField } from '@mui/material';
 
 export const TabPanelContainer = styled(Box)`
   width: 100%;
@@ -46,27 +46,24 @@ export const TabsContainer = styled(Box)`
   }
 `;
 
-export const ElegantSearchBar = styled(Box)`
-  display: flex;
-  gap: 16px;
-  margin-bottom: 24px;
-  align-items: center;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(52,152,243,0.05);
-  padding: 16px 20px;
-  .MuiTextField-root {
-    background-color: #f8fafc;
-    .MuiOutlinedInput-root {
-      border-radius: 8px;
+export const ElegantSearchBar = styled(TextField)`
+  .MuiOutlinedInput-root {
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(52,152,243,0.05);
+    
+    & fieldset {
+      border: 1.5px solid #f0f4fa;
+    }
+    &:hover fieldset {
+      border-color: #3498f3;
+    }
+    &.Mui-focused fieldset {
+      border-color: #2B6CA3;
     }
   }
-  .MuiIconButton-root {
-    background-color: #f8fafc;
-    border-radius: 8px;
-    &:hover {
-      background-color: #e3eaf6;
-    }
+  .MuiInputBase-input {
+    padding: 14px 16px;
   }
 `;
 

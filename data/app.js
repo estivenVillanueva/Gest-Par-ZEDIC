@@ -9,6 +9,7 @@ import { facturaRoutes } from './routes/factura.routes.js';
 import { rolesRoutes } from './routes/roles.routes.js';
 import ingresosRoutes from './routes/ingresos.routes.js';
 import reservasRoutes from './routes/reservas.routes.js';
+import pagosRoutes from './routes/pagos.routes.js';
 
 dotenv.config();
 
@@ -49,6 +50,7 @@ app.use('/api/facturas', facturaRoutes);
 app.use('/api/roles', rolesRoutes);
 app.use('/api/ingresos', ingresosRoutes);
 app.use('/api/reservas', reservasRoutes);
+app.use('/api/pagos', pagosRoutes);
 
 // Manejar preflight OPTIONS para todas las rutas
 app.options('*', cors({
