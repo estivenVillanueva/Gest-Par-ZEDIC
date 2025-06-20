@@ -53,7 +53,7 @@ async function getIngresoConServicio(id) {
   return result.rows[0];
 }
 
-export default {
+export {
   registrarIngreso,
   registrarSalida,
   listarIngresosActuales,

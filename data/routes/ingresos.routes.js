@@ -1,5 +1,11 @@
 import express from 'express';
-import ingresosQueries from '../queries/ingresos.queries.js';
+import { 
+  registrarIngreso, 
+  registrarSalida, 
+  listarIngresosActuales, 
+  listarHistorial, 
+  getIngresoConServicio 
+} from '../queries/ingresos.queries.js';
 
 const router = express.Router();
 
@@ -7,7 +13,7 @@ const router = express.Router();
 router.post('/', async (req, res) => {
   try {
     const { vehiculo_id, observaciones } = req.body;
-    const ingreso = await ingresosQueries.registrarIngreso(vehiculo_id, observaciones);
+    const ingreso = await registrarIngreso(vehiculo_id, observaciones);
     res.status(201).json(ingreso);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -20,7 +26,7 @@ router.put('/:id/salida', async (req, res) => {
     const { id } = req.params;
     const { valor_pagado } = req.body;
 
-    const ingresoInfo = await ingresosQueries.getIngresoConServicio(id);
+    const ingresoInfo = await getIngresoConServicio(id);
 
     if (!ingresoInfo) {
       return res.status(404).json({ error: 'Registro de ingreso no encontrado' });
@@ -31,10 +37,10 @@ router.put('/:id/salida', async (req, res) => {
         if (valor_pagado === undefined || valor_pagado === null) {
             return res.status(400).json({ error: 'Se requiere el valor pagado para este tipo de servicio.' });
         }
-        const salida = await ingresosQueries.registrarSalida(id, valor_pagado);
+        const salida = await registrarSalida(id, valor_pagado);
         res.json(salida);
     } else { // tipo_cobro === 'periodo'
-        const salida = await ingresosQueries.registrarSalida(id, 0);
+        const salida = await registrarSalida(id, 0);
         res.json(salida);
     }
   } catch (error) {
@@ -45,7 +51,7 @@ router.put('/:id/salida', async (req, res) => {
 // Listar ingresos actuales
 router.get('/actuales', async (req, res) => {
   try {
-    const ingresos = await ingresosQueries.listarIngresosActuales();
+    const ingresos = await listarIngresosActuales();
     res.json(ingresos);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -55,7 +61,7 @@ router.get('/actuales', async (req, res) => {
 // Listar historial de ingresos
 router.get('/historial', async (req, res) => {
   try {
-    const historial = await ingresosQueries.listarHistorial();
+    const historial = await listarHistorial();
     res.json(historial);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -66,7 +72,7 @@ router.get('/historial', async (req, res) => {
 router.get('/con-servicio/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const ingresoInfo = await ingresosQueries.getIngresoConServicio(id);
+    const ingresoInfo = await getIngresoConServicio(id);
     if (!ingresoInfo) {
       return res.status(404).json({ error: 'Registro de ingreso no encontrado' });
     }
