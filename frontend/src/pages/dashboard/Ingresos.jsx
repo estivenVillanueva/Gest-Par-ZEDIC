@@ -19,6 +19,7 @@ export default function Ingresos() {
   const [observaciones, setObservaciones] = useState('');
   const [salidaInfo, setSalidaInfo] = useState(null);
   const [openSalida, setOpenSalida] = useState(false);
+  const [openConfirmSalidaSinCosto, setOpenConfirmSalidaSinCosto] = useState(false);
   const [valorPagado, setValorPagado] = useState('');
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [placasOptions, setPlacasOptions] = useState([]);
@@ -86,22 +87,27 @@ export default function Ingresos() {
     }
   };
 
-  const handleOpenSalidaDialog = async (ingresoId) => {
+  const handleOpenSalidaDialog = async (ingreso) => {
     try {
-      const res = await axios.get(`${API_URL}/api/ingresos/con-servicio/${ingresoId}`);
-      setSalidaInfo(res.data);
-      if (res.data.tipo_cobro === 'periodo') {
-        // Confirmar salida para servicios de periodo
-        if (window.confirm(`El vehículo tiene un servicio de ${res.data.servicio_nombre}. ¿Confirmas la salida sin costo?`)) {
-          handleRegistrarSalida(ingresoId, 0);
-        }
+      const res = await axios.get(`${API_URL}/api/ingresos/con-servicio/${ingreso.id}`);
+      const info = { ...res.data, ingreso_id: ingreso.id };
+      setSalidaInfo(info);
+      if (info.tipo_cobro === 'periodo') {
+        setOpenConfirmSalidaSinCosto(true);
       } else {
-        // Abrir diálogo para servicios por uso
         setOpenSalida(true);
       }
     } catch (e) {
       setSnackbar({ open: true, message: 'Error al verificar el servicio', severity: 'error' });
     }
+  };
+
+  const handleConfirmarSalidaSinCosto = () => {
+    if (salidaInfo && salidaInfo.ingreso_id) {
+      handleRegistrarSalida(salidaInfo.ingreso_id, 0);
+    }
+    setOpenConfirmSalidaSinCosto(false);
+    setSalidaInfo(null);
   };
 
   const handleRegistrarSalida = async (id, valor) => {
@@ -147,7 +153,7 @@ export default function Ingresos() {
                 <TableCell>{new Date(ing.hora_entrada).toLocaleString()}</TableCell>
                 <TableCell>{ing.observaciones}</TableCell>
                 <TableCell>
-                  <Button variant="outlined" color="secondary" sx={{ borderRadius: 2 }} onClick={() => handleOpenSalidaDialog(ing.id)}>
+                  <Button variant="outlined" color="secondary" sx={{ borderRadius: 2 }} onClick={() => handleOpenSalidaDialog(ing)}>
                     Registrar Salida
                   </Button>
                 </TableCell>
@@ -250,25 +256,52 @@ export default function Ingresos() {
         </DialogActions>
       </Dialog>
 
-      {/* Dialogo para registrar salida */}
+      {/* Dialogo para registrar salida POR USO */}
       <Dialog open={openSalida} onClose={() => setOpenSalida(false)} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ fontWeight: 700, color: 'primary.main' }}>Registrar Salida</DialogTitle>
         <DialogContent>
           <Typography>Vehículo con servicio por uso. Por favor, ingrese el valor a pagar.</Typography>
           <TextField
+            autoFocus
+            margin="dense"
             label="Valor Pagado"
-            value={valorPagado}
-            onChange={e => setValorPagado(e.target.value)}
-            fullWidth
-            margin="normal"
             type="number"
-            sx={{ borderRadius: 2 }}
+            fullWidth
+            variant="outlined"
+            value={valorPagado}
+            onChange={(e) => setValorPagado(e.target.value)}
+            sx={{ mt: 2 }}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenSalida(false)} color="secondary">Cancelar</Button>
-          <Button onClick={() => handleRegistrarSalida(salidaInfo.ingreso_id, valorPagado)} variant="contained" color="primary" sx={{ borderRadius: 2 }}>
+          <Button onClick={() => setOpenSalida(false)}>Cancelar</Button>
+          <Button
+            onClick={() => handleRegistrarSalida(salidaInfo.ingreso_id, valorPagado)}
+            variant="contained"
+            color="primary"
+          >
             Registrar Salida
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialogo para confirmar salida POR PERIODO */}
+      <Dialog open={openConfirmSalidaSinCosto} onClose={() => setOpenConfirmSalidaSinCosto(false)} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ fontWeight: 700, color: 'success.main' }}>Confirmar Salida</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <CheckCircleOutlineIcon color="success" sx={{ fontSize: 40 }}/>
+            <Typography>
+              El vehículo tiene un servicio de <strong>{salidaInfo?.servicio_nombre}</strong>.
+              <br/>
+              ¿Confirmas la salida sin costo?
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenConfirmSalidaSinCosto(false)}>Cancelar</Button>
+          <Button onClick={handleConfirmarSalidaSinCosto} variant="contained" color="success">
+            Confirmar y Registrar Salida
           </Button>
         </DialogActions>
       </Dialog>
