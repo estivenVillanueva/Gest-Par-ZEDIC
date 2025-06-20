@@ -7,7 +7,7 @@ import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
 
 export default function Ingresos() {
   const [ingresos, setIngresos] = useState([]);
@@ -30,18 +30,18 @@ export default function Ingresos() {
   }, []);
 
   const fetchIngresos = async () => {
-    const res = await axios.get(`${API_URL}/ingresos/actuales`);
+    const res = await axios.get(`${API_URL}/api/ingresos/actuales`);
     setIngresos(res.data);
   };
 
   const fetchHistorial = async () => {
-    const res = await axios.get(`${API_URL}/ingresos/historial`);
+    const res = await axios.get(`${API_URL}/api/ingresos/historial`);
     setHistorial(res.data);
   };
 
   const fetchPlacas = async () => {
     try {
-      const res = await axios.get(`${API_URL}/vehiculos`);
+      const res = await axios.get(`${API_URL}/api/vehiculos`);
       if (res.data && res.data.data) {
         setPlacasOptions(res.data.data.map(v => v.placa));
       }
@@ -54,7 +54,7 @@ export default function Ingresos() {
     setLoadingPlaca(true);
     setVehiculo(null);
     try {
-      const res = await axios.get(`${API_URL}/vehiculos/placa/${placaBuscada}`);
+      const res = await axios.get(`${API_URL}/api/vehiculos/placa/${placaBuscada}`);
       if (res.data && res.data.data) {
         setVehiculo(res.data.data);
       } else {
@@ -72,7 +72,7 @@ export default function Ingresos() {
       return;
     }
     try {
-      await axios.post(`${API_URL}/ingresos`, { vehiculo_id: vehiculo.id, observaciones });
+      await axios.post(`${API_URL}/api/ingresos`, { vehiculo_id: vehiculo.id, observaciones });
       setSnackbar({ open: true, message: 'Ingreso registrado', severity: 'success' });
       setOpenIngreso(false);
       setPlaca('');
@@ -87,7 +87,7 @@ export default function Ingresos() {
 
   const handleRegistrarSalida = async () => {
     try {
-      await axios.put(`${API_URL}/ingresos/${salidaId}/salida`, { valor_pagado: valorPagado });
+      await axios.put(`${API_URL}/api/ingresos/${salidaId}/salida`, { valor_pagado: valorPagado });
       setSnackbar({ open: true, message: 'Salida registrada', severity: 'success' });
       setOpenSalida(false);
       setSalidaId(null);
