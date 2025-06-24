@@ -47,7 +47,8 @@ export default function Ingresos() {
 
   const fetchPlacas = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/vehiculos`);
+      if (!currentUser?.parqueadero_id) return;
+      const res = await axios.get(`${API_URL}/api/vehiculos?parqueadero_id=${currentUser.parqueadero_id}`);
       if (res.data && res.data.data) {
         setPlacasOptions(res.data.data.map(v => v.placa));
       }
