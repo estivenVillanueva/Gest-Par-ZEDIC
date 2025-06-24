@@ -101,6 +101,10 @@ const FormularioVehiculo = ({ open, onClose, onGuardar, initialData }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
+    if (formData.placa.length !== 6) {
+      setPlacaError('La placa debe tener exactamente 6 caracteres');
+      return;
+    }
     try {
       await onGuardar(formData);
     } catch (error) {
@@ -120,12 +124,19 @@ const FormularioVehiculo = ({ open, onClose, onGuardar, initialData }) => {
             margin="dense"
             label="Placa"
             name="placa"
-            value={formData.placa}
+            value={formData.placa.slice(0, 6)}
             onChange={handleChange}
             onInput={e => {
               let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
               if (value.length > 6) value = value.substring(0, 6);
               e.target.value = value;
+              setFormData(prev => ({ ...prev, placa: value }));
+            }}
+            onPaste={e => {
+              let paste = (e.clipboardData || window.clipboardData).getData('text');
+              paste = paste.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().substring(0, 6);
+              e.preventDefault();
+              setFormData(prev => ({ ...prev, placa: paste }));
             }}
             fullWidth
             required
@@ -204,6 +215,10 @@ const MisVehiculos = () => {
   };
 
   const handleGuardar = async (data) => {
+    if (!data.placa || data.placa.length !== 6) {
+      alert('La placa debe tener exactamente 6 caracteres.');
+      return;
+    }
     try {
       // Construir el objeto para el backend
       const vehiculoData = {
@@ -271,7 +286,7 @@ const MisVehiculos = () => {
         </Box>
         <Grid container spacing={4}>
           <Grid item xs={12} md={7}>
-            {vehiculos.map((vehiculo) => (
+            {vehiculos.filter(v => v.placa && v.placa.length === 6).map((vehiculo) => (
               <VehiculoCard
                 key={vehiculo.id}
                 vehiculo={vehiculo}
