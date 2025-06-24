@@ -22,6 +22,7 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import axios from 'axios';
+import { useAuth } from '../../../logic/AuthContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -64,6 +65,7 @@ const SolicitudCard = ({ solicitud, onAccion }) => (
 );
 
 const SolicitudesPanel = () => {
+  const { currentUser } = useAuth();
   const [open, setOpen] = useState(false);
   const [solicitud, setSolicitud] = useState({
     tipo: '',
@@ -105,7 +107,8 @@ const SolicitudesPanel = () => {
     setLoading(true);
     try {
       const res = await axios.get(`${API_URL}/reservas`);
-      setSolicitudes(res.data);
+      const solicitudesFiltradas = res.data.filter(s => s.parqueadero_id === currentUser?.parqueadero_id);
+      setSolicitudes(solicitudesFiltradas);
     } catch (e) {
       setSolicitudes([]);
     }
@@ -141,15 +144,17 @@ const SolicitudesPanel = () => {
           <SolicitudCard key={solicitud.id} solicitud={solicitud} onAccion={handleAccion} />
         ))
       )}
-      <Button
-        variant="contained"
-        startIcon={<AddIcon />}
-        onClick={handleOpen}
-        fullWidth
-        sx={{ mt: 2 }}
-      >
-        Nueva Solicitud
-      </Button>
+      {!currentUser?.parqueadero_id && (
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleOpen}
+          fullWidth
+          sx={{ mt: 2 }}
+        >
+          Nueva Solicitud
+        </Button>
+      )}
 
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Nueva Solicitud</DialogTitle>

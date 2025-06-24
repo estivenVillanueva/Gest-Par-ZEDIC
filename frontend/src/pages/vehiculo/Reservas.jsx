@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -17,30 +17,7 @@ import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
-
-const MOCK_RESERVAS = [
-  {
-    id: 1,
-    parqueadero: 'Parqueadero Centro',
-    fecha: '2024-06-10 08:00',
-    vehiculo: 'ABC123',
-    estado: 'Aprobada',
-  },
-  {
-    id: 2,
-    parqueadero: 'Parqueadero Norte',
-    fecha: '2024-06-12 14:30',
-    vehiculo: 'XYZ789',
-    estado: 'No aprobada',
-  },
-  {
-    id: 3,
-    parqueadero: 'Parqueadero Sur',
-    fecha: '2024-06-15 10:00',
-    vehiculo: 'ABC123',
-    estado: 'Aprobada',
-  },
-];
+import { useAuth } from '../../../logic/AuthContext';
 
 const estados = [
   { label: 'Todas', value: 'todas' },
@@ -50,11 +27,27 @@ const estados = [
 
 const Reservas = () => {
   const [tab, setTab] = useState('todas');
+  const [reservas, setReservas] = useState([]);
+  const { currentUser } = useAuth();
+
+  useEffect(() => {
+    const fetchReservas = async () => {
+      if (!currentUser?.id) return;
+      try {
+        const response = await fetch(`https://gest-par-zedic.onrender.com/api/reservas?usuario_id=${currentUser.id}`);
+        const data = await response.json();
+        setReservas(data.data || []);
+      } catch (error) {
+        setReservas([]);
+      }
+    };
+    fetchReservas();
+  }, [currentUser]);
 
   const reservasFiltradas =
     tab === 'todas'
-      ? MOCK_RESERVAS
-      : MOCK_RESERVAS.filter((r) => r.estado === tab);
+      ? reservas
+      : reservas.filter((r) => r.estado === tab);
 
   return (
     <Box sx={{ bgcolor: '#f0f4fa', minHeight: '100vh', py: 6, display: 'flex', justifyContent: 'center' }}>
@@ -88,16 +81,18 @@ const Reservas = () => {
                     <LocalParkingIcon />
                   </Avatar>
                   <CardContent sx={{ flex: 1, p: 0 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 700 }}>{reserva.parqueadero}</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 700 }}>{reserva.parqueadero_nombre || reserva.nombre || 'Parqueadero'}</Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                      <EventAvailableIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} /> {reserva.fecha}
+                      <EventAvailableIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} /> {reserva.fecha_inicio ? new Date(reserva.fecha_inicio).toLocaleString() : ''}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      <DirectionsCarIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} /> Vehículo: {reserva.vehiculo}
-                    </Typography>
+                    {reserva.vehiculo_placa && (
+                      <Typography variant="body2" color="text.secondary">
+                        <DirectionsCarIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} /> Vehículo: {reserva.vehiculo_placa}
+                      </Typography>
+                    )}
                   </CardContent>
                   <Chip
-                    label={reserva.estado}
+                    label={reserva.estado === 'Aprobada' ? 'Aprobada' : 'No aprobada'}
                     color={reserva.estado === 'Aprobada' ? 'success' : 'warning'}
                     icon={reserva.estado === 'Aprobada' ? <CheckCircleIcon /> : <CancelIcon />}
                     sx={{ fontWeight: 700, fontSize: '1rem', px: 1.5, borderRadius: 2 }}

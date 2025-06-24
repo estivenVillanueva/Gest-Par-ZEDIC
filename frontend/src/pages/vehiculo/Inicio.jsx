@@ -47,42 +47,6 @@ const StatCard = ({ title, value, icon, button, onButtonClick }) => (
   </DashboardCard>
 );
 
-const mockParqueaderosDisponibles = [
-  {
-    id: 1,
-    nombre: 'Parqueadero Centro',
-    telefono: '3001234567',
-    direccion: 'Calle 10 #5-20',
-    email: 'centro@parqueaderos.com',
-    capacidad: 50,
-    horarios: '6:00am - 10:00pm',
-    servicios: ['Mensual', 'Diario', 'Quincenal', 'Semanal'],
-  },
-  {
-    id: 2,
-    nombre: 'Parqueadero Norte',
-    telefono: '3019876543',
-    direccion: 'Av. Norte #100-50',
-    email: 'norte@parqueaderos.com',
-    capacidad: 30,
-    horarios: '24 horas',
-    servicios: ['Mensual', 'Diario'],
-  },
-];
-
-const mockParqueaderosReservados = [
-  {
-    id: 3,
-    nombre: 'Parqueadero Sur',
-    telefono: '3025558888',
-    direccion: 'Cra 20 #15-30',
-    email: 'sur@parqueaderos.com',
-    capacidad: 40,
-    horarios: '7:00am - 9:00pm',
-    servicios: ['Mensual', 'Semanal'],
-  },
-];
-
 const Inicio = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
@@ -110,6 +74,20 @@ const Inicio = () => {
     };
     fetchParqueaderos();
   }, []);
+
+  useEffect(() => {
+    const fetchReservas = async () => {
+      if (!currentUser?.id) return;
+      try {
+        const response = await fetch(`https://gest-par-zedic.onrender.com/api/reservas?usuario_id=${currentUser.id}`);
+        const data = await response.json();
+        setParqueaderosReservados(data.data || []);
+      } catch (error) {
+        setParqueaderosReservados([]);
+      }
+    };
+    fetchReservas();
+  }, [currentUser]);
 
   const handleReservar = (parqueadero) => {
     if (vehiculos.length > 0) {
@@ -367,27 +345,27 @@ const Inicio = () => {
       }}>
         <Box sx={{ mb: 2 }}>
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, color: '#2B6CA3', textAlign: 'center', mb: 4 }}>
-            Mis Parqueaderos Reservados
+            Mis Reservas
           </Typography>
           <Grid container spacing={{ xs: 3, md: 5 }} justifyContent="center" alignItems="stretch">
             {parqueaderosReservados.length === 0 ? (
               <Grid item xs={12}>
                 <Typography variant="body2" color="text.secondary">
-                  No tienes parqueaderos reservados.
+                  No tienes reservas registradas.
                 </Typography>
               </Grid>
             ) : (
-              parqueaderosReservados.map((p) => (
-                <Grid item xs={12} sm={8} md={5} lg={4} key={p.id} sx={{ display: 'flex', justifyContent: 'center' }}>
+              parqueaderosReservados.map((reserva) => (
+                <Grid item xs={12} sm={8} md={5} lg={4} key={reserva.id} sx={{ display: 'flex', justifyContent: 'center' }}>
                   <Card sx={{
                     borderRadius: 3,
                     boxShadow: '0 8px 32px rgba(52,152,243,0.10)',
                     bgcolor: '#fff',
-                    minHeight: 340,
+                    minHeight: 180,
                     width: 340,
                     display: 'flex',
                     flexDirection: 'column',
-                    alignItems: 'center',
+                    alignItems: 'flex-start',
                     justifyContent: 'flex-start',
                     gap: 2,
                     p: 3,
@@ -395,42 +373,20 @@ const Inicio = () => {
                     transition: 'box-shadow 0.25s, transform 0.18s',
                     '&:hover': { boxShadow: '0 16px 48px rgba(52,152,243,0.18)', transform: 'translateY(-4px) scale(1.02)' }
                   }}>
-                    <Box sx={{ mt: 1, mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <Box sx={{
-                        background: 'linear-gradient(135deg, #3498f3 0%, #6ec1ff 100%)',
-                        borderRadius: '50%',
-                        width: 60,
-                        height: 60,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        mb: 1,
-                        boxShadow: '0 2px 8px rgba(52,152,243,0.10)'
-                      }}>
-                        <LocalParkingIcon sx={{ fontSize: 34, color: '#fff' }} />
-                      </Box>
-                      <Typography variant="h6" sx={{ fontWeight: 700, textAlign: 'center', mb: 0.5 }}>{p.nombre}</Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                        <LocationOnIcon sx={{ fontSize: 16, mr: 0.5 }} /> {p.direccion}
+                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                      {reserva.parqueadero_nombre || reserva.nombre || 'Parqueadero'}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      <CalendarIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} /> {reserva.fecha_inicio ? new Date(reserva.fecha_inicio).toLocaleString() : ''}
+                    </Typography>
+                    {reserva.vehiculo_placa && (
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                        <CarIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} /> Vehículo: {reserva.vehiculo_placa}
                       </Typography>
-                    </Box>
-                    <Box sx={{ width: '100%', mb: 2 }}>
-                      <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                        <PhoneIcon sx={{ fontSize: 16, mr: 0.5, color: '#43a047' }} /> {p.telefono}
-                      </Typography>
-                      <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                        <EmailIcon sx={{ fontSize: 16, mr: 0.5, color: '#e53935' }} /> {p.email}
-                      </Typography>
-                      <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                        <PeopleIcon sx={{ fontSize: 16, mr: 0.5, color: '#fbc02d' }} /> Capacidad: {p.capacidad}
-                      </Typography>
-                      <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                        <AccessTimeIcon sx={{ fontSize: 16, mr: 0.5, color: '#1976d2' }} /> Horarios: {p.horarios}
-                      </Typography>
-                      <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <EventAvailableIcon sx={{ fontSize: 16, mr: 0.5, color: '#43a047' }} /> Servicios: {p.servicios.join(', ')}
-                      </Typography>
-                    </Box>
+                    )}
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      Estado: {reserva.estado || 'Pendiente'}
+                    </Typography>
                   </Card>
                 </Grid>
               ))
