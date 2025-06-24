@@ -86,16 +86,24 @@ const FormularioVehiculo = ({ open, onClose, onGuardar, initialData }) => {
   const handleChange = (e) => {
     if (e.target.name === 'placa') {
       let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-      if (value.length > 6) value = value.substring(0, 6);
-      setFormData({ ...formData, [e.target.name]: value });
       if (value.length > 6) {
+        value = value.slice(0, 6);
         setPlacaError('La placa no puede tener más de 6 caracteres');
       } else {
         setPlacaError('');
       }
+      setFormData({ ...formData, [e.target.name]: value });
     } else {
       setFormData({ ...formData, [e.target.name]: e.target.value });
     }
+  };
+
+  const handlePlacaPaste = (e) => {
+    let paste = (e.clipboardData || window.clipboardData).getData('text');
+    paste = paste.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 6);
+    e.preventDefault();
+    setFormData(prev => ({ ...prev, placa: paste }));
+    setPlacaError(paste.length > 6 ? 'La placa no puede tener más de 6 caracteres' : '');
   };
 
   const handleSubmit = async (e) => {
@@ -124,20 +132,9 @@ const FormularioVehiculo = ({ open, onClose, onGuardar, initialData }) => {
             margin="dense"
             label="Placa"
             name="placa"
-            value={formData.placa.slice(0, 6)}
+            value={formData.placa}
             onChange={handleChange}
-            onInput={e => {
-              let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-              if (value.length > 6) value = value.substring(0, 6);
-              e.target.value = value;
-              setFormData(prev => ({ ...prev, placa: value }));
-            }}
-            onPaste={e => {
-              let paste = (e.clipboardData || window.clipboardData).getData('text');
-              paste = paste.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().substring(0, 6);
-              e.preventDefault();
-              setFormData(prev => ({ ...prev, placa: paste }));
-            }}
+            onPaste={handlePlacaPaste}
             fullWidth
             required
             inputProps={{ maxLength: 6, style: { textTransform: 'uppercase' }, pattern: '[A-Z0-9]{1,6}' }}
