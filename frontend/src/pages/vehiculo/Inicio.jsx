@@ -59,6 +59,9 @@ const Inicio = () => {
   const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState('');
   const [parqueaderoAReservar, setParqueaderoAReservar] = useState(null);
   const [showVehiculoSelect, setShowVehiculoSelect] = useState(false);
+  const [fechaInicio, setFechaInicio] = useState('');
+  const [fechaFin, setFechaFin] = useState('');
+  const [fechaError, setFechaError] = useState('');
 
   useEffect(() => {
     const fetchParqueaderos = async () => {
@@ -89,21 +92,34 @@ const Inicio = () => {
     fetchReservas();
   }, [currentUser]);
 
+  useEffect(() => {
+    if (fechaInicio && fechaFin) {
+      if (new Date(fechaFin) <= new Date(fechaInicio)) {
+        setFechaError('La fecha y hora de fin debe ser mayor a la de inicio');
+      } else {
+        setFechaError('');
+      }
+    } else {
+      setFechaError('');
+    }
+  }, [fechaInicio, fechaFin]);
+
   const handleReservar = (parqueadero) => {
     if (vehiculos.length > 0) {
       setParqueaderoAReservar(parqueadero);
       setShowVehiculoSelect(true);
+      setFechaInicio('');
+      setFechaFin('');
     } else {
-      realizarReserva(parqueadero, null);
+      realizarReserva(parqueadero, null, '', '');
     }
   };
 
-  const realizarReserva = async (parqueadero, vehiculoId) => {
+  const realizarReserva = async (parqueadero, vehiculoId, fechaInicioParam, fechaFinParam) => {
     setReservaLoading(true);
     try {
-      const now = new Date();
-      const fecha_inicio = now.toISOString();
-      const fecha_fin = new Date(now.getTime() + 60 * 60 * 1000).toISOString(); // +1 hora
+      const fecha_inicio = fechaInicioParam || new Date().toISOString();
+      const fecha_fin = fechaFinParam || new Date(new Date().getTime() + 60 * 60 * 1000).toISOString();
       const reserva = {
         parqueadero_id: parqueadero.id,
         usuario_id: currentUser.id,
@@ -133,6 +149,8 @@ const Inicio = () => {
     setShowVehiculoSelect(false);
     setParqueaderoAReservar(null);
     setVehiculoSeleccionado('');
+    setFechaInicio('');
+    setFechaFin('');
   };
 
   const parqueaderosFiltrados = parqueaderosDisponibles.filter((p) => {
@@ -394,12 +412,31 @@ const Inicio = () => {
                 <option key={v.id} value={v.id}>{v.placa} - {v.tipoVehiculo}</option>
               ))}
             </select>
+            <div style={{ marginBottom: 16 }}>
+              <label>Fecha y hora de inicio:</label>
+              <input
+                type="datetime-local"
+                value={fechaInicio}
+                onChange={e => setFechaInicio(e.target.value)}
+                style={{ width: '100%', padding: 8, marginBottom: 8 }}
+              />
+              <label>Fecha y hora de fin:</label>
+              <input
+                type="datetime-local"
+                value={fechaFin}
+                onChange={e => setFechaFin(e.target.value)}
+                style={{ width: '100%', padding: 8 }}
+              />
+              {fechaError && (
+                <div style={{ color: 'red', marginTop: 8, fontSize: 14 }}>{fechaError}</div>
+              )}
+            </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
               <Button onClick={() => setShowVehiculoSelect(false)}>Cancelar</Button>
               <Button
                 variant="contained"
-                disabled={!vehiculoSeleccionado || reservaLoading}
-                onClick={() => realizarReserva(parqueaderoAReservar, vehiculoSeleccionado)}
+                disabled={!vehiculoSeleccionado || !fechaInicio || !fechaFin || reservaLoading || !!fechaError}
+                onClick={() => realizarReserva(parqueaderoAReservar, vehiculoSeleccionado, new Date(fechaInicio).toISOString(), new Date(fechaFin).toISOString())}
               >
                 Reservar
               </Button>
