@@ -18,6 +18,10 @@ import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useAuth } from '../../../logic/AuthContext';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 
 const estados = [
   { label: 'Todas', value: 'todas' },
@@ -30,6 +34,7 @@ const Reservas = () => {
   const [tab, setTab] = useState('todas');
   const [reservas, setReservas] = useState([]);
   const { currentUser } = useAuth();
+  const [detalleReserva, setDetalleReserva] = useState(null);
 
   useEffect(() => {
     const fetchReservas = async () => {
@@ -126,7 +131,7 @@ const Reservas = () => {
                     }
                     sx={{ fontWeight: 700, fontSize: '1rem', px: 1.5, borderRadius: 2 }}
                   />
-                  <Button variant="outlined" disabled sx={{ ml: 2, borderRadius: 2 }}>
+                  <Button variant="outlined" sx={{ ml: 2, borderRadius: 2 }} onClick={() => setDetalleReserva(reserva)}>
                     Ver detalles
                   </Button>
                 </Card>
@@ -135,6 +140,33 @@ const Reservas = () => {
           )}
         </Grid>
       </Paper>
+      {/* Modal de detalles de reserva */}
+      <Dialog open={!!detalleReserva} onClose={() => setDetalleReserva(null)} maxWidth="sm" fullWidth>
+        <DialogTitle>Detalle de la Reserva</DialogTitle>
+        <DialogContent dividers>
+          {detalleReserva && (
+            <Box>
+              <Typography variant="subtitle1" sx={{ mb: 1 }}><b>Parqueadero:</b> {detalleReserva.parqueadero_nombre || detalleReserva.nombre || 'Parqueadero'}</Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}><b>Fecha inicio:</b> {detalleReserva.fecha_inicio ? new Date(detalleReserva.fecha_inicio).toLocaleString() : ''}</Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}><b>Fecha fin:</b> {detalleReserva.fecha_fin ? new Date(detalleReserva.fecha_fin).toLocaleString() : ''}</Typography>
+              {detalleReserva.vehiculo_placa && (
+                <Typography variant="body2" sx={{ mb: 1 }}><b>Vehículo:</b> {detalleReserva.vehiculo_placa}</Typography>
+              )}
+              {!detalleReserva.vehiculo_placa && detalleReserva.tipo_vehiculo && (
+                <Typography variant="body2" sx={{ mb: 1 }}><b>Tipo de vehículo:</b> {detalleReserva.tipo_vehiculo}</Typography>
+              )}
+              {detalleReserva.observaciones && (
+                <Typography variant="body2" sx={{ mb: 1 }}><b>Observaciones:</b> {detalleReserva.observaciones}</Typography>
+              )}
+              <Typography variant="body2" sx={{ mb: 1 }}><b>Estado:</b> {detalleReserva.estado}</Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}><b>Creada:</b> {detalleReserva.created_at ? new Date(detalleReserva.created_at).toLocaleString() : ''}</Typography>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDetalleReserva(null)} variant="contained">Cerrar</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
