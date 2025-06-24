@@ -37,6 +37,18 @@ const SolicitudCard = ({ solicitud, onAccion }) => (
           <Typography variant="body2" color="text.secondary" gutterBottom>
             <b>Parqueadero:</b> {solicitud.parqueadero_id} | <b>Vehículo:</b> {solicitud.vehiculo_id} | <b>Usuario:</b> {solicitud.usuario_id}
           </Typography>
+          {/* Mostrar tipo de vehículo si existe y no hay vehiculo_id */}
+          {!solicitud.vehiculo_id && solicitud.tipo_vehiculo && (
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              <b>Tipo de vehículo:</b> {solicitud.tipo_vehiculo}
+            </Typography>
+          )}
+          {/* Mostrar observaciones si existen */}
+          {solicitud.observaciones && (
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              <b>Observaciones:</b> {solicitud.observaciones}
+            </Typography>
+          )}
           <Typography variant="body2" color="text.secondary" gutterBottom>
             <b>Fecha inicio:</b> {solicitud.fecha_inicio} <b>Fecha fin:</b> {solicitud.fecha_fin}
           </Typography>
