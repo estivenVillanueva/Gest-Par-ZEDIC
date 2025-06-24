@@ -24,7 +24,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import axios from 'axios';
 import { useAuth } from '../../../logic/AuthContext';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE = import.meta.env.PROD ? 'https://gest-par-zedic.onrender.com/api' : (import.meta.env.VITE_API_URL || 'http://localhost:3000/api');
 
 const SolicitudCard = ({ solicitud, onAccion }) => (
   <Card sx={{ mb: 2, borderRadius: '12px', boxShadow: 2 }}>
@@ -100,6 +100,7 @@ const SolicitudesPanel = () => {
   ];
 
   useEffect(() => {
+    console.log('currentUser en SolicitudesPanel:', currentUser);
     fetchSolicitudes();
   }, []);
 
@@ -111,7 +112,7 @@ const SolicitudesPanel = () => {
         setLoading(false);
         return;
       }
-      const res = await axios.get(`${API_URL}/reservas?parqueadero_id=${currentUser.parqueadero_id}`);
+      const res = await axios.get(`${API_BASE}/reservas?parqueadero_id=${currentUser.parqueadero_id}`);
       setSolicitudes(res.data.data || []);
     } catch (e) {
       setSolicitudes([]);
@@ -121,7 +122,7 @@ const SolicitudesPanel = () => {
 
   const handleAccion = async (id, estado) => {
     try {
-      await axios.put(`${API_URL}/reservas/${id}/estado`, { estado });
+      await axios.put(`${API_BASE}/reservas/${id}/estado`, { estado });
       setSnackbar({ open: true, message: `Reserva ${estado === 'Aprobada' ? 'aprobada' : 'rechazada'}`, severity: 'success' });
       fetchSolicitudes();
     } catch (e) {
