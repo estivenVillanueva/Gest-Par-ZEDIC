@@ -357,15 +357,6 @@ const ParqueaderoProfile = () => {
               value={parqueaderoInfo.email}
               onEdit={() => handleEdit('parqueadero.email', parqueaderoInfo.email)}
             />
-            
-            <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
-              <IconButton color="primary" size="large">
-                <FacebookIcon />
-              </IconButton>
-              <IconButton color="primary" size="large">
-                <TwitterIcon />
-              </IconButton>
-            </Box>
           </Grid>
 
           <Grid item xs={12}>
