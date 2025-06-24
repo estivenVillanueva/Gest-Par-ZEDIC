@@ -1,5 +1,6 @@
 import express from 'express';
 import { parqueaderoQueries } from '../queries/parqueadero.queries.js';
+import { geocodeAddress } from '../geocode_parqueaderos.js';
 
 const router = express.Router();
 
@@ -70,7 +71,21 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
     console.log('Llamada a POST /api/parqueaderos con body:', req.body);
     try {
-        const nuevoParqueadero = await parqueaderoQueries.createParqueadero(req.body);
+        let { direccion } = req.body;
+        let latitud = null;
+        let longitud = null;
+        if (direccion) {
+            try {
+                const coords = await geocodeAddress(`${direccion}, Colombia`);
+                if (coords) {
+                    latitud = coords.lat;
+                    longitud = coords.lng;
+                }
+            } catch (geoError) {
+                console.error('Error al geocodificar dirección:', geoError);
+            }
+        }
+        const nuevoParqueadero = await parqueaderoQueries.createParqueadero({ ...req.body, latitud, longitud });
         console.log('Parqueadero creado:', nuevoParqueadero);
         try {
             const { serviciosQueries } = await import('../queries/servicios.queries.js');
@@ -86,7 +101,6 @@ router.post('/', async (req, res) => {
             console.log('Servicio vacío creado correctamente:', servicioCreado);
         } catch (servicioError) {
             console.error('Error al crear servicio vacío:', servicioError);
-            // Puedes devolver el error aquí si quieres depurar
         }
         res.status(201).json({
             success: true,

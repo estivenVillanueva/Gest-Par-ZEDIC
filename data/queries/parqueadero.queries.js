@@ -2,13 +2,13 @@ import { pool } from '../postgres.js';
 
 export const parqueaderoQueries = {
     // Crear un nuevo parqueadero
-    async createParqueadero({ nombre, ubicacion, capacidad, precio_hora, estado, telefono, email, direccion, horarios, descripcion, usuario_id }) {
+    async createParqueadero({ nombre, ubicacion, capacidad, precio_hora, estado, telefono, email, direccion, horarios, descripcion, usuario_id, latitud, longitud }) {
         const query = `
-            INSERT INTO parqueaderos (nombre, ubicacion, capacidad, precio_hora, estado, telefono, email, direccion, horarios, descripcion, usuario_id)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+            INSERT INTO parqueaderos (nombre, ubicacion, capacidad, precio_hora, estado, telefono, email, direccion, horarios, descripcion, usuario_id, latitud, longitud)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
             RETURNING *
         `;
-        const values = [nombre, ubicacion, capacidad, precio_hora, estado, telefono, email, direccion, horarios, descripcion, usuario_id];
+        const values = [nombre, ubicacion, capacidad, precio_hora, estado, telefono, email, direccion, horarios, descripcion, usuario_id, latitud, longitud];
         const result = await pool.query(query, values);
         return result.rows[0];
     },
