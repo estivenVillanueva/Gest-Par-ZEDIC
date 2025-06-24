@@ -81,23 +81,31 @@ const FormularioVehiculo = ({ open, onClose, onGuardar, initialData }) => {
     modelo: '',
   });
   const [placaError, setPlacaError] = useState('');
+  const [formError, setFormError] = useState('');
 
   const handleChange = (e) => {
     if (e.target.name === 'placa') {
-      if (e.target.value.length > 6) {
+      let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+      if (value.length > 6) value = value.slice(0, 6);
+      if (value.length > 6) {
         setPlacaError('La placa no puede tener más de 6 caracteres');
       } else {
         setPlacaError('');
       }
-      setFormData({ ...formData, [e.target.name]: e.target.value.slice(0, 6) });
+      setFormData({ ...formData, [e.target.name]: value });
     } else {
       setFormData({ ...formData, [e.target.name]: e.target.value });
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onGuardar(formData);
+    setFormError('');
+    try {
+      await onGuardar(formData);
+    } catch (error) {
+      setFormError(error.message || 'Error al agregar el vehículo');
+    }
   };
 
   return (
@@ -105,6 +113,9 @@ const FormularioVehiculo = ({ open, onClose, onGuardar, initialData }) => {
       <DialogTitle>{initialData ? 'Editar Vehículo' : 'Registrar Vehículo'}</DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
+          {formError && (
+            <Typography color="error" sx={{ mb: 1 }}>{formError}</Typography>
+          )}
           <TextField
             margin="dense"
             label="Placa"
