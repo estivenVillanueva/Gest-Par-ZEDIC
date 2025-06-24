@@ -31,6 +31,8 @@ import {
   DashboardCardValue,
   DashboardCardButton
 } from '../../styles/components/DashboardCard.styles';
+import { useAuth } from '../../../logic/AuthContext';
+import { useVehiculo } from '../../../logic/VehiculoContext';
 
 const StatCard = ({ title, value, icon, button, onButtonClick }) => (
   <DashboardCard>
@@ -83,11 +85,16 @@ const mockParqueaderosReservados = [
 
 const Inicio = () => {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const { vehiculos } = useVehiculo();
   const [parqueaderosDisponibles, setParqueaderosDisponibles] = useState([]);
   const [parqueaderosReservados, setParqueaderosReservados] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [reservaLoading, setReservaLoading] = useState(false);
+  const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState('');
+  const [parqueaderoAReservar, setParqueaderoAReservar] = useState(null);
+  const [showVehiculoSelect, setShowVehiculoSelect] = useState(false);
 
   useEffect(() => {
     const fetchParqueaderos = async () => {
@@ -104,12 +111,25 @@ const Inicio = () => {
     fetchParqueaderos();
   }, []);
 
-  const handleReservar = async (parqueadero) => {
+  const handleReservar = (parqueadero) => {
+    if (vehiculos.length > 0) {
+      setParqueaderoAReservar(parqueadero);
+      setShowVehiculoSelect(true);
+    } else {
+      realizarReserva(parqueadero, null);
+    }
+  };
+
+  const realizarReserva = async (parqueadero, vehiculoId) => {
     setReservaLoading(true);
     try {
       const reserva = {
         parqueadero_id: parqueadero.id,
+        usuario_id: currentUser.id,
       };
+      if (vehiculoId) {
+        reserva.vehiculo_id = vehiculoId;
+      }
       const response = await fetch('https://gest-par-zedic.onrender.com/api/reservas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -124,6 +144,9 @@ const Inicio = () => {
       alert('Error de conexión al reservar');
     }
     setReservaLoading(false);
+    setShowVehiculoSelect(false);
+    setParqueaderoAReservar(null);
+    setVehiculoSeleccionado('');
   };
 
   const parqueaderosFiltrados = parqueaderosDisponibles.filter((p) => {
@@ -408,6 +431,34 @@ const Inicio = () => {
           </Grid>
         </Box>
       </Paper>
+
+      {showVehiculoSelect && parqueaderoAReservar && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: '#fff', padding: 32, borderRadius: 12, minWidth: 320 }}>
+            <h3>Selecciona un vehículo para la reserva</h3>
+            <select
+              value={vehiculoSeleccionado}
+              onChange={e => setVehiculoSeleccionado(e.target.value)}
+              style={{ width: '100%', padding: 8, marginBottom: 16 }}
+            >
+              <option value="">Selecciona un vehículo</option>
+              {vehiculos.map(v => (
+                <option key={v.id} value={v.id}>{v.placa} - {v.tipoVehiculo}</option>
+              ))}
+            </select>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <Button onClick={() => setShowVehiculoSelect(false)}>Cancelar</Button>
+              <Button
+                variant="contained"
+                disabled={!vehiculoSeleccionado || reservaLoading}
+                onClick={() => realizarReserva(parqueaderoAReservar, vehiculoSeleccionado)}
+              >
+                Reservar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </Box>
   );
 };
