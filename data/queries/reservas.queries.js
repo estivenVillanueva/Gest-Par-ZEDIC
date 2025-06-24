@@ -2,9 +2,10 @@ import { pool } from '../postgres.js';
 
 // Crear una nueva reserva
 async function crearReserva({ usuario_id, parqueadero_id, vehiculo_id, fecha_inicio, fecha_fin, estado }) {
+  const estadoFinal = estado || 'Pendiente';
   const result = await pool.query(
     `INSERT INTO reservas (usuario_id, parqueadero_id, vehiculo_id, fecha_inicio, fecha_fin, estado) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-    [usuario_id, parqueadero_id, vehiculo_id, fecha_inicio, fecha_fin, estado]
+    [usuario_id, parqueadero_id, vehiculo_id, fecha_inicio, fecha_fin, estadoFinal]
   );
   return result.rows[0];
 }

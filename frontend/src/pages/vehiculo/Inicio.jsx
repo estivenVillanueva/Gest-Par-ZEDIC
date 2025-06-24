@@ -109,6 +109,7 @@ const Inicio = () => {
         usuario_id: currentUser.id,
         fecha_inicio,
         fecha_fin,
+        estado: 'Pendiente',
       };
       if (vehiculoId) {
         reserva.vehiculo_id = vehiculoId;
