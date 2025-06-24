@@ -30,4 +30,6 @@ async function main() {
   }
 }
 
-main(); 
+main();
+
+export { geocodeAddress }; 
