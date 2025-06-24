@@ -431,6 +431,16 @@ const Inicio = () => {
                 <div style={{ color: 'red', marginTop: 8, fontSize: 14 }}>{fechaError}</div>
               )}
             </div>
+            {/* Resumen de la reserva */}
+            {vehiculoSeleccionado && fechaInicio && fechaFin && !fechaError && (
+              <div style={{ background: '#f3f7fa', borderRadius: 8, padding: 16, marginBottom: 16 }}>
+                <h4 style={{ margin: '0 0 8px 0' }}>Resumen de la Reserva</h4>
+                <div><b>Parqueadero:</b> {parqueaderoAReservar.nombre}</div>
+                <div><b>Vehículo:</b> {vehiculos.find(v => v.id === vehiculoSeleccionado)?.placa || ''}</div>
+                <div><b>Inicio:</b> {new Date(fechaInicio).toLocaleString()}</div>
+                <div><b>Fin:</b> {new Date(fechaFin).toLocaleString()}</div>
+              </div>
+            )}
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
               <Button onClick={() => setShowVehiculoSelect(false)}>Cancelar</Button>
               <Button
