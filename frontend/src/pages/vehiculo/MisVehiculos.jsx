@@ -86,13 +86,13 @@ const FormularioVehiculo = ({ open, onClose, onGuardar, initialData }) => {
   const handleChange = (e) => {
     if (e.target.name === 'placa') {
       let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-      if (value.length > 6) value = value.slice(0, 6);
+      if (value.length > 6) value = value.substring(0, 6);
+      setFormData({ ...formData, [e.target.name]: value });
       if (value.length > 6) {
         setPlacaError('La placa no puede tener más de 6 caracteres');
       } else {
         setPlacaError('');
       }
-      setFormData({ ...formData, [e.target.name]: value });
     } else {
       setFormData({ ...formData, [e.target.name]: e.target.value });
     }
@@ -122,9 +122,14 @@ const FormularioVehiculo = ({ open, onClose, onGuardar, initialData }) => {
             name="placa"
             value={formData.placa}
             onChange={handleChange}
+            onInput={e => {
+              let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+              if (value.length > 6) value = value.substring(0, 6);
+              e.target.value = value;
+            }}
             fullWidth
             required
-            inputProps={{ maxLength: 6 }}
+            inputProps={{ maxLength: 6, style: { textTransform: 'uppercase' }, pattern: '[A-Z0-9]{1,6}' }}
             error={!!placaError}
             helperText={placaError}
           />
