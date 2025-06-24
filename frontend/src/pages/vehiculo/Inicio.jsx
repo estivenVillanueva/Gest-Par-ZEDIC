@@ -33,6 +33,10 @@ import {
 } from '../../styles/components/DashboardCard.styles';
 import { useAuth } from '../../../logic/AuthContext';
 import { useVehiculo } from '../../../logic/VehiculoContext';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 
 const StatCard = ({ title, value, icon, button, onButtonClick }) => (
   <DashboardCard>
@@ -64,6 +68,8 @@ const Inicio = () => {
   const [fechaError, setFechaError] = useState('');
   const [tipoVehiculo, setTipoVehiculo] = useState('');
   const [observaciones, setObservaciones] = useState('');
+  const [openReservaModal, setOpenReservaModal] = useState(false);
+  const [parqueaderoSeleccionado, setParqueaderoSeleccionado] = useState(null);
 
   useEffect(() => {
     const fetchParqueaderos = async () => {
@@ -107,14 +113,13 @@ const Inicio = () => {
   }, [fechaInicio, fechaFin]);
 
   const handleReservar = (parqueadero) => {
-    if (vehiculos.length > 0) {
-      setParqueaderoAReservar(parqueadero);
-      setShowVehiculoSelect(true);
-      setFechaInicio('');
-      setFechaFin('');
-    } else {
-      realizarReserva(parqueadero, null, '', '');
-    }
+    setParqueaderoSeleccionado(parqueadero);
+    setOpenReservaModal(true);
+  };
+
+  const handleConfirmarReserva = () => {
+    realizarReserva(parqueaderoSeleccionado, vehiculoSeleccionado, fechaInicio, fechaFin);
+    setOpenReservaModal(false);
   };
 
   const realizarReserva = async (parqueadero, vehiculoId, fechaInicioParam, fechaFinParam) => {
@@ -405,86 +410,63 @@ const Inicio = () => {
         </Box>
       </Paper>
 
-      {showVehiculoSelect && parqueaderoAReservar && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: '#fff', padding: 32, borderRadius: 12, minWidth: 320 }}>
-            <h3>Selecciona un vehículo para la reserva</h3>
+      {/* Modal de formulario de reserva */}
+      <Dialog open={openReservaModal} onClose={() => setOpenReservaModal(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>Reservar Parqueadero</DialogTitle>
+        <DialogContent dividers>
+          <Box sx={{ mt: 1 }}>
+            <Typography variant="subtitle2">Selecciona tu vehículo:</Typography>
             <select
               value={vehiculoSeleccionado}
               onChange={e => setVehiculoSeleccionado(e.target.value)}
-              style={{ width: '100%', padding: 8, marginBottom: 16 }}
+              style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ccc', width: '100%', maxWidth: 300, marginBottom: 12 }}
             >
               <option value="">Selecciona un vehículo</option>
               {vehiculos.map(v => (
-                <option key={v.id} value={v.id}>{v.placa} - {v.tipoVehiculo}</option>
+                <option key={v.id} value={v.id}>{v.placa} - {v.tipo}</option>
               ))}
             </select>
-            <div style={{ marginBottom: 16 }}>
-              <label>Fecha y hora de inicio:</label>
-              <input
-                type="datetime-local"
-                value={fechaInicio}
-                onChange={e => setFechaInicio(e.target.value)}
-                style={{ width: '100%', padding: 8, marginBottom: 8 }}
-              />
-              <label>Fecha y hora de fin:</label>
-              <input
-                type="datetime-local"
-                value={fechaFin}
-                onChange={e => setFechaFin(e.target.value)}
-                style={{ width: '100%', padding: 8 }}
-              />
-              {fechaError && (
-                <div style={{ color: 'red', marginTop: 8, fontSize: 14 }}>{fechaError}</div>
-              )}
-            </div>
-            <div style={{ marginTop: 12 }}>
-              <label>Tipo de vehículo (si no tienes uno registrado):</label>
-              <select
-                value={tipoVehiculo}
-                onChange={e => setTipoVehiculo(e.target.value)}
-                style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ccc', width: '100%', maxWidth: 300 }}
-              >
-                <option value="">Selecciona tipo de vehículo</option>
-                <option value="carro">Carro</option>
-                <option value="moto">Moto</option>
-                <option value="bicicleta">Bicicleta</option>
-                <option value="otro">Otro</option>
-              </select>
-            </div>
-            <div style={{ marginTop: 12 }}>
-              <label>Observaciones:</label>
-              <textarea
-                value={observaciones}
-                onChange={e => setObservaciones(e.target.value)}
-                style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ccc', width: '100%', maxWidth: 400 }}
-                rows={2}
-                placeholder="Observaciones adicionales (opcional)"
-              />
-            </div>
-            {/* Resumen de la reserva */}
-            {vehiculoSeleccionado && fechaInicio && fechaFin && !fechaError && (
-              <div style={{ background: '#f3f7fa', borderRadius: 8, padding: 16, marginBottom: 16 }}>
-                <h4 style={{ margin: '0 0 8px 0' }}>Resumen de la Reserva</h4>
-                <div><b>Parqueadero:</b> {parqueaderoAReservar.nombre}</div>
-                <div><b>Vehículo:</b> {vehiculos.find(v => v.id === vehiculoSeleccionado)?.placa || ''}</div>
-                <div><b>Inicio:</b> {new Date(fechaInicio).toLocaleString()}</div>
-                <div><b>Fin:</b> {new Date(fechaFin).toLocaleString()}</div>
-              </div>
-            )}
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <Button onClick={() => setShowVehiculoSelect(false)}>Cancelar</Button>
-              <Button
-                variant="contained"
-                disabled={!vehiculoSeleccionado || !fechaInicio || !fechaFin || reservaLoading || !!fechaError}
-                onClick={() => realizarReserva(parqueaderoAReservar, vehiculoSeleccionado, new Date(fechaInicio).toISOString(), new Date(fechaFin).toISOString())}
-              >
-                Reservar
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+            <Typography variant="subtitle2">O selecciona tipo de vehículo:</Typography>
+            <select
+              value={tipoVehiculo}
+              onChange={e => setTipoVehiculo(e.target.value)}
+              style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ccc', width: '100%', maxWidth: 300, marginBottom: 12 }}
+            >
+              <option value="">Selecciona tipo de vehículo</option>
+              <option value="carro">Carro</option>
+              <option value="moto">Moto</option>
+              <option value="bicicleta">Bicicleta</option>
+              <option value="otro">Otro</option>
+            </select>
+            <Typography variant="subtitle2">Fecha y hora de inicio:</Typography>
+            <input
+              type="datetime-local"
+              value={fechaInicio}
+              onChange={e => setFechaInicio(e.target.value)}
+              style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ccc', width: '100%', maxWidth: 300, marginBottom: 12 }}
+            />
+            <Typography variant="subtitle2">Fecha y hora de fin:</Typography>
+            <input
+              type="datetime-local"
+              value={fechaFin}
+              onChange={e => setFechaFin(e.target.value)}
+              style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ccc', width: '100%', maxWidth: 300, marginBottom: 12 }}
+            />
+            <Typography variant="subtitle2">Observaciones:</Typography>
+            <textarea
+              value={observaciones}
+              onChange={e => setObservaciones(e.target.value)}
+              style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ccc', width: '100%', maxWidth: 400, marginBottom: 12 }}
+              rows={2}
+              placeholder="Observaciones adicionales (opcional)"
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenReservaModal(false)}>Cancelar</Button>
+          <Button onClick={handleConfirmarReserva} variant="contained" disabled={reservaLoading || (!vehiculoSeleccionado && !tipoVehiculo) || !fechaInicio || !fechaFin || fechaError}>Confirmar Reserva</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
