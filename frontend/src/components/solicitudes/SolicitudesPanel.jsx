@@ -106,9 +106,13 @@ const SolicitudesPanel = () => {
   const fetchSolicitudes = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL}/reservas`);
-      const solicitudesFiltradas = res.data.filter(s => s.parqueadero_id === currentUser?.parqueadero_id);
-      setSolicitudes(solicitudesFiltradas);
+      if (!currentUser?.parqueadero_id) {
+        setSolicitudes([]);
+        setLoading(false);
+        return;
+      }
+      const res = await axios.get(`${API_URL}/reservas?parqueadero_id=${currentUser.parqueadero_id}`);
+      setSolicitudes(res.data.data || []);
     } catch (e) {
       setSolicitudes([]);
     }
