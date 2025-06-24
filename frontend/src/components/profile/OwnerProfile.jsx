@@ -53,6 +53,8 @@ const OwnerProfile = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [openHelp, setOpenHelp] = useState(false);
+  const [vehiculos, setVehiculos] = useState([]);
+  const [reservas, setReservas] = useState([]);
 
   // Cargar datos reales del usuario
   useEffect(() => {
@@ -68,6 +70,19 @@ const OwnerProfile = () => {
     };
     fetchProfile();
   }, [currentUser, setError]);
+
+  // Obtener vehículos y reservas del usuario
+  useEffect(() => {
+    if (!profile) return;
+    // Vehículos
+    fetch(`${API_URL}/api/vehiculos?usuario_id=${profile.id}`)
+      .then(res => res.json())
+      .then(data => setVehiculos(data.data || []));
+    // Reservas
+    fetch(`${API_URL}/api/reservas?usuario_id=${profile.id}`)
+      .then(res => res.json())
+      .then(data => setReservas(data.data || []));
+  }, [profile]);
 
   // Editar campo
   const handleEdit = (field) => {
@@ -275,11 +290,11 @@ const OwnerProfile = () => {
             </Typography>
             <Box sx={{ display: 'flex', gap: 3, mb: 3, flexWrap: 'wrap' }}>
               <Box sx={{ textAlign: 'center', flex: 1 }}>
-                <Typography variant="h4" fontWeight={700} color="primary.main">{profile.vehiculos || 0}</Typography>
+                <Typography variant="h4" fontWeight={700} color="primary.main">{vehiculos.length}</Typography>
                 <Typography variant="body2" color="text.secondary">Vehículos</Typography>
               </Box>
               <Box sx={{ textAlign: 'center', flex: 1 }}>
-                <Typography variant="h4" fontWeight={700} color="primary.main">{profile.reservas || 0}</Typography>
+                <Typography variant="h4" fontWeight={700} color="primary.main">{reservas.length}</Typography>
                 <Typography variant="body2" color="text.secondary">Reservas</Typography>
               </Box>
             </Box>
@@ -374,7 +389,7 @@ const OwnerProfile = () => {
             <Typography variant="body2" gutterBottom>
               • Consulta la sección de preguntas frecuentes (próximamente).<br />
               • Si tienes problemas con tu perfil, vehículos o reservas, revisa que tu información esté actualizada.<br />
-              • Para soporte técnico, escribe a <b>soporte@gestpar.com</b> o utiliza el formulario de contacto en la web.<br />
+              • Para soporte técnico, escribe a <b>gestparzedic@gmail.com</b> o utiliza el formulario de contacto en la web.<br />
               • Si detectas actividad sospechosa, cambia tu contraseña y contacta soporte inmediatamente.
             </Typography>
           </DialogContent>
