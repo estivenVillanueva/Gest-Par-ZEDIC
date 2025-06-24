@@ -62,6 +62,8 @@ const Inicio = () => {
   const [fechaInicio, setFechaInicio] = useState('');
   const [fechaFin, setFechaFin] = useState('');
   const [fechaError, setFechaError] = useState('');
+  const [tipoVehiculo, setTipoVehiculo] = useState('');
+  const [observaciones, setObservaciones] = useState('');
 
   useEffect(() => {
     const fetchParqueaderos = async () => {
@@ -126,9 +128,12 @@ const Inicio = () => {
         fecha_inicio,
         fecha_fin,
         estado: 'Pendiente',
+        observaciones,
       };
       if (vehiculoId) {
         reserva.vehiculo_id = vehiculoId;
+      } else if (tipoVehiculo) {
+        reserva.tipo_vehiculo = tipoVehiculo;
       }
       const response = await fetch('https://gest-par-zedic.onrender.com/api/reservas', {
         method: 'POST',
@@ -151,6 +156,8 @@ const Inicio = () => {
     setVehiculoSeleccionado('');
     setFechaInicio('');
     setFechaFin('');
+    setTipoVehiculo('');
+    setObservaciones('');
   };
 
   const parqueaderosFiltrados = parqueaderosDisponibles.filter((p) => {
@@ -430,6 +437,30 @@ const Inicio = () => {
               {fechaError && (
                 <div style={{ color: 'red', marginTop: 8, fontSize: 14 }}>{fechaError}</div>
               )}
+            </div>
+            <div style={{ marginTop: 12 }}>
+              <label>Tipo de vehículo (si no tienes uno registrado):</label>
+              <select
+                value={tipoVehiculo}
+                onChange={e => setTipoVehiculo(e.target.value)}
+                style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ccc', width: '100%', maxWidth: 300 }}
+              >
+                <option value="">Selecciona tipo de vehículo</option>
+                <option value="carro">Carro</option>
+                <option value="moto">Moto</option>
+                <option value="bicicleta">Bicicleta</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+            <div style={{ marginTop: 12 }}>
+              <label>Observaciones:</label>
+              <textarea
+                value={observaciones}
+                onChange={e => setObservaciones(e.target.value)}
+                style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ccc', width: '100%', maxWidth: 400 }}
+                rows={2}
+                placeholder="Observaciones adicionales (opcional)"
+              />
             </div>
             {/* Resumen de la reserva */}
             {vehiculoSeleccionado && fechaInicio && fechaFin && !fechaError && (

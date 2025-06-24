@@ -91,6 +91,16 @@ const Reservas = () => {
                         <DirectionsCarIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} /> Vehículo: {reserva.vehiculo_placa}
                       </Typography>
                     )}
+                    {!reserva.vehiculo_placa && reserva.tipo_vehiculo && (
+                      <Typography variant="body2" color="text.secondary">
+                        <DirectionsCarIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} /> Tipo de vehículo: {reserva.tipo_vehiculo}
+                      </Typography>
+                    )}
+                    {reserva.observaciones && (
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                        <b>Observaciones:</b> {reserva.observaciones}
+                      </Typography>
+                    )}
                   </CardContent>
                   <Chip
                     label={
