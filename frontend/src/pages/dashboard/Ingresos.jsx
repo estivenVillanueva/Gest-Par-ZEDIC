@@ -195,7 +195,8 @@ export default function Ingresos() {
           <TableBody>
             {historial
               .filter(ing =>
-                !filtroPlaca || (placasOptions.find(p => p === filtroPlaca) ? ing.vehiculo_id === (vehiculo && vehiculo.id) : true)
+                !filtroPlaca ||
+                (ing.placa && ing.placa.toLowerCase().includes(filtroPlaca.toLowerCase()))
               )
               .slice(0, historialLimit)
               .map((ing) => (
