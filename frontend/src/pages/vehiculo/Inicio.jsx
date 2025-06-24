@@ -170,34 +170,18 @@ const Inicio = () => {
           <Box sx={{ width: '100%', borderBottom: '2px solid #e3eaf6', mb: 2 }} />
         </Box>
         <Grid container spacing={2} sx={{ mb: 0, justifyContent: 'center' }}>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={4}>
             <StatCard
               title="Mis Vehículos"
               value="2"
               icon={<CarIcon />}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={4}>
             <StatCard
               title="Reservas Activas"
               value="1"
               icon={<CalendarIcon />}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <StatCard
-              title="Pagos Pendientes"
-              value="$0"
-              icon={<PaymentIcon />}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <StatCard
-              title=""
-              value=""
-              icon={<AddIcon />}
-              button={{ label: 'Agregar Vehículo', icon: <AddIcon /> }}
-              onButtonClick={() => navigate('/vehiculo/mis-vehiculos')}
             />
           </Grid>
         </Grid>
