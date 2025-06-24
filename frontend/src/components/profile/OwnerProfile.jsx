@@ -52,6 +52,7 @@ const OwnerProfile = () => {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [openHelp, setOpenHelp] = useState(false);
 
   // Cargar datos reales del usuario
   useEffect(() => {
@@ -182,26 +183,6 @@ const OwnerProfile = () => {
               {profile.correo}
             </Typography>
             <Chip label={profile.rol || 'Dueño de Vehículo'} color="primary" sx={{ mr: 1 }} />
-            <Select
-              value={profile.estado || 'Activo'}
-              onChange={handleEstadoChange}
-              size="small"
-              sx={{
-                fontWeight: 600,
-                ml: 1,
-                bgcolor: profile.estado === 'Activo' ? 'success.main' : 'grey.400',
-                color: '#fff',
-                borderRadius: 2,
-                '& .MuiSelect-select': { py: 0.5, px: 2 },
-                minWidth: 110
-              }}
-              variant="outlined"
-              disableUnderline
-            >
-              {estadosCuenta.map((estado) => (
-                <MenuItem key={estado.value} value={estado.value}>{estado.label}</MenuItem>
-              ))}
-            </Select>
           </Box>
           <Box sx={{ mt: isMobile ? 2 : 0, textAlign: isMobile ? 'left' : 'right' }}>
             <Typography variant="body2" color="text.secondary">
@@ -281,7 +262,7 @@ const OwnerProfile = () => {
             <Divider sx={{ my: 2 }} />
             <Box sx={{ mt: 2 }}>
               <Tooltip title="¿Necesitas ayuda?">
-                <Button variant="text" color="info" startIcon={<HelpOutlineIcon />} sx={{ textTransform: 'none', fontWeight: 500 }}>
+                <Button variant="text" color="info" startIcon={<HelpOutlineIcon />} sx={{ textTransform: 'none', fontWeight: 500 }} onClick={() => setOpenHelp(true)}>
                   Ayuda y Soporte
                 </Button>
               </Tooltip>
@@ -380,6 +361,25 @@ const OwnerProfile = () => {
           <DialogActions>
             <Button onClick={() => setOpenDelete(false)}>Cancelar</Button>
             <Button onClick={handleDeleteAccount} color="error" variant="contained">Eliminar</Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Diálogo de Ayuda y Soporte */}
+        <Dialog open={openHelp} onClose={() => setOpenHelp(false)}>
+          <DialogTitle>Ayuda y Soporte</DialogTitle>
+          <DialogContent>
+            <Typography variant="body1" gutterBottom>
+              ¿Necesitas ayuda con tu cuenta o tienes algún problema?
+            </Typography>
+            <Typography variant="body2" gutterBottom>
+              • Consulta la sección de preguntas frecuentes (próximamente).<br />
+              • Si tienes problemas con tu perfil, vehículos o reservas, revisa que tu información esté actualizada.<br />
+              • Para soporte técnico, escribe a <b>soporte@gestpar.com</b> o utiliza el formulario de contacto en la web.<br />
+              • Si detectas actividad sospechosa, cambia tu contraseña y contacta soporte inmediatamente.
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenHelp(false)} color="primary">Cerrar</Button>
           </DialogActions>
         </Dialog>
 
