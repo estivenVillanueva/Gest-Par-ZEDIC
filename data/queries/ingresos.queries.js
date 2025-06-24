@@ -56,7 +56,7 @@ async function getIngresoConServicio(id) {
 // Listar ingresos actuales (vehículos dentro) filtrando por parqueadero_id
 async function listarIngresosActualesPorParqueadero(parqueadero_id) {
   const result = await pool.query(
-    `SELECT i.* FROM ingresos i
+    `SELECT i.*, v.placa FROM ingresos i
      JOIN vehiculos v ON i.vehiculo_id = v.id
      WHERE i.hora_salida IS NULL AND v.parqueadero_id = $1`,
     [parqueadero_id]
@@ -67,7 +67,7 @@ async function listarIngresosActualesPorParqueadero(parqueadero_id) {
 // Listar historial de ingresos filtrando por parqueadero_id
 async function listarHistorialPorParqueadero(parqueadero_id) {
   const result = await pool.query(
-    `SELECT i.* FROM ingresos i
+    `SELECT i.*, v.placa FROM ingresos i
      JOIN vehiculos v ON i.vehiculo_id = v.id
      WHERE v.parqueadero_id = $1
      ORDER BY i.hora_entrada DESC`,

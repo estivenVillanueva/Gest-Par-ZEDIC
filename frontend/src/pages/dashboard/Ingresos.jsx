@@ -26,6 +26,8 @@ export default function Ingresos() {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [placasOptions, setPlacasOptions] = useState([]);
   const [loadingPlaca, setLoadingPlaca] = useState(false);
+  const [historialLimit, setHistorialLimit] = useState(10);
+  const [filtroPlaca, setFiltroPlaca] = useState('');
 
   useEffect(() => {
     fetchIngresos();
@@ -154,7 +156,7 @@ export default function Ingresos() {
             {ingresos.map((ing) => (
               <TableRow key={ing.id}>
                 <TableCell>{ing.id}</TableCell>
-                <TableCell>{ing.vehiculo_id}</TableCell>
+                <TableCell>{ing.placa || ing.vehiculo_id}</TableCell>
                 <TableCell>{new Date(ing.hora_entrada).toLocaleString()}</TableCell>
                 <TableCell>{ing.observaciones}</TableCell>
                 <TableCell>
@@ -169,6 +171,15 @@ export default function Ingresos() {
       </TableContainer>
 
       <Typography variant="h6" sx={{ mt: 4, mb: 1 }} color="text.secondary">Historial de ingresos y salidas</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <TextField
+          label="Filtrar por placa"
+          value={filtroPlaca}
+          onChange={e => setFiltroPlaca(e.target.value)}
+          size="small"
+          sx={{ width: 200, mr: 2 }}
+        />
+      </Box>
       <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: 3 }}>
         <Table>
           <TableHead sx={{ bgcolor: '#e3f2fd' }}>
@@ -182,19 +193,32 @@ export default function Ingresos() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {historial.map((ing) => (
-              <TableRow key={ing.id}>
-                <TableCell>{ing.id}</TableCell>
-                <TableCell>{ing.vehiculo_id}</TableCell>
-                <TableCell>{new Date(ing.hora_entrada).toLocaleString()}</TableCell>
-                <TableCell>{ing.hora_salida ? new Date(ing.hora_salida).toLocaleString() : '-'}</TableCell>
-                <TableCell>{ing.valor_pagado || '-'}</TableCell>
-                <TableCell>{ing.observaciones}</TableCell>
-              </TableRow>
-            ))}
+            {historial
+              .filter(ing =>
+                !filtroPlaca || (placasOptions.find(p => p === filtroPlaca) ? ing.vehiculo_id === (vehiculo && vehiculo.id) : true)
+              )
+              .slice(0, historialLimit)
+              .map((ing) => (
+                <TableRow key={ing.id}>
+                  <TableCell>{ing.id}</TableCell>
+                  <TableCell>{ing.placa || ing.vehiculo_id}</TableCell>
+                  <TableCell>{new Date(ing.hora_entrada).toLocaleString()}</TableCell>
+                  <TableCell>{ing.hora_salida ? new Date(ing.hora_salida).toLocaleString() : '-'}</TableCell>
+                  <TableCell>{ing.valor_pagado || '-'}</TableCell>
+                  <TableCell>{ing.observaciones}</TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
+
+      {historial.length > historialLimit && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+          <Button variant="outlined" onClick={() => setHistorialLimit(historialLimit + 10)}>
+            Ver más
+          </Button>
+        </Box>
+      )}
 
       {/* Dialogo para registrar ingreso */}
       <Dialog open={openIngreso} onClose={() => setOpenIngreso(false)} maxWidth="sm" fullWidth>
