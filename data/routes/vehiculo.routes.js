@@ -3,11 +3,11 @@ import { vehiculoQueries } from '../queries/vehiculo.queries.js';
 
 const router = express.Router();
 
-// Obtener todos los vehículos (opcional: filtrar por parqueadero_id)
+// Obtener todos los vehículos (opcional: filtrar por parqueadero_id o usuario_id)
 router.get('/', async (req, res) => {
     try {
-        const { parqueadero_id } = req.query;
-        const vehiculos = await vehiculoQueries.getVehiculos({ parqueadero_id });
+        const { parqueadero_id, usuario_id } = req.query;
+        const vehiculos = await vehiculoQueries.getVehiculos({ parqueadero_id, usuario_id });
         res.json({
             success: true,
             data: vehiculos
