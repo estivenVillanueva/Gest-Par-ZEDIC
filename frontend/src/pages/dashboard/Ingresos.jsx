@@ -76,6 +76,34 @@ export default function Ingresos() {
   };
 
   const handleRegistrarIngreso = async () => {
+    if (!vehiculo && placa) {
+      // Si no existe el vehículo, crear uno rápido solo con la placa
+      try {
+        const resVehiculo = await axios.post(`${API_URL}/api/vehiculos`, {
+          placa,
+          marca: '',
+          modelo: '',
+          color: '',
+          tipo: 'ocasional',
+          usuario_id: null,
+          parqueadero_id: currentUser?.parqueadero_id
+        });
+        setVehiculo(resVehiculo.data.data);
+        // Registrar el ingreso con el nuevo vehículo
+        await axios.post(`${API_URL}/api/ingresos`, { vehiculo_id: resVehiculo.data.data.id, observaciones });
+        setSnackbar({ open: true, message: 'Ingreso rápido registrado', severity: 'success' });
+        setOpenIngreso(false);
+        setPlaca('');
+        setVehiculo(null);
+        setObservaciones('');
+        fetchIngresos();
+        fetchHistorial();
+        return;
+      } catch (e) {
+        setSnackbar({ open: true, message: 'Error al registrar ingreso rápido', severity: 'error' });
+        return;
+      }
+    }
     if (!vehiculo) {
       setSnackbar({ open: true, message: 'Debes seleccionar un vehículo válido', severity: 'error' });
       return;
@@ -264,8 +292,43 @@ export default function Ingresos() {
               </CardContent>
             </Card>
           )}
-          {!vehiculo && placa.length >= 3 && !loadingPlaca && (
-            <Alert severity="warning">No se encontró un vehículo con esa placa.</Alert>
+          {vehiculo === null && placa && (
+            <Box sx={{ my: 2 }}>
+              <Alert severity="warning" sx={{ mb: 2 }}>
+                No se encontró un vehículo con esa placa.
+              </Alert>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={async () => {
+                  try {
+                    const resVehiculo = await axios.post(`${API_URL}/api/vehiculos`, {
+                      placa,
+                      marca: '',
+                      modelo: '',
+                      color: '',
+                      tipo: 'ocasional',
+                      usuario_id: null,
+                      parqueadero_id: currentUser?.parqueadero_id
+                    });
+                    setVehiculo(resVehiculo.data.data);
+                    await axios.post(`${API_URL}/api/ingresos`, { vehiculo_id: resVehiculo.data.data.id, observaciones });
+                    setSnackbar({ open: true, message: 'Ingreso rápido registrado', severity: 'success' });
+                    setOpenIngreso(false);
+                    setPlaca('');
+                    setVehiculo(null);
+                    setObservaciones('');
+                    fetchIngresos();
+                    fetchHistorial();
+                  } catch (e) {
+                    setSnackbar({ open: true, message: 'Error al registrar ingreso rápido', severity: 'error' });
+                  }
+                }}
+                fullWidth
+              >
+                Registrar ingreso rápido con esta placa
+              </Button>
+            </Box>
           )}
           <TextField
             label="Observaciones"
