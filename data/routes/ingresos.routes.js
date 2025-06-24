@@ -4,7 +4,9 @@ import {
   registrarSalida, 
   listarIngresosActuales, 
   listarHistorial, 
-  getIngresoConServicio 
+  getIngresoConServicio,
+  listarIngresosActualesPorParqueadero,
+  listarHistorialPorParqueadero
 } from '../queries/ingresos.queries.js';
 
 const router = express.Router();
@@ -51,7 +53,13 @@ router.put('/:id/salida', async (req, res) => {
 // Listar ingresos actuales
 router.get('/actuales', async (req, res) => {
   try {
-    const ingresos = await listarIngresosActuales();
+    const { parqueadero_id } = req.query;
+    let ingresos;
+    if (parqueadero_id) {
+      ingresos = await listarIngresosActualesPorParqueadero(parqueadero_id);
+    } else {
+      ingresos = await listarIngresosActuales();
+    }
     res.json(ingresos);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -61,7 +69,13 @@ router.get('/actuales', async (req, res) => {
 // Listar historial de ingresos
 router.get('/historial', async (req, res) => {
   try {
-    const historial = await listarHistorial();
+    const { parqueadero_id } = req.query;
+    let historial;
+    if (parqueadero_id) {
+      historial = await listarHistorialPorParqueadero(parqueadero_id);
+    } else {
+      historial = await listarHistorial();
+    }
     res.json(historial);
   } catch (error) {
     res.status(500).json({ error: error.message });

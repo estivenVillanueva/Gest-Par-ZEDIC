@@ -7,10 +7,12 @@ import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import { useAuth } from '../../../logic/AuthContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
 
 export default function Ingresos() {
+  const { currentUser } = useAuth();
   const [ingresos, setIngresos] = useState([]);
   const [historial, setHistorial] = useState([]);
   const [openIngreso, setOpenIngreso] = useState(false);
@@ -32,12 +34,14 @@ export default function Ingresos() {
   }, []);
 
   const fetchIngresos = async () => {
-    const res = await axios.get(`${API_URL}/api/ingresos/actuales`);
+    if (!currentUser?.parqueadero_id) return;
+    const res = await axios.get(`${API_URL}/api/ingresos/actuales?parqueadero_id=${currentUser.parqueadero_id}`);
     setIngresos(res.data);
   };
 
   const fetchHistorial = async () => {
-    const res = await axios.get(`${API_URL}/api/ingresos/historial`);
+    if (!currentUser?.parqueadero_id) return;
+    const res = await axios.get(`${API_URL}/api/ingresos/historial?parqueadero_id=${currentUser.parqueadero_id}`);
     setHistorial(res.data);
   };
 
