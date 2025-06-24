@@ -6,7 +6,8 @@ import {
   listarHistorial, 
   getIngresoConServicio,
   listarIngresosActualesPorParqueadero,
-  listarHistorialPorParqueadero
+  listarHistorialPorParqueadero,
+  eliminarIngreso
 } from '../queries/ingresos.queries.js';
 
 const router = express.Router();
@@ -91,6 +92,20 @@ router.get('/con-servicio/:id', async (req, res) => {
       return res.status(404).json({ error: 'Registro de ingreso no encontrado' });
     }
     res.json(ingresoInfo);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Eliminar un ingreso por id
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const eliminado = await eliminarIngreso(id);
+    if (!eliminado) {
+      return res.status(404).json({ error: 'Ingreso no encontrado' });
+    }
+    res.json({ success: true, data: eliminado });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

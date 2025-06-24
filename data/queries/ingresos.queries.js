@@ -76,6 +76,12 @@ async function listarHistorialPorParqueadero(parqueadero_id) {
   return result.rows;
 }
 
+// Eliminar un ingreso por id
+async function eliminarIngreso(id) {
+  const result = await pool.query('DELETE FROM ingresos WHERE id = $1 RETURNING *', [id]);
+  return result.rows[0];
+}
+
 export {
   registrarIngreso,
   registrarSalida,
@@ -83,5 +89,6 @@ export {
   listarHistorial,
   getIngresoConServicio,
   listarIngresosActualesPorParqueadero,
-  listarHistorialPorParqueadero
+  listarHistorialPorParqueadero,
+  eliminarIngreso,
 }; 
