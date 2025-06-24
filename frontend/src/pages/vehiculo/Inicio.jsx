@@ -123,9 +123,14 @@ const Inicio = () => {
   const realizarReserva = async (parqueadero, vehiculoId) => {
     setReservaLoading(true);
     try {
+      const now = new Date();
+      const fecha_inicio = now.toISOString();
+      const fecha_fin = new Date(now.getTime() + 60 * 60 * 1000).toISOString(); // +1 hora
       const reserva = {
         parqueadero_id: parqueadero.id,
         usuario_id: currentUser.id,
+        fecha_inicio,
+        fecha_fin,
       };
       if (vehiculoId) {
         reserva.vehiculo_id = vehiculoId;
@@ -135,10 +140,12 @@ const Inicio = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(reserva),
       });
+      const data = await response.json().catch(() => ({}));
+      console.log('Respuesta reserva:', data);
       if (response.ok) {
         alert('Reserva realizada con éxito');
       } else {
-        alert('Error al realizar la reserva');
+        alert('Error al realizar la reserva: ' + (data.message || ''));
       }
     } catch (error) {
       alert('Error de conexión al reservar');
