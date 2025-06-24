@@ -80,9 +80,19 @@ const FormularioVehiculo = ({ open, onClose, onGuardar, initialData }) => {
     color: '',
     modelo: '',
   });
+  const [placaError, setPlacaError] = useState('');
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (e.target.name === 'placa') {
+      if (e.target.value.length > 6) {
+        setPlacaError('La placa no puede tener más de 6 caracteres');
+      } else {
+        setPlacaError('');
+      }
+      setFormData({ ...formData, [e.target.name]: e.target.value.slice(0, 6) });
+    } else {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
   };
 
   const handleSubmit = (e) => {
@@ -103,6 +113,9 @@ const FormularioVehiculo = ({ open, onClose, onGuardar, initialData }) => {
             onChange={handleChange}
             fullWidth
             required
+            inputProps={{ maxLength: 6 }}
+            error={!!placaError}
+            helperText={placaError}
           />
           <TextField
             margin="dense"
@@ -132,7 +145,7 @@ const FormularioVehiculo = ({ open, onClose, onGuardar, initialData }) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancelar</Button>
-          <Button type="submit" variant="contained">Guardar</Button>
+          <Button type="submit" variant="contained" disabled={!!placaError || formData.placa.length !== 6}>Guardar</Button>
         </DialogActions>
       </form>
     </Dialog>
