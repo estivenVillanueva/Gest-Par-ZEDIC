@@ -21,6 +21,7 @@ import { useAuth } from '../../../logic/AuthContext';
 
 const estados = [
   { label: 'Todas', value: 'todas' },
+  { label: 'Pendientes', value: 'Pendiente' },
   { label: 'Aprobadas', value: 'Aprobada' },
   { label: 'No aprobadas', value: 'No aprobada' },
 ];
@@ -92,9 +93,27 @@ const Reservas = () => {
                     )}
                   </CardContent>
                   <Chip
-                    label={reserva.estado === 'Aprobada' ? 'Aprobada' : 'No aprobada'}
-                    color={reserva.estado === 'Aprobada' ? 'success' : 'warning'}
-                    icon={reserva.estado === 'Aprobada' ? <CheckCircleIcon /> : <CancelIcon />}
+                    label={
+                      reserva.estado === 'Aprobada'
+                        ? 'Aprobada'
+                        : reserva.estado === 'Pendiente'
+                        ? 'Pendiente'
+                        : 'No aprobada'
+                    }
+                    color={
+                      reserva.estado === 'Aprobada'
+                        ? 'success'
+                        : reserva.estado === 'Pendiente'
+                        ? 'warning'
+                        : 'error'
+                    }
+                    icon={
+                      reserva.estado === 'Aprobada'
+                        ? <CheckCircleIcon />
+                        : reserva.estado === 'Pendiente'
+                        ? <EventAvailableIcon />
+                        : <CancelIcon />
+                    }
                     sx={{ fontWeight: 700, fontSize: '1rem', px: 1.5, borderRadius: 2 }}
                   />
                   <Button variant="outlined" disabled sx={{ ml: 2, borderRadius: 2 }}>

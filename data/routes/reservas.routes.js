@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
   try {
     const { parqueadero_id, usuario_id } = req.query;
     const reservas = await reservasQueries.listarReservas({ parqueadero_id, usuario_id });
-    res.json(reservas);
+    res.json({ data: reservas });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
