@@ -26,6 +26,8 @@ import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
 const estados = [
   { label: 'Todas', value: 'todas' },
@@ -43,6 +45,9 @@ const Reservas = () => {
   const [limit, setLimit] = useState(8);
   const [filtroNombre, setFiltroNombre] = useState('');
   const [filtroFecha, setFiltroFecha] = useState('');
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [reservaToCancel, setReservaToCancel] = useState(null);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   useEffect(() => {
     const fetchReservas = async () => {
@@ -58,18 +63,26 @@ const Reservas = () => {
     fetchReservas();
   }, [currentUser]);
 
-  const handleCancelarReserva = async (reserva) => {
-    if (!window.confirm('¿Seguro que deseas cancelar esta reserva?')) return;
-    setCancelingId(reserva.id);
+  const handleCancelarReserva = (reserva) => {
+    setReservaToCancel(reserva);
+    setOpenConfirmDialog(true);
+  };
+
+  const confirmCancelarReserva = async () => {
+    if (!reservaToCancel) return;
+    setCancelingId(reservaToCancel.id);
     try {
-      await fetch(`https://gest-par-zedic.onrender.com/api/reservas/${reserva.id}`, {
+      await fetch(`https://gest-par-zedic.onrender.com/api/reservas/${reservaToCancel.id}`, {
         method: 'DELETE',
       });
-      setReservas((prev) => prev.filter((r) => r.id !== reserva.id));
+      setReservas((prev) => prev.filter((r) => r.id !== reservaToCancel.id));
+      setSnackbar({ open: true, message: 'Reserva cancelada con éxito', severity: 'success' });
     } catch (error) {
-      alert('Error al cancelar la reserva');
+      setSnackbar({ open: true, message: 'Error al cancelar la reserva', severity: 'error' });
     }
     setCancelingId(null);
+    setOpenConfirmDialog(false);
+    setReservaToCancel(null);
   };
 
   const reservasFiltradas =
@@ -246,6 +259,21 @@ const Reservas = () => {
           <Button onClick={() => setDetalleReserva(null)} variant="contained">Cerrar</Button>
         </DialogActions>
       </Dialog>
+      <Dialog open={openConfirmDialog} onClose={() => setOpenConfirmDialog(false)}>
+        <DialogTitle>Cancelar Reserva</DialogTitle>
+        <DialogContent>¿Seguro que deseas cancelar esta reserva?</DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenConfirmDialog(false)} color="primary">No</Button>
+          <Button onClick={confirmCancelarReserva} color="error" variant="contained" autoFocus disabled={!!cancelingId}>
+            Sí, cancelar
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Snackbar open={snackbar.open} autoHideDuration={3500} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        <MuiAlert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </MuiAlert>
+      </Snackbar>
     </Box>
   );
 };
