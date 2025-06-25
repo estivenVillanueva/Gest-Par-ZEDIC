@@ -86,6 +86,7 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
   });
   const [servicios, setServicios] = useState([]);
   const { currentUser } = useAuth();
+  const [placaError, setPlacaError] = useState('');
 
   useEffect(() => {
     const initialFormState = {
@@ -123,7 +124,18 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
   }, [currentUser, open]);
 
   const handleChange = e => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    if (e.target.name === 'placa') {
+      let value = e.target.value.toUpperCase();
+      if (value.length > 6) {
+        setPlacaError('La placa debe tener máximo 6 caracteres');
+        value = value.slice(0, 6);
+      } else {
+        setPlacaError('');
+      }
+      setForm({ ...form, placa: value });
+    } else {
+      setForm({ ...form, [e.target.name]: e.target.value });
+    }
   };
 
   const handleSubmit = e => {
@@ -137,7 +149,11 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
       <DialogTitle>{initialData ? 'Editar Vehículo' : 'Registrar Vehículo'}</DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
-          <TextField margin="normal" fullWidth label="Placa" name="placa" value={form.placa} onChange={handleChange} required disabled={!!initialData} />
+          <TextField margin="normal" fullWidth label="Placa" name="placa" value={form.placa} onChange={handleChange} required disabled={!!initialData}
+            inputProps={{ maxLength: 6 }}
+            error={!!placaError}
+            helperText={placaError || 'Máximo 6 caracteres. Solo mayúsculas.'}
+          />
           <TextField margin="normal" fullWidth label="Marca" name="marca" value={form.marca} onChange={handleChange} required />
           <TextField margin="normal" fullWidth label="Modelo" name="modelo" value={form.modelo} onChange={handleChange} required />
           <TextField margin="normal" fullWidth label="Color" name="color" value={form.color} onChange={handleChange} required />
@@ -156,7 +172,7 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
             <Button color="error" onClick={() => { onEliminar(initialData.placa); onClose(); }}>Eliminar</Button>
           )}
           <Button onClick={onClose}>Cancelar</Button>
-          <Button type="submit" variant="contained">Guardar</Button>
+          <Button type="submit" variant="contained" disabled={!!placaError || form.placa.length !== 6}>Guardar</Button>
         </DialogActions>
       </form>
     </Dialog>
