@@ -130,6 +130,8 @@ const SolicitudesPanel = () => {
   const [filtroNombre, setFiltroNombre] = useState('');
   const [filtroFecha, setFiltroFecha] = useState('');
   const [seleccionadas, setSeleccionadas] = useState([]);
+  const [openRejectDialog, setOpenRejectDialog] = useState(false);
+  const [solicitudToReject, setSolicitudToReject] = useState(null);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -176,6 +178,11 @@ const SolicitudesPanel = () => {
   };
 
   const handleAccion = async (id, estado) => {
+    if (estado === 'No aprobada') {
+      setSolicitudToReject(id);
+      setOpenRejectDialog(true);
+      return;
+    }
     try {
       await axios.put(`${API_BASE}/reservas/${id}/estado`, { estado });
       setSnackbar({ open: true, message: `Reserva ${estado === 'Aprobada' ? 'aprobada' : 'rechazada'}`, severity: 'success' });
@@ -183,6 +190,19 @@ const SolicitudesPanel = () => {
     } catch (e) {
       setSnackbar({ open: true, message: 'Error al actualizar reserva', severity: 'error' });
     }
+  };
+
+  const confirmRechazarReserva = async () => {
+    if (!solicitudToReject) return;
+    try {
+      await axios.put(`${API_BASE}/reservas/${solicitudToReject}/estado`, { estado: 'No aprobada' });
+      setSnackbar({ open: true, message: 'Reserva rechazada', severity: 'success' });
+      fetchSolicitudes();
+    } catch (e) {
+      setSnackbar({ open: true, message: 'Error al rechazar reserva', severity: 'error' });
+    }
+    setOpenRejectDialog(false);
+    setSolicitudToReject(null);
   };
 
   const handleEliminar = async (id) => {
@@ -348,6 +368,17 @@ const SolicitudesPanel = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDetalleSolicitud(null)} variant="contained">Cerrar</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openRejectDialog} onClose={() => setOpenRejectDialog(false)}>
+        <DialogTitle>Rechazar Reserva</DialogTitle>
+        <DialogContent>¿Seguro que deseas rechazar esta reserva?</DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenRejectDialog(false)} color="primary">No</Button>
+          <Button onClick={confirmRechazarReserva} color="error" variant="contained" autoFocus>
+            Sí, rechazar
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
