@@ -23,6 +23,9 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
+import SearchIcon from '@mui/icons-material/Search';
 
 const estados = [
   { label: 'Todas', value: 'todas' },
@@ -38,6 +41,8 @@ const Reservas = () => {
   const [detalleReserva, setDetalleReserva] = useState(null);
   const [cancelingId, setCancelingId] = useState(null);
   const [limit, setLimit] = useState(8);
+  const [filtroNombre, setFiltroNombre] = useState('');
+  const [filtroFecha, setFiltroFecha] = useState('');
 
   useEffect(() => {
     const fetchReservas = async () => {
@@ -68,9 +73,11 @@ const Reservas = () => {
   };
 
   const reservasFiltradas =
-    tab === 'todas'
-      ? reservas
-      : reservas.filter((r) => r.estado === tab);
+    (tab === 'todas' ? reservas : reservas.filter((r) => r.estado === tab))
+      .filter(r =>
+        (!filtroNombre || (r.parqueadero_nombre && r.parqueadero_nombre.toLowerCase().includes(filtroNombre.toLowerCase()))) &&
+        (!filtroFecha || (r.fecha_inicio && r.fecha_inicio.startsWith(filtroFecha)))
+      );
   const reservasMostradas = reservasFiltradas.slice(0, limit);
 
   return (
@@ -81,7 +88,7 @@ const Reservas = () => {
         </Typography>
         <Tabs
           value={tab}
-          onChange={(_, v) => setTab(v)}
+          onChange={(_, v) => { setTab(v); setLimit(8); }}
           sx={{ mb: 4 }}
           textColor="primary"
           indicatorColor="primary"
@@ -90,6 +97,31 @@ const Reservas = () => {
             <Tab key={e.value} label={e.label} value={e.value} />
           ))}
         </Tabs>
+        <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <TextField
+            size="small"
+            placeholder="Buscar por parqueadero"
+            value={filtroNombre}
+            onChange={e => { setFiltroNombre(e.target.value); setLimit(8); }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            sx={{ minWidth: 220 }}
+          />
+          <TextField
+            size="small"
+            type="date"
+            label="Filtrar por fecha"
+            value={filtroFecha}
+            onChange={e => { setFiltroFecha(e.target.value); setLimit(8); }}
+            InputLabelProps={{ shrink: true }}
+            sx={{ minWidth: 180 }}
+          />
+        </Box>
         <Grid container spacing={4}>
           {reservasMostradas.length === 0 ? (
             <Grid item xs={12}>
@@ -169,11 +201,18 @@ const Reservas = () => {
             ))
           )}
           {reservasFiltradas.length > limit && (
-            <Grid item xs={12} sx={{ textAlign: 'center', mt: 2 }}>
-              <Button variant="outlined" onClick={() => setLimit(limit + 8)} sx={{ borderRadius: 3, fontWeight: 600 }}>
-                Ver más
-              </Button>
-              <Typography color="text.secondary" sx={{ mt: 1 }}>
+            <Grid item xs={12} sx={{ textAlign: 'center', mt: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+              <Box>
+                <Button variant="outlined" onClick={() => setLimit(limit + 8)} sx={{ borderRadius: 3, fontWeight: 600, mr: 1 }}>
+                  Ver más
+                </Button>
+                {limit > 8 && (
+                  <Button variant="outlined" color="secondary" onClick={() => setLimit(Math.max(8, limit - 8))} sx={{ borderRadius: 3, fontWeight: 600 }}>
+                    Ver menos
+                  </Button>
+                )}
+              </Box>
+              <Typography color="text.secondary">
                 Mostrando {Math.min(limit, reservasFiltradas.length)} de {reservasFiltradas.length} reservas.
               </Typography>
             </Grid>
