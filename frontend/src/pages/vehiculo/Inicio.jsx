@@ -120,7 +120,6 @@ const Inicio = () => {
 
   const handleConfirmarReserva = () => {
     realizarReserva(parqueaderoSeleccionado, vehiculoSeleccionado, fechaInicio, fechaFin);
-    setOpenReservaModal(false);
   };
 
   const realizarReserva = async (parqueadero, vehiculoId, fechaInicioParam, fechaFinParam) => {
@@ -422,10 +421,17 @@ const Inicio = () => {
       </Paper>
 
       {/* Modal de formulario de reserva */}
-      <Dialog open={openReservaModal} onClose={() => setOpenReservaModal(false)} maxWidth="xs" fullWidth>
+      <Dialog open={openReservaModal} onClose={() => { setOpenReservaModal(false); setSuccessMessage(''); }} maxWidth="xs" fullWidth>
         <DialogTitle>Reservar Parqueadero</DialogTitle>
         <DialogContent dividers>
           <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {successMessage && (
+              <Box sx={{ mb: 2 }}>
+                <Paper elevation={3} sx={{ bgcolor: '#e8f5e9', color: '#388e3c', px: 3, py: 1, borderRadius: 2, fontWeight: 600 }}>
+                  {successMessage}
+                </Paper>
+              </Box>
+            )}
             <Typography variant="subtitle2">Nombre completo:</Typography>
             <input
               type="text"
@@ -438,6 +444,7 @@ const Inicio = () => {
               value={vehiculoSeleccionado}
               onChange={e => setVehiculoSeleccionado(e.target.value)}
               style={{ padding: '10px', borderRadius: '8px', border: '1.5px solid #1976d2', width: '100%', maxWidth: 350, marginBottom: 8, background: '#fafdff' }}
+              disabled={!!successMessage}
             >
               <option value="">Selecciona un vehículo</option>
               {vehiculos.map(v => (
@@ -449,6 +456,7 @@ const Inicio = () => {
               value={tipoVehiculo}
               onChange={e => setTipoVehiculo(e.target.value)}
               style={{ padding: '10px', borderRadius: '8px', border: '1.5px solid #1976d2', width: '100%', maxWidth: 350, marginBottom: 8, background: '#fafdff' }}
+              disabled={!!successMessage}
             >
               <option value="">Selecciona tipo de vehículo</option>
               <option value="carro">Carro</option>
@@ -462,6 +470,7 @@ const Inicio = () => {
               value={fechaInicio}
               onChange={e => setFechaInicio(e.target.value)}
               style={{ padding: '10px', borderRadius: '8px', border: '1.5px solid #1976d2', width: '100%', maxWidth: 350, marginBottom: 8, background: '#fafdff' }}
+              disabled={!!successMessage}
             />
             <Typography variant="subtitle2">Fecha y hora de fin:</Typography>
             <input
@@ -469,6 +478,7 @@ const Inicio = () => {
               value={fechaFin}
               onChange={e => setFechaFin(e.target.value)}
               style={{ padding: '10px', borderRadius: '8px', border: '1.5px solid #1976d2', width: '100%', maxWidth: 350, marginBottom: 8, background: '#fafdff' }}
+              disabled={!!successMessage}
             />
             <Typography variant="subtitle2">Observaciones:</Typography>
             <textarea
@@ -477,12 +487,13 @@ const Inicio = () => {
               style={{ padding: '10px', borderRadius: '8px', border: '1.5px solid #1976d2', width: '100%', maxWidth: 400, marginBottom: 8, background: '#fafdff' }}
               rows={2}
               placeholder="Observaciones adicionales (opcional)"
+              disabled={!!successMessage}
             />
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenReservaModal(false)}>Cancelar</Button>
-          <Button onClick={handleConfirmarReserva} variant="contained" disabled={reservaLoading || (!vehiculoSeleccionado && !tipoVehiculo) || !fechaInicio || !fechaFin || fechaError}>Confirmar Reserva</Button>
+          <Button onClick={() => { setOpenReservaModal(false); setSuccessMessage(''); }}>Cerrar</Button>
+          <Button onClick={handleConfirmarReserva} variant="contained" disabled={reservaLoading || (!vehiculoSeleccionado && !tipoVehiculo) || !fechaInicio || !fechaFin || fechaError || !!successMessage}>Confirmar Reserva</Button>
         </DialogActions>
       </Dialog>
     </Box>
