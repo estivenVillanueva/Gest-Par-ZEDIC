@@ -18,23 +18,27 @@ const app = express();
 // Middleware
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://127.0.0.1:5173',
   'https://gest-par-zedic.onrender.com',
   'https://gest-par-zedic-9gcy.vercel.app',
   'https://gest-par-zedic-9gcy-301zqwufh-estivenvillanuevas-projects.vercel.app'
 ];
 
+function corsOrigin(origin, callback) {
+  if (
+    !origin ||
+    allowedOrigins.includes(origin) ||
+    /^https:\/\/gest-par-zedic-9gcy-.*\.vercel\.app$/.test(origin)
+  ) {
+    callback(null, true);
+  } else {
+    console.warn('CORS bloqueado para el origen:', origin);
+    callback(new Error('Not allowed by CORS'));
+  }
+}
+
 app.use(cors({
-  origin: function(origin, callback) {
-    if (
-      !origin ||
-      allowedOrigins.includes(origin) ||
-      /^https:\/\/gest-par-zedic-9gcy-.*\.vercel\.app$/.test(origin)
-    ) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: corsOrigin,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -54,17 +58,7 @@ app.use('/api/pagos', pagosRoutes);
 
 // Manejar preflight OPTIONS para todas las rutas
 app.options('*', cors({
-  origin: function(origin, callback) {
-    if (
-      !origin ||
-      allowedOrigins.includes(origin) ||
-      /^https:\/\/gest-par-zedic-9gcy-.*\.vercel\.app$/.test(origin)
-    ) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: corsOrigin,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
