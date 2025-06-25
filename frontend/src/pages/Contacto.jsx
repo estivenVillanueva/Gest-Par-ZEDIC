@@ -78,12 +78,12 @@ const Contacto = () => {
     {
       icon: <PhoneIcon sx={{ fontSize: 32, color: '#2B6CA3' }} />,
       title: 'Teléfono',
-      content: '3219861509',
+      content: '321986150',
       action: 'tel:3219861509'
     },
     {
       icon: <WhatsAppIcon sx={{ fontSize: 32, color: '#25D366' }} />,
-      title: 'WhatsApp',
+      title: 'WhatsAp',
       content: '3219861509',
       action: 'https://wa.me/573219861509'
     },

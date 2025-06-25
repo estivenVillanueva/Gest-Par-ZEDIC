@@ -12,7 +12,7 @@ import {
 } from 'firebase/firestore';
 import { db } from './config';
 
-// Función genérica para agregar un documento
+// Función genérica para agregar un document
 export const addDocument = async (collectionName, data) => {
   try {
     const docRef = await addDoc(collection(db, collectionName), data);

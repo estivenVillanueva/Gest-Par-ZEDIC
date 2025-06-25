@@ -40,6 +40,9 @@ router.put('/:id/salida', async (req, res) => {
         if (valor_pagado === undefined || valor_pagado === null) {
             return res.status(400).json({ error: 'Se requiere el valor pagado para este tipo de servicio.' });
         }
+        if (typeof valor_pagado !== 'number' || valor_pagado < 0) {
+            return res.status(400).json({ error: 'El valor pagado no puede ser negativo.' });
+        }
         const salida = await registrarSalida(id, valor_pagado);
         res.json(salida);
     } else { // tipo_cobro === 'periodo'

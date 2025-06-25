@@ -23,11 +23,13 @@ export default function Ingresos() {
   const [openSalida, setOpenSalida] = useState(false);
   const [openConfirmSalidaSinCosto, setOpenConfirmSalidaSinCosto] = useState(false);
   const [valorPagado, setValorPagado] = useState('');
+  const [errorValorPagado, setErrorValorPagado] = useState('');
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [placasOptions, setPlacasOptions] = useState([]);
   const [loadingPlaca, setLoadingPlaca] = useState(false);
   const [historialLimit, setHistorialLimit] = useState(10);
   const [filtroPlaca, setFiltroPlaca] = useState('');
+  const [servicioVehiculo, setServicioVehiculo] = useState(null);
 
   useEffect(() => {
     fetchIngresos();
@@ -62,15 +64,33 @@ export default function Ingresos() {
   const handleBuscarVehiculo = async (placaBuscada) => {
     setLoadingPlaca(true);
     setVehiculo(null);
+    setServicioVehiculo(null);
     try {
       const res = await axios.get(`${API_URL}/api/vehiculos/placa/${placaBuscada}`);
       if (res.data && res.data.data) {
         setVehiculo(res.data.data);
+        // Si el vehículo tiene servicio_id, obtener el servicio
+        if (res.data.data.servicio_id) {
+          try {
+            const resServicio = await axios.get(`${API_URL}/api/servicios/${res.data.data.servicio_id}`);
+            if (resServicio.data && resServicio.data.data) {
+              setServicioVehiculo(resServicio.data.data);
+            } else {
+              setServicioVehiculo(null);
+            }
+          } catch {
+            setServicioVehiculo(null);
+          }
+        } else {
+          setServicioVehiculo(null);
+        }
       } else {
         setVehiculo(null);
+        setServicioVehiculo(null);
       }
     } catch (e) {
       setVehiculo(null);
+      setServicioVehiculo(null);
     }
     setLoadingPlaca(false);
   };
@@ -146,9 +166,21 @@ export default function Ingresos() {
   };
 
   const handleRegistrarSalida = async (id, valor) => {
+    let valorNumerico = parseFloat(valor);
+    if (isNaN(valorNumerico) || valorNumerico < 0) {
+      setErrorValorPagado('El valor pagado no puede ser negativo.');
+      return;
+    }
+    if (valorNumerico > 0 && valorNumerico < 100) {
+      setErrorValorPagado('El valor pagado debe ser mínimo 100 pesos.');
+      return;
+    }
+    // Redondear al múltiplo de 50 más cercano
+    valorNumerico = Math.round(valorNumerico / 50) * 50;
+    setErrorValorPagado('');
     try {
-      await axios.put(`${API_URL}/api/ingresos/${id}/salida`, { valor_pagado: valor });
-      setSnackbar({ open: true, message: 'Salida registrada correctamente', severity: 'success' });
+      await axios.put(`${API_URL}/api/ingresos/${id}/salida`, { valor_pagado: valorNumerico });
+      setSnackbar({ open: true, message: `Salida registrada correctamente. Valor redondeado a $${valorNumerico}` , severity: 'success' });
       setOpenSalida(false);
       setSalidaInfo(null);
       setValorPagado('');
@@ -233,7 +265,13 @@ export default function Ingresos() {
                   <TableCell>{ing.placa || ing.vehiculo_id}</TableCell>
                   <TableCell>{new Date(ing.hora_entrada).toLocaleString()}</TableCell>
                   <TableCell>{ing.hora_salida ? new Date(ing.hora_salida).toLocaleString() : '-'}</TableCell>
-                  <TableCell>{ing.valor_pagado || '-'}</TableCell>
+                  <TableCell>
+                    {
+                      (ing.valor_pagado !== null && ing.valor_pagado !== undefined && ing.valor_pagado !== '')
+                        ? Number(ing.valor_pagado).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 })
+                        : '-'
+                    }
+                  </TableCell>
                   <TableCell>{ing.observaciones}</TableCell>
                 </TableRow>
               ))}
@@ -289,6 +327,9 @@ export default function Ingresos() {
                 <Typography variant="body2">Modelo: {vehiculo.modelo}</Typography>
                 <Typography variant="body2">Color: {vehiculo.color}</Typography>
                 <Typography variant="body2">Tipo: {vehiculo.tipo}</Typography>
+                {servicioVehiculo && (
+                  <Typography variant="body2" sx={{ mt: 1 }}><b>Tipo de servicio:</b> {servicioVehiculo.nombre}</Typography>
+                )}
               </CardContent>
             </Card>
           )}
@@ -362,7 +403,20 @@ export default function Ingresos() {
             fullWidth
             variant="outlined"
             value={valorPagado}
-            onChange={(e) => setValorPagado(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              const num = parseFloat(value);
+              if (num < 0) {
+                setErrorValorPagado('El valor pagado no puede ser negativo.');
+              } else if (num > 0 && num < 100) {
+                setErrorValorPagado('El valor pagado debe ser mínimo 100 pesos.');
+              } else {
+                setErrorValorPagado('');
+              }
+              setValorPagado(value);
+            }}
+            error={!!errorValorPagado}
+            helperText={errorValorPagado}
             sx={{ mt: 2 }}
           />
         </DialogContent>
@@ -372,6 +426,7 @@ export default function Ingresos() {
             onClick={() => handleRegistrarSalida(salidaInfo.ingreso_id, valorPagado)}
             variant="contained"
             color="primary"
+            disabled={!!errorValorPagado || valorPagado === ''}
           >
             Registrar Salida
           </Button>
