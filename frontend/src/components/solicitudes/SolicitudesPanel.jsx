@@ -25,6 +25,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import { useAuth } from '../../../logic/AuthContext';
+import MuiAlert from '@mui/material/Alert';
 
 const API_BASE = import.meta.env.PROD ? 'https://gest-par-zedic.onrender.com/api' : (import.meta.env.VITE_API_URL || 'http://localhost:3000/api');
 
@@ -132,6 +133,8 @@ const SolicitudesPanel = () => {
   const [seleccionadas, setSeleccionadas] = useState([]);
   const [openRejectDialog, setOpenRejectDialog] = useState(false);
   const [solicitudToReject, setSolicitudToReject] = useState(null);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [solicitudToDelete, setSolicitudToDelete] = useState(null);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -206,15 +209,21 @@ const SolicitudesPanel = () => {
   };
 
   const handleEliminar = async (id) => {
-    if (window.confirm('¿Seguro que deseas eliminar esta reserva?')) {
-      try {
-        await axios.delete(`${API_BASE}/reservas/${id}`);
-        setSnackbar({ open: true, message: 'Reserva eliminada', severity: 'success' });
-        fetchSolicitudes();
-      } catch (e) {
-        setSnackbar({ open: true, message: 'Error al eliminar reserva', severity: 'error' });
-      }
+    setSolicitudToDelete(id);
+    setOpenDeleteDialog(true);
+  };
+
+  const confirmEliminarReserva = async () => {
+    if (!solicitudToDelete) return;
+    try {
+      await axios.delete(`${API_BASE}/reservas/${solicitudToDelete}`);
+      setSnackbar({ open: true, message: 'Reserva eliminada', severity: 'success' });
+      fetchSolicitudes();
+    } catch (e) {
+      setSnackbar({ open: true, message: 'Error al eliminar reserva', severity: 'error' });
     }
+    setOpenDeleteDialog(false);
+    setSolicitudToDelete(null);
   };
 
   const handleSeleccionar = (id) => {
@@ -337,10 +346,13 @@ const SolicitudesPanel = () => {
       </Dialog>
       <Snackbar
         open={snackbar.open}
-        autoHideDuration={3000}
+        autoHideDuration={3500}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+        <MuiAlert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </MuiAlert>
       </Snackbar>
 
       {/* Modal de detalles de solicitud */}
@@ -378,6 +390,17 @@ const SolicitudesPanel = () => {
           <Button onClick={() => setOpenRejectDialog(false)} color="primary">No</Button>
           <Button onClick={confirmRechazarReserva} color="error" variant="contained" autoFocus>
             Sí, rechazar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
+        <DialogTitle>Eliminar Reserva</DialogTitle>
+        <DialogContent>¿Seguro que deseas eliminar esta reserva?</DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDeleteDialog(false)} color="primary">No</Button>
+          <Button onClick={confirmEliminarReserva} color="error" variant="contained" autoFocus>
+            Sí, eliminar
           </Button>
         </DialogActions>
       </Dialog>
