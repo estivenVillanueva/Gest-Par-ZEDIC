@@ -8,7 +8,7 @@ async function getPagosPendientes(parqueaderoId) {
         f.estado,
         f.fecha_creacion,
         f.fecha_vencimiento,
-        u.nombre || ' ' || u.apellido AS usuario_nombre,
+        u.nombre AS usuario_nombre,
         v.placa,
         s.nombre AS servicio_nombre
      FROM facturas f
@@ -30,7 +30,7 @@ async function getHistorialPagos(parqueaderoId) {
         f.estado,
         f.fecha_pago,
         f.metodo_pago,
-        u.nombre || ' ' || u.apellido AS usuario_nombre,
+        u.nombre AS usuario_nombre,
         v.placa,
         s.nombre AS servicio_nombre
      FROM facturas f

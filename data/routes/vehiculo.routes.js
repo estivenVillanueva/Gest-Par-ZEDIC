@@ -71,8 +71,8 @@ router.get('/placa/:placa', async (req, res) => {
 // Crear un nuevo vehículo
 router.post('/', async (req, res) => {
     try {
-        const { placa, marca, modelo, color, tipo, usuario_id, parqueadero_id } = req.body;
-        const nuevoVehiculo = await vehiculoQueries.createVehiculo({ placa, marca, modelo, color, tipo, usuario_id, parqueadero_id });
+        const { placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id } = req.body;
+        const nuevoVehiculo = await vehiculoQueries.createVehiculo({ placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id });
         // Generar facturas periódicas después de crear el vehículo
         await facturaQueries.generateFacturasPeriodicas();
         res.status(201).json({

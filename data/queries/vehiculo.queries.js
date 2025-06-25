@@ -2,13 +2,13 @@ import { pool } from '../postgres.js';
 
 export const vehiculoQueries = {
     // Crear un nuevo vehículo
-    async createVehiculo({ placa, marca, modelo, color, tipo, usuario_id, parqueadero_id }) {
+    async createVehiculo({ placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id }) {
         const query = `
-            INSERT INTO vehiculos (placa, marca, modelo, color, tipo, usuario_id, parqueadero_id)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            INSERT INTO vehiculos (placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *
         `;
-        const values = [placa, marca, modelo, color, tipo, usuario_id, parqueadero_id];
+        const values = [placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id];
         const result = await pool.query(query, values);
         return result.rows[0];
     },
