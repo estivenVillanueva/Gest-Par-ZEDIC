@@ -29,7 +29,7 @@ import { useAuth } from '../../../logic/AuthContext';
 const API_BASE = import.meta.env.PROD ? 'https://gest-par-zedic.onrender.com/api' : (import.meta.env.VITE_API_URL || 'http://localhost:3000/api');
 
 const SolicitudCard = ({ solicitud, onAccion, onVerDetalle, onEliminar, seleccionada, onSeleccionar }) => (
-  <Card sx={{ mb: 3, borderRadius: '12px', boxShadow: 2, p: 1 }}>
+  <Card sx={{ mb: 3, borderRadius: '16px', boxShadow: 2, p: 2 }}>
     <CardContent>
       <Grid container spacing={2} alignItems="center">
         <Grid item xs={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -66,21 +66,45 @@ const SolicitudCard = ({ solicitud, onAccion, onVerDetalle, onEliminar, seleccio
               icon={solicitud.estado === 'Aprobada' ? <CheckCircleIcon /> : <CancelIcon />}
               sx={{ fontWeight: 700, fontSize: '1rem', px: 1.5, borderRadius: 2, mb: 1 }}
             />
-            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, flexWrap: 'wrap', justifyContent: 'center', mb: 1 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, flexWrap: 'wrap', justifyContent: 'center', mt: 2 }}>
               {solicitud.estado === 'Pendiente' && (
-                <Button variant="contained" color="success" size="small" onClick={() => onAccion(solicitud.id, 'Aprobada')}>
+                <Button
+                  variant="contained"
+                  color="success"
+                  size="medium"
+                  onClick={() => onAccion(solicitud.id, 'Aprobada')}
+                  sx={{ borderRadius: 3, minWidth: 110, fontWeight: 600, boxShadow: '0 2px 8px rgba(76,175,80,0.08)' }}
+                >
                   Aceptar
                 </Button>
               )}
               {solicitud.estado === 'Pendiente' && (
-                <Button variant="outlined" color="error" size="small" onClick={() => onAccion(solicitud.id, 'No aprobada')}>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  size="medium"
+                  onClick={() => onAccion(solicitud.id, 'No aprobada')}
+                  sx={{ borderRadius: 3, minWidth: 110, fontWeight: 600, borderWidth: 2 }}
+                >
                   Rechazar
                 </Button>
               )}
-              <Button variant="outlined" sx={{ borderRadius: 2 }} onClick={() => onVerDetalle(solicitud)}>
+              <Button
+                variant="outlined"
+                size="medium"
+                onClick={() => onVerDetalle(solicitud)}
+                sx={{ borderRadius: 3, minWidth: 110, fontWeight: 600, color: '#1976d2', borderColor: '#1976d2', borderWidth: 2, '&:hover': { bgcolor: '#e3f2fd' } }}
+              >
                 Ver detalles
               </Button>
-              <Button variant="outlined" color="error" sx={{ borderRadius: 2 }} onClick={() => onEliminar(solicitud.id)} startIcon={<DeleteIcon />}>
+              <Button
+                variant="outlined"
+                color="error"
+                size="medium"
+                onClick={() => onEliminar(solicitud.id)}
+                startIcon={<DeleteIcon />}
+                sx={{ borderRadius: 3, minWidth: 110, fontWeight: 600, borderWidth: 2 }}
+              >
                 Eliminar
               </Button>
             </Box>
