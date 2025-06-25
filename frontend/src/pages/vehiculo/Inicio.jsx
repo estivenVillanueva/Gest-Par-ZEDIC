@@ -70,6 +70,7 @@ const Inicio = () => {
   const [observaciones, setObservaciones] = useState('');
   const [openReservaModal, setOpenReservaModal] = useState(false);
   const [parqueaderoSeleccionado, setParqueaderoSeleccionado] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     const fetchParqueaderos = async () => {
@@ -148,12 +149,15 @@ const Inicio = () => {
       const data = await response.json().catch(() => ({}));
       console.log('Respuesta reserva:', data);
       if (response.ok) {
-        alert('Reserva realizada con éxito');
+        setSuccessMessage('Reserva realizada con éxito');
+        setTimeout(() => setSuccessMessage(''), 4000);
       } else {
-        alert('Error al realizar la reserva: ' + (data.message || ''));
+        setSuccessMessage('Error al realizar la reserva: ' + (data.message || ''));
+        setTimeout(() => setSuccessMessage(''), 4000);
       }
     } catch (error) {
-      alert('Error de conexión al reservar');
+      setSuccessMessage('Error de conexión al reservar');
+      setTimeout(() => setSuccessMessage(''), 4000);
     }
     setReservaLoading(false);
     setShowVehiculoSelect(false);
@@ -263,6 +267,13 @@ const Inicio = () => {
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, color: '#2B6CA3', textAlign: 'center', mb: 4 }}>
             Parqueaderos Disponibles para Reservar
           </Typography>
+          {successMessage && (
+            <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
+              <Paper elevation={3} sx={{ bgcolor: '#e8f5e9', color: '#388e3c', px: 3, py: 1, borderRadius: 2, fontWeight: 600 }}>
+                {successMessage}
+              </Paper>
+            </Box>
+          )}
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
             <input
               type="text"
