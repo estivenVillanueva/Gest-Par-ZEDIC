@@ -19,7 +19,7 @@ async function listarReservas({ parqueadero_id, usuario_id } = {}) {
                LEFT JOIN usuarios u ON r.usuario_id = u.id`;
   let values = [];
   if (parqueadero_id) {
-    query += ' WHERE r.parqueadero_id = $1';
+    query += ' WHERE r.parqueadero_id = $1 AND r.visible_admin = TRUE';
     values.push(parqueadero_id);
   } else if (usuario_id) {
     query += ' WHERE r.usuario_id = $1';
@@ -57,10 +57,20 @@ async function eliminarMultiplesReservas(ids) {
   return result.rows.map(r => r.id);
 }
 
+// Inhabilitar múltiples reservas para el admin (visible_admin = FALSE)
+async function inhabilitarMultiplesReservas(ids) {
+  const result = await pool.query(
+    `UPDATE reservas SET visible_admin = FALSE WHERE id = ANY($1::int[]) RETURNING id`,
+    [ids]
+  );
+  return result.rows.map(r => r.id);
+}
+
 export default {
   crearReserva,
   listarReservas,
   cambiarEstadoReserva,
   cuposDisponibles,
-  eliminarMultiplesReservas
+  eliminarMultiplesReservas,
+  inhabilitarMultiplesReservas
 }; 

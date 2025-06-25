@@ -179,14 +179,14 @@ const SolicitudesPanel = () => {
 
   const handleEliminarSeleccionadas = async () => {
     if (seleccionadas.length === 0) return;
-    if (window.confirm('¿Seguro que deseas eliminar las reservas seleccionadas?')) {
+    if (window.confirm('¿Seguro que deseas inhabilitar las reservas seleccionadas?')) {
       try {
         await axios.delete(`${API_BASE}/reservas/batch`, { data: { ids: seleccionadas } });
-        setSnackbar({ open: true, message: 'Reservas eliminadas', severity: 'success' });
+        setSnackbar({ open: true, message: 'Reservas inhabilitadas', severity: 'success' });
         setSeleccionadas([]);
         fetchSolicitudes();
       } catch (e) {
-        setSnackbar({ open: true, message: 'Error al eliminar reservas', severity: 'error' });
+        setSnackbar({ open: true, message: 'Error al inhabilitar reservas', severity: 'error' });
       }
     }
   };
@@ -219,7 +219,7 @@ const SolicitudesPanel = () => {
           disabled={seleccionadas.length === 0}
           onClick={handleEliminarSeleccionadas}
         >
-          Eliminar seleccionadas
+          Inhabilitar seleccionadas
         </Button>
       </Box>
       {loading ? (
