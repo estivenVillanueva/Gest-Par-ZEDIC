@@ -414,12 +414,19 @@ const Inicio = () => {
       <Dialog open={openReservaModal} onClose={() => setOpenReservaModal(false)} maxWidth="xs" fullWidth>
         <DialogTitle>Reservar Parqueadero</DialogTitle>
         <DialogContent dividers>
-          <Box sx={{ mt: 1 }}>
+          <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography variant="subtitle2">Nombre completo:</Typography>
+            <input
+              type="text"
+              value={currentUser?.nombre || ''}
+              disabled
+              style={{ padding: '10px', borderRadius: '8px', border: '1.5px solid #1976d2', background: '#f4f8fd', fontWeight: 600, color: '#1976d2', marginBottom: 8 }}
+            />
             <Typography variant="subtitle2">Selecciona tu vehículo:</Typography>
             <select
               value={vehiculoSeleccionado}
               onChange={e => setVehiculoSeleccionado(e.target.value)}
-              style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ccc', width: '100%', maxWidth: 300, marginBottom: 12 }}
+              style={{ padding: '10px', borderRadius: '8px', border: '1.5px solid #1976d2', width: '100%', maxWidth: 350, marginBottom: 8, background: '#fafdff' }}
             >
               <option value="">Selecciona un vehículo</option>
               {vehiculos.map(v => (
@@ -430,7 +437,7 @@ const Inicio = () => {
             <select
               value={tipoVehiculo}
               onChange={e => setTipoVehiculo(e.target.value)}
-              style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ccc', width: '100%', maxWidth: 300, marginBottom: 12 }}
+              style={{ padding: '10px', borderRadius: '8px', border: '1.5px solid #1976d2', width: '100%', maxWidth: 350, marginBottom: 8, background: '#fafdff' }}
             >
               <option value="">Selecciona tipo de vehículo</option>
               <option value="carro">Carro</option>
@@ -443,20 +450,20 @@ const Inicio = () => {
               type="datetime-local"
               value={fechaInicio}
               onChange={e => setFechaInicio(e.target.value)}
-              style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ccc', width: '100%', maxWidth: 300, marginBottom: 12 }}
+              style={{ padding: '10px', borderRadius: '8px', border: '1.5px solid #1976d2', width: '100%', maxWidth: 350, marginBottom: 8, background: '#fafdff' }}
             />
             <Typography variant="subtitle2">Fecha y hora de fin:</Typography>
             <input
               type="datetime-local"
               value={fechaFin}
               onChange={e => setFechaFin(e.target.value)}
-              style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ccc', width: '100%', maxWidth: 300, marginBottom: 12 }}
+              style={{ padding: '10px', borderRadius: '8px', border: '1.5px solid #1976d2', width: '100%', maxWidth: 350, marginBottom: 8, background: '#fafdff' }}
             />
             <Typography variant="subtitle2">Observaciones:</Typography>
             <textarea
               value={observaciones}
               onChange={e => setObservaciones(e.target.value)}
-              style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ccc', width: '100%', maxWidth: 400, marginBottom: 12 }}
+              style={{ padding: '10px', borderRadius: '8px', border: '1.5px solid #1976d2', width: '100%', maxWidth: 400, marginBottom: 8, background: '#fafdff' }}
               rows={2}
               placeholder="Observaciones adicionales (opcional)"
             />

@@ -26,7 +26,7 @@ import { useAuth } from '../../../logic/AuthContext';
 
 const API_BASE = import.meta.env.PROD ? 'https://gest-par-zedic.onrender.com/api' : (import.meta.env.VITE_API_URL || 'http://localhost:3000/api');
 
-const SolicitudCard = ({ solicitud, onAccion }) => (
+const SolicitudCard = ({ solicitud, onAccion, onVerDetalle }) => (
   <Card sx={{ mb: 2, borderRadius: '12px', boxShadow: 2 }}>
     <CardContent>
       <Grid container spacing={2} alignItems="center">
@@ -70,6 +70,9 @@ const SolicitudCard = ({ solicitud, onAccion }) => (
               </Button>
             </Box>
           )}
+          <Button variant="outlined" sx={{ mt: 1, borderRadius: 2 }} onClick={() => onVerDetalle(solicitud)}>
+            Ver detalles
+          </Button>
         </Grid>
       </Grid>
     </CardContent>
@@ -87,6 +90,7 @@ const SolicitudesPanel = () => {
   const [solicitudes, setSolicitudes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [detalleSolicitud, setDetalleSolicitud] = useState(null);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -158,7 +162,7 @@ const SolicitudesPanel = () => {
         </Typography>
       ) : (
         solicitudes.map((solicitud) => (
-          <SolicitudCard key={solicitud.id} solicitud={solicitud} onAccion={handleAccion} />
+          <SolicitudCard key={solicitud.id} solicitud={solicitud} onAccion={handleAccion} onVerDetalle={setDetalleSolicitud} />
         ))
       )}
       {!currentUser?.parqueadero_id && (
@@ -219,6 +223,34 @@ const SolicitudesPanel = () => {
       >
         <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
       </Snackbar>
+
+      {/* Modal de detalles de solicitud */}
+      <Dialog open={!!detalleSolicitud} onClose={() => setDetalleSolicitud(null)} maxWidth="sm" fullWidth>
+        <DialogTitle>Detalle de la Reserva</DialogTitle>
+        <DialogContent dividers>
+          {detalleSolicitud && (
+            <Box>
+              <Typography variant="subtitle1" sx={{ mb: 1 }}><b>ID Reserva:</b> {detalleSolicitud.id}</Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}><b>Parqueadero:</b> {detalleSolicitud.parqueadero_id}</Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}><b>Usuario:</b> {detalleSolicitud.usuario_id}</Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}><b>Vehículo:</b> {detalleSolicitud.vehiculo_id || '-'}</Typography>
+              {!detalleSolicitud.vehiculo_id && detalleSolicitud.tipo_vehiculo && (
+                <Typography variant="body2" sx={{ mb: 1 }}><b>Tipo de vehículo:</b> {detalleSolicitud.tipo_vehiculo}</Typography>
+              )}
+              {detalleSolicitud.observaciones && (
+                <Typography variant="body2" sx={{ mb: 1 }}><b>Observaciones:</b> {detalleSolicitud.observaciones}</Typography>
+              )}
+              <Typography variant="body2" sx={{ mb: 1 }}><b>Fecha inicio:</b> {detalleSolicitud.fecha_inicio}</Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}><b>Fecha fin:</b> {detalleSolicitud.fecha_fin}</Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}><b>Estado:</b> {detalleSolicitud.estado}</Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}><b>Creada:</b> {detalleSolicitud.created_at ? new Date(detalleSolicitud.created_at).toLocaleString() : ''}</Typography>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDetalleSolicitud(null)} variant="contained">Cerrar</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
