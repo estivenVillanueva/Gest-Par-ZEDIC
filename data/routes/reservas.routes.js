@@ -46,4 +46,18 @@ router.get('/cupos', async (req, res) => {
   }
 });
 
+// Eliminar múltiples reservas
+router.delete('/batch', async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ error: 'Se requiere un array de IDs.' });
+    }
+    const result = await reservasQueries.eliminarMultiplesReservas(ids);
+    res.json({ success: true, eliminadas: result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router; 

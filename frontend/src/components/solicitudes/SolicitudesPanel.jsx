@@ -15,27 +15,32 @@ import {
   Chip,
   CircularProgress,
   Snackbar,
-  Alert
+  Alert,
+  Checkbox
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import { useAuth } from '../../../logic/AuthContext';
 
 const API_BASE = import.meta.env.PROD ? 'https://gest-par-zedic.onrender.com/api' : (import.meta.env.VITE_API_URL || 'http://localhost:3000/api');
 
-const SolicitudCard = ({ solicitud, onAccion, onVerDetalle }) => (
-  <Card sx={{ mb: 2, borderRadius: '12px', boxShadow: 2 }}>
+const SolicitudCard = ({ solicitud, onAccion, onVerDetalle, onEliminar, seleccionada, onSeleccionar }) => (
+  <Card sx={{ mb: 3, borderRadius: '12px', boxShadow: 2, p: 1 }}>
     <CardContent>
       <Grid container spacing={2} alignItems="center">
-        <Grid item xs={12} md={8}>
+        <Grid item xs={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Checkbox checked={!!seleccionada} onChange={() => onSeleccionar(solicitud.id)} />
+        </Grid>
+        <Grid item xs={11} md={7}>
           <Typography variant="h6" gutterBottom>
             Reserva #{solicitud.id} - {solicitud.estado}
           </Typography>
           <Typography variant="body2" color="text.secondary" gutterBottom>
-            <b>Parqueadero:</b> {solicitud.parqueadero_id} | <b>Vehículo:</b> {solicitud.vehiculo_id} | <b>Usuario:</b> {solicitud.usuario_id}
+            <b>Parqueadero:</b> {solicitud.parqueadero_id} | <b>Vehículo:</b> {solicitud.vehiculo_id} | <b>Usuario:</b> {solicitud.nombre_usuario || solicitud.usuario_id}
           </Typography>
           {/* Mostrar tipo de vehículo si existe y no hay vehiculo_id */}
           {!solicitud.vehiculo_id && solicitud.tipo_vehiculo && (
@@ -53,26 +58,33 @@ const SolicitudCard = ({ solicitud, onAccion, onVerDetalle }) => (
             <b>Fecha inicio:</b> {solicitud.fecha_inicio} <b>Fecha fin:</b> {solicitud.fecha_fin}
           </Typography>
         </Grid>
-        <Grid item xs={12} md={4} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
-          <Chip
-            label={solicitud.estado}
-            color={solicitud.estado === 'Aprobada' ? 'success' : solicitud.estado === 'Pendiente' ? 'warning' : 'error'}
-            icon={solicitud.estado === 'Aprobada' ? <CheckCircleIcon /> : <CancelIcon />}
-            sx={{ fontWeight: 700, fontSize: '1rem', px: 1.5, borderRadius: 2, mb: 1 }}
-          />
-          {solicitud.estado === 'Pendiente' && (
-            <Box sx={{ mt: 1, display: 'flex', gap: 1, justifyContent: { md: 'flex-end' } }}>
-              <Button variant="contained" color="success" size="small" onClick={() => onAccion(solicitud.id, 'Aprobada')}>
-                Aceptar
+        <Grid item xs={12} md={4} sx={{ textAlign: { xs: 'center', md: 'right' } }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', md: 'flex-end' }, gap: 1 }}>
+            <Chip
+              label={solicitud.estado}
+              color={solicitud.estado === 'Aprobada' ? 'success' : solicitud.estado === 'Pendiente' ? 'warning' : 'error'}
+              icon={solicitud.estado === 'Aprobada' ? <CheckCircleIcon /> : <CancelIcon />}
+              sx={{ fontWeight: 700, fontSize: '1rem', px: 1.5, borderRadius: 2, mb: 1 }}
+            />
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, flexWrap: 'wrap', justifyContent: 'center', mb: 1 }}>
+              {solicitud.estado === 'Pendiente' && (
+                <Button variant="contained" color="success" size="small" onClick={() => onAccion(solicitud.id, 'Aprobada')}>
+                  Aceptar
+                </Button>
+              )}
+              {solicitud.estado === 'Pendiente' && (
+                <Button variant="outlined" color="error" size="small" onClick={() => onAccion(solicitud.id, 'No aprobada')}>
+                  Rechazar
+                </Button>
+              )}
+              <Button variant="outlined" sx={{ borderRadius: 2 }} onClick={() => onVerDetalle(solicitud)}>
+                Ver detalles
               </Button>
-              <Button variant="outlined" color="error" size="small" onClick={() => onAccion(solicitud.id, 'No aprobada')}>
-                Rechazar
+              <Button variant="outlined" color="error" sx={{ borderRadius: 2 }} onClick={() => onEliminar(solicitud.id)} startIcon={<DeleteIcon />}>
+                Eliminar
               </Button>
             </Box>
-          )}
-          <Button variant="outlined" sx={{ mt: 1, borderRadius: 2 }} onClick={() => onVerDetalle(solicitud)}>
-            Ver detalles
-          </Button>
+          </Box>
         </Grid>
       </Grid>
     </CardContent>
@@ -91,6 +103,9 @@ const SolicitudesPanel = () => {
   const [loading, setLoading] = useState(true);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [detalleSolicitud, setDetalleSolicitud] = useState(null);
+  const [filtroNombre, setFiltroNombre] = useState('');
+  const [filtroFecha, setFiltroFecha] = useState('');
+  const [seleccionadas, setSeleccionadas] = useState([]);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -146,11 +161,66 @@ const SolicitudesPanel = () => {
     }
   };
 
+  const handleEliminar = async (id) => {
+    if (window.confirm('¿Seguro que deseas eliminar esta reserva?')) {
+      try {
+        await axios.delete(`${API_BASE}/reservas/${id}`);
+        setSnackbar({ open: true, message: 'Reserva eliminada', severity: 'success' });
+        fetchSolicitudes();
+      } catch (e) {
+        setSnackbar({ open: true, message: 'Error al eliminar reserva', severity: 'error' });
+      }
+    }
+  };
+
+  const handleSeleccionar = (id) => {
+    setSeleccionadas(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  const handleEliminarSeleccionadas = async () => {
+    if (seleccionadas.length === 0) return;
+    if (window.confirm('¿Seguro que deseas eliminar las reservas seleccionadas?')) {
+      try {
+        await axios.delete(`${API_BASE}/reservas/batch`, { data: { ids: seleccionadas } });
+        setSnackbar({ open: true, message: 'Reservas eliminadas', severity: 'success' });
+        setSeleccionadas([]);
+        fetchSolicitudes();
+      } catch (e) {
+        setSnackbar({ open: true, message: 'Error al eliminar reservas', severity: 'error' });
+      }
+    }
+  };
+
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 2, flexWrap: 'wrap' }}>
         <ListAltIcon sx={{ mr: 1, color: 'primary.main' }} />
-        <Typography variant="h6">Solicitudes de Reserva</Typography>
+        <Typography variant="h6" sx={{ flexGrow: 1 }}>Solicitudes de Reserva</Typography>
+        <TextField
+          size="small"
+          label="Buscar por usuario"
+          value={filtroNombre}
+          onChange={e => setFiltroNombre(e.target.value)}
+          sx={{ minWidth: 180 }}
+        />
+        <TextField
+          size="small"
+          label="Filtrar por fecha"
+          type="date"
+          value={filtroFecha}
+          onChange={e => setFiltroFecha(e.target.value)}
+          sx={{ minWidth: 180 }}
+          InputLabelProps={{ shrink: true }}
+        />
+        <Button
+          variant="outlined"
+          color="error"
+          startIcon={<DeleteIcon />}
+          disabled={seleccionadas.length === 0}
+          onClick={handleEliminarSeleccionadas}
+        >
+          Eliminar seleccionadas
+        </Button>
       </Box>
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', my: 6 }}>
@@ -161,9 +231,14 @@ const SolicitudesPanel = () => {
           No hay solicitudes de reserva.
         </Typography>
       ) : (
-        solicitudes.map((solicitud) => (
-          <SolicitudCard key={solicitud.id} solicitud={solicitud} onAccion={handleAccion} onVerDetalle={setDetalleSolicitud} />
-        ))
+        solicitudes
+          .filter(s =>
+            (!filtroNombre || (s.nombre_usuario && s.nombre_usuario.toLowerCase().includes(filtroNombre.toLowerCase()))) &&
+            (!filtroFecha || (s.fecha_inicio && s.fecha_inicio.startsWith(filtroFecha)))
+          )
+          .map((solicitud) => (
+            <SolicitudCard key={solicitud.id} solicitud={solicitud} onAccion={handleAccion} onVerDetalle={setDetalleSolicitud} onEliminar={handleEliminar} seleccionada={seleccionadas.includes(solicitud.id)} onSeleccionar={handleSeleccionar} />
+          ))
       )}
       {!currentUser?.parqueadero_id && (
         <Button
@@ -232,7 +307,7 @@ const SolicitudesPanel = () => {
             <Box>
               <Typography variant="subtitle1" sx={{ mb: 1 }}><b>ID Reserva:</b> {detalleSolicitud.id}</Typography>
               <Typography variant="body2" sx={{ mb: 1 }}><b>Parqueadero:</b> {detalleSolicitud.parqueadero_id}</Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}><b>Usuario:</b> {detalleSolicitud.usuario_id}</Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}><b>Usuario:</b> {detalleSolicitud.nombre_usuario || detalleSolicitud.usuario_id}</Typography>
               <Typography variant="body2" sx={{ mb: 1 }}><b>Vehículo:</b> {detalleSolicitud.vehiculo_id || '-'}</Typography>
               {!detalleSolicitud.vehiculo_id && detalleSolicitud.tipo_vehiculo && (
                 <Typography variant="body2" sx={{ mb: 1 }}><b>Tipo de vehículo:</b> {detalleSolicitud.tipo_vehiculo}</Typography>

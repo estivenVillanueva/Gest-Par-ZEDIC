@@ -12,10 +12,11 @@ async function crearReserva({ usuario_id, parqueadero_id, vehiculo_id, tipo_vehi
 
 // Listar todas las reservas (opcional: por parqueadero o usuario)
 async function listarReservas({ parqueadero_id, usuario_id } = {}) {
-  let query = `SELECT r.*, p.nombre AS parqueadero_nombre, v.placa AS vehiculo_placa
+  let query = `SELECT r.*, p.nombre AS parqueadero_nombre, v.placa AS vehiculo_placa, u.nombre AS nombre_usuario
                FROM reservas r
                LEFT JOIN parqueaderos p ON r.parqueadero_id = p.id
-               LEFT JOIN vehiculos v ON r.vehiculo_id = v.id`;
+               LEFT JOIN vehiculos v ON r.vehiculo_id = v.id
+               LEFT JOIN usuarios u ON r.usuario_id = u.id`;
   let values = [];
   if (parqueadero_id) {
     query += ' WHERE r.parqueadero_id = $1';
@@ -47,9 +48,19 @@ async function cuposDisponibles(parqueadero_id, fecha_inicio, fecha_fin, max_cup
   return max_cupos - parseInt(result.rows[0].count, 10);
 }
 
+// Eliminar múltiples reservas por IDs
+async function eliminarMultiplesReservas(ids) {
+  const result = await pool.query(
+    `DELETE FROM reservas WHERE id = ANY($1::int[]) RETURNING id`,
+    [ids]
+  );
+  return result.rows.map(r => r.id);
+}
+
 export default {
   crearReserva,
   listarReservas,
   cambiarEstadoReserva,
-  cuposDisponibles
+  cuposDisponibles,
+  eliminarMultiplesReservas
 }; 
