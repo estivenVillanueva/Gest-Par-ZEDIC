@@ -60,4 +60,15 @@ router.delete('/batch', async (req, res) => {
   }
 });
 
+// Inhabilitar una sola reserva para el admin
+router.delete('/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const result = await reservasQueries.inhabilitarMultiplesReservas([id]);
+    res.json({ success: true, inhabilitada: result[0] });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router; 
