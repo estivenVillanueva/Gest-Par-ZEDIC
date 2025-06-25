@@ -111,7 +111,7 @@ const Acceder = () => {
     <AuthContainer>
       <AuthPaper elevation={0}>
         <AuthHeader>
-          <h4>Iniciar Sesión</h4>
+          <h4>Iniciar Sesió</h4>
           <p>Bienvenido de nuevo a Gest-Par ZEDIC</p>
         </AuthHeader>
 
