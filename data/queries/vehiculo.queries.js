@@ -2,13 +2,13 @@ import { pool } from '../postgres.js';
 
 export const vehiculoQueries = {
     // Crear un nuevo vehículo
-    async createVehiculo({ placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id }) {
+    async createVehiculo({ placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento }) {
         const query = `
-            INSERT INTO vehiculos (placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            INSERT INTO vehiculos (placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
             RETURNING *
         `;
-        const values = [placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id];
+        const values = [placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento];
         const result = await pool.query(query, values);
         return result.rows[0];
     },
@@ -36,7 +36,7 @@ export const vehiculoQueries = {
     },
 
     // Actualizar vehículo
-    async updateVehiculo(placa, { marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id }) {
+    async updateVehiculo(placa, { marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento }) {
         const query = `
             UPDATE vehiculos
             SET marca = $1,
@@ -46,11 +46,15 @@ export const vehiculoQueries = {
                 usuario_id = $5,
                 parqueadero_id = $6,
                 servicio_id = $8,
+                dueno_nombre = $9,
+                dueno_telefono = $10,
+                dueno_email = $11,
+                dueno_documento = $12,
                 updated_at = CURRENT_TIMESTAMP
             WHERE placa = $7
             RETURNING *
         `;
-        const values = [marca, modelo, color, tipo, usuario_id, parqueadero_id, placa, servicio_id];
+        const values = [marca, modelo, color, tipo, usuario_id, parqueadero_id, placa, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento];
         const result = await pool.query(query, values);
         return result.rows[0];
     },

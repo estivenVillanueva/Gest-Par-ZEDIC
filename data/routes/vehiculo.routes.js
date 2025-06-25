@@ -71,8 +71,8 @@ router.get('/placa/:placa', async (req, res) => {
 // Crear un nuevo vehículo
 router.post('/', async (req, res) => {
     try {
-        const { placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id } = req.body;
-        const nuevoVehiculo = await vehiculoQueries.createVehiculo({ placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id });
+        const { placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento } = req.body;
+        const nuevoVehiculo = await vehiculoQueries.createVehiculo({ placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento });
         // Generar facturas periódicas después de crear el vehículo
         await facturaQueries.generateFacturasPeriodicas();
         res.status(201).json({
@@ -91,8 +91,8 @@ router.post('/', async (req, res) => {
 // Actualizar vehículo
 router.put('/:placa', async (req, res) => {
     try {
-        const { marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id } = req.body;
-        const vehiculoActualizado = await vehiculoQueries.updateVehiculo(req.params.placa, { marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id });
+        const { marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento } = req.body;
+        const vehiculoActualizado = await vehiculoQueries.updateVehiculo(req.params.placa, { marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento });
         if (!vehiculoActualizado) {
             return res.status(404).json({
                 success: false,

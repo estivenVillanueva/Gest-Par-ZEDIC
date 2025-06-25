@@ -82,11 +82,16 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
     color: '',
     tipo: '',
     usuario_id: '',
-    servicio_id: ''
+    servicio_id: '',
+    dueno_nombre: '',
+    dueno_telefono: '',
+    dueno_email: ''
   });
   const [servicios, setServicios] = useState([]);
   const { currentUser } = useAuth();
   const [placaError, setPlacaError] = useState('');
+  const [showDetails, setShowDetails] = useState(false);
+  const [duenoError, setDuenoError] = useState('');
 
   useEffect(() => {
     const initialFormState = {
@@ -96,10 +101,12 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
       color: '',
       tipo: '',
       usuario_id: '',
-      servicio_id: ''
+      servicio_id: '',
+      dueno_nombre: '',
+      dueno_telefono: '',
+      dueno_email: ''
     };
     setForm(initialData || initialFormState);
-
     if (initialData && initialData.servicio_id) {
       setForm(prevForm => ({ ...prevForm, servicio_id: initialData.servicio_id }));
     }
@@ -140,6 +147,11 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
 
   const handleSubmit = e => {
     e.preventDefault();
+    if (!form.usuario_id && !form.dueno_nombre.trim()) {
+      setDuenoError('El nombre del dueño es obligatorio si no hay usuario.');
+      return;
+    }
+    setDuenoError('');
     onGuardar(form);
     onClose();
   };
@@ -154,9 +166,6 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
             error={!!placaError}
             helperText={placaError || 'Máximo 6 caracteres. Solo mayúsculas.'}
           />
-          <TextField margin="normal" fullWidth label="Marca" name="marca" value={form.marca} onChange={handleChange} required />
-          <TextField margin="normal" fullWidth label="Modelo" name="modelo" value={form.modelo} onChange={handleChange} required />
-          <TextField margin="normal" fullWidth label="Color" name="color" value={form.color} onChange={handleChange} required />
           <TextField margin="normal" fullWidth select label="Tipo" name="tipo" value={form.tipo} onChange={handleChange} required>
             {tiposVehiculo.map(tipo => <MenuItem key={tipo} value={tipo}>{tipo}</MenuItem>)}
           </TextField>
@@ -166,6 +175,26 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
             ))}
           </TextField>
           <TextField margin="normal" fullWidth label="ID de usuario (opcional)" name="usuario_id" value={form.usuario_id} onChange={handleChange} />
+          {!form.usuario_id && (
+            <Box sx={{ mt: 2, mb: 1 }}>
+              <Typography variant="subtitle2" color="text.secondary">Datos del dueño (si no está registrado):</Typography>
+              <TextField margin="dense" fullWidth label="Nombre del dueño" name="dueno_nombre" value={form.dueno_nombre} onChange={handleChange} required={!form.usuario_id} error={!!duenoError} helperText={duenoError} />
+              <TextField margin="dense" fullWidth label="Teléfono del dueño" name="dueno_telefono" value={form.dueno_telefono} onChange={handleChange} />
+              <TextField margin="dense" fullWidth label="Email del dueño" name="dueno_email" value={form.dueno_email} onChange={handleChange} />
+            </Box>
+          )}
+          <Box sx={{ mt: 2 }}>
+            <Button variant="text" onClick={() => setShowDetails(v => !v)}>
+              {showDetails ? 'Ocultar detalles del vehículo' : 'Agregar detalles del vehículo'}
+            </Button>
+          </Box>
+          {showDetails && (
+            <Box sx={{ mt: 1 }}>
+              <TextField margin="dense" fullWidth label="Marca" name="marca" value={form.marca} onChange={handleChange} />
+              <TextField margin="dense" fullWidth label="Modelo" name="modelo" value={form.modelo} onChange={handleChange} />
+              <TextField margin="dense" fullWidth label="Color" name="color" value={form.color} onChange={handleChange} />
+            </Box>
+          )}
         </DialogContent>
         <DialogActions>
           {initialData && (
