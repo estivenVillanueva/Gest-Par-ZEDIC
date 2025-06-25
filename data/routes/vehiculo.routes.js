@@ -1,5 +1,6 @@
 import express from 'express';
 import { vehiculoQueries } from '../queries/vehiculo.queries.js';
+import { facturaQueries } from '../queries/factura.queries.js';
 
 const router = express.Router();
 
@@ -72,6 +73,8 @@ router.post('/', async (req, res) => {
     try {
         const { placa, marca, modelo, color, tipo, usuario_id, parqueadero_id } = req.body;
         const nuevoVehiculo = await vehiculoQueries.createVehiculo({ placa, marca, modelo, color, tipo, usuario_id, parqueadero_id });
+        // Generar facturas periódicas después de crear el vehículo
+        await facturaQueries.generateFacturasPeriodicas();
         res.status(201).json({
             success: true,
             data: nuevoVehiculo

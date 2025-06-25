@@ -20,7 +20,8 @@ import {
   FormControl,
   InputLabel,
   CircularProgress,
-  Alert
+  Alert,
+  Chip
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
@@ -73,10 +74,23 @@ const PagoCard = ({ pago, onCardClick, isPending }) => {
               : `Pagado: ${formatDate(pago.fecha_pago)}`
             }
           </Typography>
+          <Chip
+            label={pago.estado === 'pagada' ? 'Pagado' : 'Pendiente'}
+            color={pago.estado === 'pagada' ? 'success' : 'warning'}
+            size="small"
+            sx={{ mt: 1 }}
+          />
         </Box>
-        <Typography variant="h6" fontWeight={800} sx={{ color: isVencida ? '#f44336' : 'primary.main', minWidth: 110, textAlign: 'right' }}>
-          ${parseInt(pago.total, 10).toLocaleString('es-CO')}
-        </Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
+          <Typography variant="h6" fontWeight={800} sx={{ color: isVencida ? '#f44336' : 'primary.main', minWidth: 110, textAlign: 'right' }}>
+            ${parseInt(pago.total, 10).toLocaleString('es-CO')}
+          </Typography>
+          {isPending && (
+            <Button variant="contained" color="primary" size="small" sx={{ mt: 1 }} onClick={onCardClick}>
+              Marcar como pagada
+            </Button>
+          )}
+        </Box>
       </Box>
     </ElegantCard>
   );

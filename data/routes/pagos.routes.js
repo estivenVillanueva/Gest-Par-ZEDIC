@@ -4,12 +4,14 @@ import {
     getHistorialPagos, 
     marcarComoPagada 
 } from '../queries/pagos.queries.js';
+import { facturaQueries } from '../queries/factura.queries.js';
 
 const router = express.Router();
 
 // Obtener pagos pendientes y vencidos de un parqueadero
 router.get('/pendientes/:parqueaderoId', async (req, res) => {
     try {
+        await facturaQueries.generateFacturasPeriodicas();
         const { parqueaderoId } = req.params;
         const pendientes = await getPagosPendientes(parqueaderoId);
         res.json(pendientes);
@@ -22,6 +24,7 @@ router.get('/pendientes/:parqueaderoId', async (req, res) => {
 // Obtener historial de pagos de un parqueadero
 router.get('/historial/:parqueaderoId', async (req, res) => {
     try {
+        await facturaQueries.generateFacturasPeriodicas();
         const { parqueaderoId } = req.params;
         const historial = await getHistorialPagos(parqueaderoId);
         res.json(historial);

@@ -1,4 +1,6 @@
 import { pool } from '../postgres.js';
+import { vehiculoQueries } from './vehiculo.queries.js';
+import { serviciosQueries } from './servicios.queries.js';
 
 export const facturaQueries = {
     // Crear una nueva factura
@@ -46,6 +48,57 @@ export const facturaQueries = {
         const query = 'DELETE FROM factura WHERE id = $1 RETURNING *';
         const result = await pool.query(query, [id]);
         return result.rows[0];
+    },
+
+    // Generar facturas periódicas automáticamente
+    async generateFacturasPeriodicas() {
+        // 1. Obtener todos los vehículos con servicio periódico
+        const vehiculos = await pool.query(`
+            SELECT v.*, s.tipo_cobro, s.precio, s.id as servicio_id, s.nombre as servicio_nombre
+            FROM vehiculos v
+            JOIN servicios s ON v.servicio_id = s.id
+            WHERE s.tipo_cobro = 'periodo'
+        `);
+        for (const vehiculo of vehiculos.rows) {
+            // 2. Buscar la última factura generada para este vehículo y servicio
+            const { rows: facturas } = await pool.query(
+                `SELECT * FROM facturas WHERE vehiculo_id = $1 AND servicio_id = $2 ORDER BY fecha_vencimiento DESC LIMIT 1`,
+                [vehiculo.id, vehiculo.servicio_id]
+            );
+            let fechaInicio;
+            if (facturas.length > 0) {
+                fechaInicio = new Date(facturas[0].fecha_vencimiento);
+            } else {
+                fechaInicio = new Date(vehiculo.created_at);
+            }
+            // 3. Calcular cuántos ciclos han pasado desde la última factura
+            const hoy = new Date();
+            let cicloDias = 30;
+            if (vehiculo.servicio_nombre.toLowerCase().includes('semanal')) cicloDias = 7;
+            if (vehiculo.servicio_nombre.toLowerCase().includes('quincenal')) cicloDias = 15;
+            // Generar facturas por cada ciclo no facturado
+            let fechaCiclo = new Date(fechaInicio);
+            while (fechaCiclo < hoy) {
+                // Siguiente ciclo
+                const fechaVencimiento = new Date(fechaCiclo);
+                fechaVencimiento.setDate(fechaVencimiento.getDate() + cicloDias);
+                // Verificar si ya existe factura para este periodo
+                const { rows: existe } = await pool.query(
+                    `SELECT 1 FROM facturas WHERE vehiculo_id = $1 AND servicio_id = $2 AND fecha_creacion = $3`,
+                    [vehiculo.id, vehiculo.servicio_id, fechaCiclo]
+                );
+                if (existe.length === 0) {
+                    // Crear factura pendiente
+                    await pool.query(
+                        `INSERT INTO facturas (usuario_id, parqueadero_id, vehiculo_id, servicio_id, total, estado, fecha_creacion, fecha_vencimiento)
+                         VALUES ($1, $2, $3, $4, $5, 'pendiente', $6, $7)`,
+                        [vehiculo.usuario_id, vehiculo.parqueadero_id, vehiculo.id, vehiculo.servicio_id, vehiculo.precio, fechaCiclo, fechaVencimiento]
+                    );
+                }
+                // Avanzar al siguiente ciclo
+                fechaCiclo = new Date(fechaVencimiento);
+            }
+        }
     }
 };
 
