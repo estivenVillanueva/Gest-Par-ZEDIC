@@ -30,6 +30,7 @@ export default function Ingresos() {
   const [historialLimit, setHistorialLimit] = useState(10);
   const [filtroPlaca, setFiltroPlaca] = useState('');
   const [servicioVehiculo, setServicioVehiculo] = useState(null);
+  const [placaError, setPlacaError] = useState('');
 
   useEffect(() => {
     fetchIngresos();
@@ -296,8 +297,15 @@ export default function Ingresos() {
             options={placasOptions}
             value={placa}
             onInputChange={(e, newValue) => {
-              setPlaca(newValue);
-              if (newValue && newValue.length >= 3) handleBuscarVehiculo(newValue);
+              let value = (newValue || '').toUpperCase();
+              if (value.length > 6) {
+                setPlacaError('La placa debe tener máximo 6 caracteres');
+                value = value.slice(0, 6);
+              } else {
+                setPlacaError('');
+              }
+              setPlaca(value);
+              if (value && value.length >= 3) handleBuscarVehiculo(value);
               else setVehiculo(null);
             }}
             renderInput={(params) => (
@@ -306,14 +314,9 @@ export default function Ingresos() {
                 label="Buscar por placa"
                 margin="normal"
                 fullWidth
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <SearchIcon color="primary" />
-                    </InputAdornment>
-                  )
-                }}
+                inputProps={{ ...params.inputProps, maxLength: 6 }}
+                error={!!placaError}
+                helperText={placaError || 'Máximo 6 caracteres. Solo mayúsculas.'}
               />
             )}
           />
@@ -384,7 +387,7 @@ export default function Ingresos() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenIngreso(false)} color="secondary">Cancelar</Button>
-          <Button onClick={handleRegistrarIngreso} variant="contained" color="primary" sx={{ borderRadius: 2 }}>
+          <Button onClick={handleRegistrarIngreso} variant="contained" color="primary" sx={{ borderRadius: 2 }} disabled={!!placaError || placa.length !== 6}>
             Registrar
           </Button>
         </DialogActions>
