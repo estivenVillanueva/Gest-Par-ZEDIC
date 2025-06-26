@@ -140,6 +140,8 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
         setPlacaError('');
       }
       setForm({ ...form, placa: value });
+    } else if (["tipo", "marca", "modelo", "color", "dueno_nombre"].includes(e.target.name)) {
+      setForm({ ...form, [e.target.name]: e.target.value.toUpperCase() });
     } else {
       setForm({ ...form, [e.target.name]: e.target.value });
     }

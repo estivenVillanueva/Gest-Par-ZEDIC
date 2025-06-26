@@ -8,11 +8,11 @@ async function getPagosPendientes(parqueaderoId) {
         f.estado,
         f.fecha_creacion,
         f.fecha_vencimiento,
-        u.nombre AS usuario_nombre,
+        COALESCE(u.nombre, v.dueno_nombre) AS usuario_nombre,
         v.placa,
         s.nombre AS servicio_nombre
      FROM facturas f
-     JOIN usuarios u ON f.usuario_id = u.id
+     LEFT JOIN usuarios u ON f.usuario_id = u.id
      JOIN vehiculos v ON f.vehiculo_id = v.id
      JOIN servicios s ON v.servicio_id = s.id
      WHERE f.parqueadero_id = $1 AND f.estado IN ('pendiente', 'vencida')
@@ -30,11 +30,11 @@ async function getHistorialPagos(parqueaderoId) {
         f.estado,
         f.fecha_pago,
         f.metodo_pago,
-        u.nombre AS usuario_nombre,
+        COALESCE(u.nombre, v.dueno_nombre) AS usuario_nombre,
         v.placa,
         s.nombre AS servicio_nombre
      FROM facturas f
-     JOIN usuarios u ON f.usuario_id = u.id
+     LEFT JOIN usuarios u ON f.usuario_id = u.id
      JOIN vehiculos v ON f.vehiculo_id = v.id
      JOIN servicios s ON v.servicio_id = s.id
      WHERE f.parqueadero_id = $1 AND f.estado = 'pagada'
