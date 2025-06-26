@@ -89,10 +89,17 @@ export const facturaQueries = {
                 );
                 if (existe.length === 0) {
                     // Crear factura pendiente
-                    await pool.query(
+                    const facturaRes = await pool.query(
                         `INSERT INTO facturas (usuario_id, parqueadero_id, vehiculo_id, servicio_id, total, estado, fecha_creacion, fecha_vencimiento)
-                         VALUES ($1, $2, $3, $4, $5, 'pendiente', $6, $7)`,
+                         VALUES ($1, $2, $3, $4, $5, 'pendiente', $6, $7) RETURNING id`,
                         [vehiculo.usuario_id, vehiculo.parqueadero_id, vehiculo.id, vehiculo.servicio_id, vehiculo.precio, fechaCiclo, fechaVencimiento]
+                    );
+                    const facturaId = facturaRes.rows[0].id;
+                    // Crear detalle de factura automáticamente
+                    await pool.query(
+                        `INSERT INTO factura_detalles (factura_id, servicio_id, cantidad, precio_unitario, subtotal, created_at, updated_at)
+                         VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`,
+                        [facturaId, vehiculo.servicio_id, 1, vehiculo.precio, vehiculo.precio]
                     );
                 }
                 // Avanzar al siguiente ciclo

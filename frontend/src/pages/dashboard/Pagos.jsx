@@ -391,12 +391,90 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
   // Mostrar detalles adicionales
   const detallesContacto = [factura.dueno_telefono, factura.dueno_email].filter(Boolean).join(' | ');
 
+  // Función para imprimir factura
+  const handleImprimir = () => {
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <html>
+      <head>
+        <title>Factura</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 40px; }
+          .header { display: flex; align-items: center; border-bottom: 2px solid #1976d2; padding-bottom: 10px; margin-bottom: 20px; }
+          .logo { width: 80px; height: 80px; margin-right: 20px; }
+          .company-info { font-size: 16px; }
+          .factura-title { text-align: right; font-size: 28px; color: #1976d2; font-weight: bold; }
+          .section { margin-bottom: 20px; }
+          .details-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+          .details-table th, .details-table td { border: 1px solid #bbb; padding: 8px; text-align: center; }
+          .details-table th { background: #e3f2fd; color: #1976d2; font-weight: bold; }
+          .total { text-align: right; font-size: 20px; font-weight: bold; margin-top: 20px; }
+          .footer { margin-top: 40px; font-size: 14px; color: #888; text-align: center; border-top: 1px solid #ccc; padding-top: 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <img src="https://i.ibb.co/6b8Qw1d/logo-zedic.png" class="logo" alt="Logo" />
+          <div class="company-info">
+            <div><strong>Gest-Par ZEDIC</strong></div>
+            <div>NIT: 900000000-1</div>
+            <div>Dirección: Calle 123 #45-67</div>
+            <div>Tel: 300 123 4567</div>
+            <div>Email: info@zedic.com</div>
+          </div>
+          <div style="flex:1"></div>
+          <div class="factura-title">Factura #{factura.id || ''}</div>
+        </div>
+        <div class="section">
+          <strong>Cliente:</strong> {factura.usuario_nombre || ''}<br/>
+          <strong>Placa:</strong> {factura.placa || ''}<br/>
+          <strong>Servicio:</strong> {factura.servicio_nombre || ''}<br/>
+          <strong>Fecha de emisión:</strong> {factura.fecha_creacion ? new Date(factura.fecha_creacion).toLocaleString() : ''}
+        </div>
+        <div class="section">
+          <table class="details-table">
+            <thead>
+              <tr>
+                <th>Servicio</th>
+                <th>Cantidad</th>
+                <th>Precio unitario</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(factura.detalles && factura.detalles.length > 0)
+                ? factura.detalles.map(det => `
+                  <tr>
+                    <td>${det.servicio_id}</td>
+                    <td>${det.cantidad}</td>
+                    <td>$${parseFloat(det.precio_unitario).toLocaleString('es-CO')}</td>
+                    <td>$${parseFloat(det.subtotal).toLocaleString('es-CO')}</td>
+                  </tr>
+                `).join('')
+                : `<tr><td colspan="4">Sin detalles</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+        <div class="total">
+          Total: $${(factura.total || factura.valor_total || 0).toLocaleString('es-CO')}
+        </div>
+        <div class="footer">
+          ¡Gracias por preferirnos!<br/>
+          Esta factura es válida para efectos legales. Consulte términos y condiciones en www.zedic.com
+        </div>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogTitle>Confirmar Pago</DialogTitle>
       <DialogContent>
         <Typography sx={{ mb: 2 }}>
-          ¿Confirmas que has recibido el pago de <strong>${parseInt(factura.total, 10).toLocaleString('es-CO')}</strong> para el servicio <strong>{factura.servicio_nombre}</strong> del vehículo <strong>{factura.placa}</strong>?
+          ¿Confirmas que has recibido el pago de <strong>${parseInt(factura.total || factura.valor_total, 10).toLocaleString('es-CO')}</strong> para el servicio <strong>{factura.servicio_nombre}</strong> del vehículo <strong>{factura.placa}</strong>?
         </Typography>
         {factura.usuario_nombre === 'Dueño no registrado' && detallesContacto && (
           <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
@@ -418,6 +496,32 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
             <strong>Observaciones:</strong> {factura.observaciones}
           </Typography>
         )}
+        {/* Mostrar detalles de factura si existen */}
+        {factura.detalles && factura.detalles.length > 0 && (
+          <Box sx={{ mt: 2, mb: 2 }}>
+            <Typography variant="subtitle2" fontWeight={700}>Detalles de la factura:</Typography>
+            <Box component="table" sx={{ width: '100%', mt: 1, borderCollapse: 'collapse' }}>
+              <Box component="thead">
+                <Box component="tr">
+                  <Box component="th" sx={{ borderBottom: '1px solid #ccc', p: 1 }}>Servicio</Box>
+                  <Box component="th" sx={{ borderBottom: '1px solid #ccc', p: 1 }}>Cantidad</Box>
+                  <Box component="th" sx={{ borderBottom: '1px solid #ccc', p: 1 }}>Precio unitario</Box>
+                  <Box component="th" sx={{ borderBottom: '1px solid #ccc', p: 1 }}>Subtotal</Box>
+                </Box>
+              </Box>
+              <Box component="tbody">
+                {factura.detalles.map((det, idx) => (
+                  <Box component="tr" key={idx}>
+                    <Box component="td" sx={{ p: 1 }}>{det.servicio_id}</Box>
+                    <Box component="td" sx={{ p: 1 }}>{det.cantidad}</Box>
+                    <Box component="td" sx={{ p: 1 }}>{det.precio_unitario}</Box>
+                    <Box component="td" sx={{ p: 1 }}>{det.subtotal}</Box>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          </Box>
+        )}
         <FormControl fullWidth sx={{ mt: 2 }}>
           <InputLabel>Método de Pago</InputLabel>
           <Select
@@ -431,6 +535,10 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
             <MenuItem value="otro">Otro</MenuItem>
           </Select>
         </FormControl>
+        {/* Botón para imprimir */}
+        <Button variant="outlined" color="primary" sx={{ mt: 2 }} onClick={handleImprimir}>
+          Imprimir factura
+        </Button>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancelar</Button>

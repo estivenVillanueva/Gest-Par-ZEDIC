@@ -34,6 +34,9 @@ import WorkIcon from '@mui/icons-material/Work';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../logic/AuthContext';
 
+const DEFAULT_LOGO_URL = 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Parking_icon.svg';
+const DEFAULT_PORTADA_URL = 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80';
+
 const InfoItem = ({ icon, title, value, onEdit }) => (
   <Box sx={{ mb: 3, p: 2, bgcolor: 'background.paper', borderRadius: 2 }}>
     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
@@ -244,6 +247,36 @@ const ParqueaderoProfile = () => {
     }
   };
 
+  const handleSaveLogo = async (url) => {
+    if (!parqueaderoInfo.id) return;
+    const updatedData = { ...parqueaderoInfo, logo_url: url };
+    const response = await fetch(`${PARQUEADERO_API_URL}/${parqueaderoInfo.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedData)
+    });
+    if (response.ok) {
+      const data = await response.json();
+      setParqueaderoInfo(data.data);
+      setSnackbar({ open: true, message: url ? 'Logo actualizado' : 'Logo eliminado', severity: 'success' });
+    }
+  };
+
+  const handleSavePortada = async (url) => {
+    if (!parqueaderoInfo.id) return;
+    const updatedData = { ...parqueaderoInfo, portada_url: url };
+    const response = await fetch(`${PARQUEADERO_API_URL}/${parqueaderoInfo.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedData)
+    });
+    if (response.ok) {
+      const data = await response.json();
+      setParqueaderoInfo(data.data);
+      setSnackbar({ open: true, message: url ? 'Portada actualizada' : 'Portada eliminada', severity: 'success' });
+    }
+  };
+
   if (showWelcome) {
     return (
       <Container maxWidth="sm" sx={{ py: 8 }}>
@@ -274,27 +307,54 @@ const ParqueaderoProfile = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Paper elevation={3} sx={{ p: 3, borderRadius: 2, position: 'relative' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Avatar
-              sx={{ 
-                width: 100, 
-                height: 100, 
-                bgcolor: 'primary.main',
-                mr: 3
-              }}
-            >
-              <LocalParkingIcon sx={{ fontSize: 50 }} />
-            </Avatar>
-            <Box>
-              <Typography variant="h4" gutterBottom>
-                {parqueaderoInfo.nombre}
-              </Typography>
-              <Typography variant="subtitle1" color="text.secondary">
-                Perfil del Parqueadero
-              </Typography>
-            </Box>
-          </Box>
+        <Box sx={{ position: 'relative', width: '100%', mb: 7 }}>
+          {/* Portada */}
+          <img
+            src={parqueaderoInfo.portada_url || DEFAULT_PORTADA_URL}
+            alt="Portada del parqueadero"
+            style={{ width: '100%', maxHeight: 220, objectFit: 'cover', borderRadius: 12 }}
+            onError={e => { e.target.onerror = null; e.target.src = DEFAULT_PORTADA_URL; }}
+          />
+          {/* Logo superpuesto */}
+          <Avatar
+            src={parqueaderoInfo.logo_url || DEFAULT_LOGO_URL}
+            alt="Logo del parqueadero"
+            sx={{
+              width: 100,
+              height: 100,
+              bgcolor: 'primary.main',
+              position: 'absolute',
+              left: 40,
+              bottom: -50,
+              border: '4px solid white',
+              boxShadow: 3
+            }}
+            onError={e => { e.target.onerror = null; e.target.src = DEFAULT_LOGO_URL; }}
+          />
+          <Button
+            size="small"
+            color="error"
+            sx={{ position: 'absolute', left: 150, bottom: -30, zIndex: 2 }}
+            onClick={() => handleSaveLogo('')}
+          >
+            Quitar logo
+          </Button>
+          <Button
+            size="small"
+            color="error"
+            sx={{ position: 'absolute', left: 40, top: 10, zIndex: 2, background: 'rgba(255,255,255,0.7)' }}
+            onClick={() => handleSavePortada('')}
+          >
+            Quitar portada
+          </Button>
+        </Box>
+        {/* Espacio para que el logo no tape el contenido */}
+        <Box sx={{ height: 60 }} />
+        {/* Nombre y botón admin */}
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4 }}>
+          <Typography variant="h4" gutterBottom>
+            {parqueaderoInfo.nombre}
+          </Typography>
           <Button
             variant="outlined"
             startIcon={<PersonIcon />}
