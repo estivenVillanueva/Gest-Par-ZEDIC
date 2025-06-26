@@ -7,7 +7,7 @@ import { v2 as cloudinary } from 'cloudinary';
 const router = express.Router();
 
 cloudinary.config({
-  cloud_name: 'dnudkdqyr',
+  cloud_name: 'dnuddkdyr',
   api_key: '542441745859528',
   api_secret: '44AJNiggQhxObvbIUrl0TU6MDFc'
 });
