@@ -1,8 +1,18 @@
 import express from 'express';
 import { parqueaderoQueries } from '../queries/parqueadero.queries.js';
 import { geocodeAddress } from '../geocode_parqueaderos.js';
+import multer from 'multer';
+import { v2 as cloudinary } from 'cloudinary';
 
 const router = express.Router();
+
+cloudinary.config({
+  cloud_name: 'dnudkdqyr',
+  api_key: '542441745859528',
+  api_secret: '44AJNiggQhxObvbIUrl0TU6MDFc'
+});
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Obtener todos los parqueaderos
 router.get('/', async (req, res) => {
@@ -160,6 +170,22 @@ router.delete('/:id', async (req, res) => {
             error: error.message
         });
     }
+});
+
+// Endpoint para subir imágenes a Cloudinary
+router.post('/upload-image', upload.single('file'), async (req, res) => {
+  try {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: 'parqueaderos' },
+      (error, result) => {
+        if (error) return res.status(500).json({ success: false, error: error.message });
+        res.json({ success: true, url: result.secure_url });
+      }
+    );
+    stream.end(req.file.buffer);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 export const parqueaderoRoutes = router; 

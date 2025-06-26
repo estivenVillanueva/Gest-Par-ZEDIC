@@ -92,32 +92,44 @@ const ParqueaderoProfile = () => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [logoInputRef, setLogoInputRef] = useState(null);
   const [portadaInputRef, setPortadaInputRef] = useState(null);
+  const [logoTimestamp, setLogoTimestamp] = useState(Date.now());
+  const [portadaTimestamp, setPortadaTimestamp] = useState(Date.now());
 
   const CLOUDINARY_UPLOAD_PRESET = 'Gest-par-zedic';
   const CLOUDINARY_CLOUD_NAME = 'dnudkdqyr';
 
-  const uploadToCloudinary = async (file) => {
-    const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+  const uploadToBackend = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-    const res = await fetch(url, { method: 'POST', body: formData });
+    const res = await fetch(`${PARQUEADERO_API_URL}/upload-image`, {
+      method: 'POST',
+      body: formData
+    });
     const data = await res.json();
-    return data.secure_url;
+    if (data.success && data.url) return data.url;
+    throw new Error(data.error || 'Error al subir imagen');
   };
 
   const handleLogoChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const url = await uploadToCloudinary(file);
-    handleSaveLogo(url);
+    try {
+      const url = await uploadToBackend(file);
+      handleSaveLogo(url);
+    } catch (err) {
+      setSnackbar({ open: true, message: err.message, severity: 'error' });
+    }
   };
 
   const handlePortadaChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const url = await uploadToCloudinary(file);
-    handleSavePortada(url);
+    try {
+      const url = await uploadToBackend(file);
+      handleSavePortada(url);
+    } catch (err) {
+      setSnackbar({ open: true, message: err.message, severity: 'error' });
+    }
   };
 
   useEffect(() => {
@@ -287,6 +299,7 @@ const ParqueaderoProfile = () => {
     if (response.ok) {
       const data = await response.json();
       setParqueaderoInfo(data.data);
+      setLogoTimestamp(Date.now());
       setSnackbar({ open: true, message: url ? 'Logo actualizado' : 'Logo eliminado', severity: 'success' });
     }
   };
@@ -302,6 +315,7 @@ const ParqueaderoProfile = () => {
     if (response.ok) {
       const data = await response.json();
       setParqueaderoInfo(data.data);
+      setPortadaTimestamp(Date.now());
       setSnackbar({ open: true, message: url ? 'Portada actualizada' : 'Portada eliminada', severity: 'success' });
     }
   };
@@ -339,14 +353,14 @@ const ParqueaderoProfile = () => {
         <Box sx={{ position: 'relative', width: '100%', mb: 7 }}>
           {/* Portada */}
           <img
-            src={parqueaderoInfo.portada_url || DEFAULT_PORTADA_URL}
+            src={`${parqueaderoInfo.portada_url || DEFAULT_PORTADA_URL}?t=${portadaTimestamp}`}
             alt="Portada del parqueadero"
             style={{ width: '100%', maxHeight: 220, objectFit: 'cover', borderRadius: 12 }}
             onError={e => { e.target.onerror = null; e.target.src = DEFAULT_PORTADA_URL; }}
           />
           {/* Logo superpuesto */}
           <Avatar
-            src={parqueaderoInfo.logo_url || DEFAULT_LOGO_URL}
+            src={`${parqueaderoInfo.logo_url || DEFAULT_LOGO_URL}?t=${logoTimestamp}`}
             alt="Logo del parqueadero"
             sx={{
               width: 100,
