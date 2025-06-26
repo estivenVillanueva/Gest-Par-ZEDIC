@@ -52,8 +52,10 @@ const VehiculoCard = ({ vehiculo, onVerInfo }) => (
     </MinimalIcon>
     <Typography variant="h6" fontWeight={700} sx={{ mb: 0.5, color: '#2B6CA3', mt: 1 }}>{vehiculo.placa}</Typography>
     <Typography variant="body2" sx={{ color: '#64748B', mb: 1 }}>{vehiculo.propietario}</Typography>
-    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center', mb: 1 }}>
-      <MinimalBadge label={vehiculo.puesto || 'No asignado'} color="primary" />
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 1, minHeight: 40, justifyContent: 'center' }}>
+      <Typography variant="body2" sx={{ color: '#2B6CA3', fontWeight: 600, mb: 0.5, minHeight: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        Lugar: {vehiculo.puesto ? vehiculo.puesto : 'No asignado'}
+      </Typography>
       <MinimalBadge label={vehiculo.tipoServicio} color="secondary" />
     </Box>
     <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center', mb: 1 }}>

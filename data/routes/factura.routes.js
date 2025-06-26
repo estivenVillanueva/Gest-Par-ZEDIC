@@ -28,10 +28,20 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
     try {
-        const nuevaFactura = await facturaQueries.createFactura(req.body);
+        const { detalles, ...facturaData } = req.body;
+        // Crear la factura principal
+        const nuevaFactura = await facturaQueries.createFactura(facturaData);
+        let detallesInsertados = [];
+        if (detalles && Array.isArray(detalles) && detalles.length > 0) {
+            for (const detalle of detalles) {
+                const detalleData = { ...detalle, factura_id: nuevaFactura.id };
+                const det = await detalleFacturaQueries.createDetalleFactura(detalleData);
+                detallesInsertados.push(det);
+            }
+        }
         res.status(201).json({
             success: true,
-            data: nuevaFactura
+            data: { ...nuevaFactura, detalles: detallesInsertados }
         });
     } catch (error) {
         res.status(500).json({

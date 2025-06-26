@@ -23,7 +23,8 @@ import {
   Alert,
   Chip,
   Checkbox,
-  Tooltip
+  Tooltip,
+  Switch
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
@@ -169,6 +170,10 @@ const FormularioPago = ({ open, onClose, onGuardar }) => {
     tipoServicio: '',
     entradas: '',
   });
+  const [conFactura, setConFactura] = useState(false);
+  const [detalles, setDetalles] = useState([
+    { servicio_id: '', cantidad: 1, precio_unitario: '', subtotal: '' }
+  ]);
 
   const handleChange = (e) => {
     setFormData({
@@ -177,9 +182,32 @@ const FormularioPago = ({ open, onClose, onGuardar }) => {
     });
   };
 
+  const handleDetalleChange = (idx, field, value) => {
+    const nuevosDetalles = [...detalles];
+    nuevosDetalles[idx][field] = value;
+    if (field === 'cantidad' || field === 'precio_unitario') {
+      const cantidad = parseFloat(nuevosDetalles[idx].cantidad) || 0;
+      const precio = parseFloat(nuevosDetalles[idx].precio_unitario) || 0;
+      nuevosDetalles[idx].subtotal = (cantidad * precio).toFixed(2);
+    }
+    setDetalles(nuevosDetalles);
+  };
+
+  const handleAddDetalle = () => {
+    setDetalles([...detalles, { servicio_id: '', cantidad: 1, precio_unitario: '', subtotal: '' }]);
+  };
+
+  const handleRemoveDetalle = (idx) => {
+    setDetalles(detalles.filter((_, i) => i !== idx));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onGuardar(formData);
+    if (conFactura) {
+      onGuardar({ ...formData, detalles });
+    } else {
+      onGuardar(formData);
+    }
     onClose();
   };
 
@@ -287,24 +315,69 @@ const FormularioPago = ({ open, onClose, onGuardar }) => {
                 sx={{ backgroundColor: 'white', borderRadius: '8px' }}
               />
             </Grid>
+            <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, mb: 2 }}>
+              <Switch checked={conFactura} onChange={e => setConFactura(e.target.checked)} />
+              <Typography variant="body1" sx={{ ml: 1 }}>¿Desea factura?</Typography>
+            </Box>
+            {conFactura && (
+              <Box sx={{ bgcolor: '#fff', borderRadius: 2, p: 2, mb: 2 }}>
+                <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Detalles de la factura</Typography>
+                {detalles.map((detalle, idx) => (
+                  <Grid container spacing={1} alignItems="center" key={idx} sx={{ mb: 1 }}>
+                    <Grid item xs={4}>
+                      <TextField
+                        label="Servicio ID"
+                        name="servicio_id"
+                        value={detalle.servicio_id}
+                        onChange={e => handleDetalleChange(idx, 'servicio_id', e.target.value)}
+                        fullWidth
+                        required
+                      />
+                    </Grid>
+                    <Grid item xs={2}>
+                      <TextField
+                        label="Cantidad"
+                        type="number"
+                        name="cantidad"
+                        value={detalle.cantidad}
+                        onChange={e => handleDetalleChange(idx, 'cantidad', e.target.value)}
+                        fullWidth
+                        required
+                      />
+                    </Grid>
+                    <Grid item xs={3}>
+                      <TextField
+                        label="Precio unitario"
+                        type="number"
+                        name="precio_unitario"
+                        value={detalle.precio_unitario}
+                        onChange={e => handleDetalleChange(idx, 'precio_unitario', e.target.value)}
+                        fullWidth
+                        required
+                      />
+                    </Grid>
+                    <Grid item xs={2}>
+                      <TextField
+                        label="Subtotal"
+                        name="subtotal"
+                        value={detalle.subtotal}
+                        fullWidth
+                        disabled
+                      />
+                    </Grid>
+                    <Grid item xs={1}>
+                      <Button color="error" onClick={() => handleRemoveDetalle(idx)} disabled={detalles.length === 1}>-</Button>
+                    </Grid>
+                  </Grid>
+                ))}
+                <Button variant="outlined" onClick={handleAddDetalle}>Agregar detalle</Button>
+              </Box>
+            )}
           </Grid>
         </DialogContent>
-        <DialogActions sx={{ p: 3, justifyContent: 'space-between' }}>
-          <Button 
-            onClick={onClose}
-            color="primary"
-            variant="outlined"
-          >
-            guardar pago
-          </Button>
-          <Button 
-            type="submit"
-            variant="contained"
-            color="primary"
-            sx={{ minWidth: 180 }}
-          >
-            generar factura
-          </Button>
+        <DialogActions>
+          <Button onClick={onClose}>Cancelar</Button>
+          <Button type="submit" variant="contained" color="primary">{conFactura ? 'Guardar y facturar' : 'Guardar'}</Button>
         </DialogActions>
       </form>
     </Dialog>
