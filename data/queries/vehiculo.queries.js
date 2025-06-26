@@ -2,13 +2,13 @@ import { pool } from '../postgres.js';
 
 export const vehiculoQueries = {
     // Crear un nuevo vehículo
-    async createVehiculo({ placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento }) {
+    async createVehiculo({ placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento, puesto }) {
         const query = `
-            INSERT INTO vehiculos (placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            INSERT INTO vehiculos (placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento, puesto)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
             RETURNING *
         `;
-        const values = [placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento];
+        const values = [placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento, puesto];
         const result = await pool.query(query, values);
         return result.rows[0];
     },
@@ -36,7 +36,7 @@ export const vehiculoQueries = {
     },
 
     // Actualizar vehículo
-    async updateVehiculo(placa, { marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento }) {
+    async updateVehiculo(placa, { marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento, puesto }) {
         const query = `
             UPDATE vehiculos
             SET marca = $1,
@@ -50,11 +50,12 @@ export const vehiculoQueries = {
                 dueno_telefono = $10,
                 dueno_email = $11,
                 dueno_documento = $12,
+                puesto = $13,
                 updated_at = CURRENT_TIMESTAMP
             WHERE placa = $7
             RETURNING *
         `;
-        const values = [marca, modelo, color, tipo, usuario_id, parqueadero_id, placa, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento];
+        const values = [marca, modelo, color, tipo, usuario_id, parqueadero_id, placa, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento, puesto];
         const result = await pool.query(query, values);
         return result.rows[0];
     },
@@ -78,5 +79,17 @@ export const vehiculoQueries = {
         const query = 'DELETE FROM vehiculos WHERE parqueadero_id = $1';
         const result = await pool.query(query, [parqueadero_id]);
         return result.rowCount; // Devuelve el número de vehículos eliminados
+    },
+
+    // Validar si un puesto está ocupado
+    async isPuestoOcupado(parqueadero_id, puesto, placaExcluir = null) {
+        let query = 'SELECT 1 FROM vehiculos WHERE parqueadero_id = $1 AND puesto = $2';
+        let values = [parqueadero_id, puesto];
+        if (placaExcluir) {
+            query += ' AND placa != $3';
+            values.push(placaExcluir);
+        }
+        const result = await pool.query(query, values);
+        return result.rowCount > 0;
     }
 }; 

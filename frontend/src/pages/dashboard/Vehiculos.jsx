@@ -92,6 +92,8 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
   const [placaError, setPlacaError] = useState('');
   const [showDetails, setShowDetails] = useState(false);
   const [duenoError, setDuenoError] = useState('');
+  const [puestosDisponibles, setPuestosDisponibles] = useState([]);
+  const [capacidad, setCapacidad] = useState(0);
 
   useEffect(() => {
     const initialFormState = {
@@ -129,6 +131,35 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
     };
     fetchServicios();
   }, [currentUser, open]);
+
+  useEffect(() => {
+    // Obtener capacidad y puestos ocupados
+    const fetchPuestos = async () => {
+      if (open && currentUser?.parqueadero_id) {
+        try {
+          const apiUrl = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
+          // Obtener capacidad del parqueadero
+          const parqueaderoRes = await axios.get(`${apiUrl}/api/parqueaderos/${currentUser.parqueadero_id}`);
+          const capacidadParq = parqueaderoRes.data?.data?.capacidad || 0;
+          setCapacidad(capacidadParq);
+          // Obtener vehículos para saber puestos ocupados
+          const vehiculosRes = await axios.get(`${apiUrl}/api/vehiculos?parqueadero_id=${currentUser.parqueadero_id}`);
+          const ocupados = vehiculosRes.data?.data?.map(v => v.puesto).filter(Boolean);
+          // Si estamos editando, permitir el puesto actual
+          let disponibles = [];
+          for (let i = 1; i <= capacidadParq; i++) {
+            if (!ocupados.includes(i) || (initialData && initialData.puesto === i)) {
+              disponibles.push(i);
+            }
+          }
+          setPuestosDisponibles(disponibles);
+        } catch (e) {
+          setPuestosDisponibles([]);
+        }
+      }
+    };
+    fetchPuestos();
+  }, [currentUser, open, initialData]);
 
   const handleChange = e => {
     if (e.target.name === 'placa') {
@@ -197,6 +228,12 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
               <TextField margin="dense" fullWidth label="Color" name="color" value={form.color} onChange={handleChange} />
             </Box>
           )}
+          <TextField margin="normal" fullWidth select label="Puesto" name="puesto" value={form.puesto || ''} onChange={handleChange} required>
+            <MenuItem value="">No asignado</MenuItem>
+            {puestosDisponibles.map(p => (
+              <MenuItem key={p} value={p}>{p}</MenuItem>
+            ))}
+          </TextField>
         </DialogContent>
         <DialogActions>
           {initialData && (
