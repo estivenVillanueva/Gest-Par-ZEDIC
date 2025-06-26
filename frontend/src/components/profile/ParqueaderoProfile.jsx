@@ -90,6 +90,35 @@ const ParqueaderoProfile = () => {
   });
   const [showWelcome, setShowWelcome] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [logoInputRef, setLogoInputRef] = useState(null);
+  const [portadaInputRef, setPortadaInputRef] = useState(null);
+
+  const CLOUDINARY_UPLOAD_PRESET = 'Gest-par-zedic';
+  const CLOUDINARY_CLOUD_NAME = 'dnudkdqyr';
+
+  const uploadToCloudinary = async (file) => {
+    const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    const res = await fetch(url, { method: 'POST', body: formData });
+    const data = await res.json();
+    return data.secure_url;
+  };
+
+  const handleLogoChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = await uploadToCloudinary(file);
+    handleSaveLogo(url);
+  };
+
+  const handlePortadaChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = await uploadToCloudinary(file);
+    handleSavePortada(url);
+  };
 
   useEffect(() => {
     // Mostrar mensaje de bienvenida solo si es la primera vez
@@ -347,6 +376,36 @@ const ParqueaderoProfile = () => {
           >
             Quitar portada
           </Button>
+          <Button
+            size="small"
+            color="primary"
+            sx={{ position: 'absolute', left: 150, bottom: 0, zIndex: 2 }}
+            onClick={() => logoInputRef && logoInputRef.click()}
+          >
+            Cambiar logo
+          </Button>
+          <input
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            ref={ref => setLogoInputRef(ref)}
+            onChange={handleLogoChange}
+          />
+          <Button
+            size="small"
+            color="primary"
+            sx={{ position: 'absolute', left: 160, top: 10, zIndex: 2, background: 'rgba(255,255,255,0.7)' }}
+            onClick={() => portadaInputRef && portadaInputRef.click()}
+          >
+            Cambiar portada
+          </Button>
+          <input
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            ref={ref => setPortadaInputRef(ref)}
+            onChange={handlePortadaChange}
+          />
         </Box>
         {/* Espacio para que el logo no tape el contenido */}
         <Box sx={{ height: 60 }} />
