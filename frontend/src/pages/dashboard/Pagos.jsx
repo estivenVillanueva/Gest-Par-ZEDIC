@@ -100,7 +100,7 @@ const PagoCard = ({ pago, onCardClick, isPending, selectable, checked, onSelectC
       position: 'relative',
       mb: 2,
       boxShadow: 2,
-      borderRadius: 3,
+      borderRadius: 1,
       '@media (max-width:600px)': { px: 1, py: 1 }
     }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: { xs: 1, sm: 2 }, py: { xs: 1, sm: 2 } }}>
@@ -658,10 +658,10 @@ const Pagos = () => {
             </Grid>
           </ElegantPaper>
           <TabPanel value={tabValue} index={0}>
-            {renderContent(pagosPendientes, true)}
+            {renderContent(filterItems(pagosPendientes), true)}
           </TabPanel>
           <TabPanel value={tabValue} index={1}>
-            {renderContent(pagosHistorial, false)}
+            {renderContent(filterItems(pagosHistorial), false)}
           </TabPanel>
         </ElegantContent>
       </ElegantPaper>
