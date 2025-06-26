@@ -109,16 +109,36 @@ const ParkingInfo = ({ parkingData, onClose }) => {
       {/* Banner superior con imagen personalizada usando <img> */}
       <Box sx={{ width: '100%', height: 180, position: 'relative', overflow: 'hidden' }}>
         <img
-          src={headerImage}
+          src={parkingData?.portada_url || headerImage}
           alt={parkingData?.nombre || parkingData?.name || 'parking'}
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           onError={e => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80'; }}
         />
         <Button onClick={onClose} sx={{ position: 'absolute', top: 16, right: 16, bgcolor: 'rgba(255,255,255,0.8)', color: '#2563eb', fontWeight: 700, borderRadius: 2, px: 2, boxShadow: 2, '&:hover': { bgcolor: '#2563eb', color: 'white' } }}>Cerrar</Button>
       </Box>
-      <Box sx={{ p: { xs: 2, md: 4 } }}>
+      <Box sx={{ p: { xs: 2, md: 4 }, pt: 4 }}>
+        {/* Logo y nombre alineados */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-          <LocalParkingIcon sx={{ fontSize: 40, color: '#2563eb' }} />
+          {parkingData?.logo_url && (
+            <Box sx={{
+              width: 60,
+              height: 60,
+              borderRadius: '50%',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+              border: '4px solid #fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              bgcolor: '#fff',
+            }}>
+              <img
+                src={parkingData.logo_url}
+                alt="Logo parqueadero"
+                style={{ width: 48, height: 48, objectFit: 'contain', borderRadius: '50%' }}
+                onError={e => { e.target.onerror = null; e.target.src = 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Parking_icon.svg'; }}
+              />
+            </Box>
+          )}
           <Typography variant="h4" fontWeight={800} color="#2563eb">{parkingData?.nombre || parkingData?.name || ''}</Typography>
         </Box>
         {/* Descripción del parqueadero */}
