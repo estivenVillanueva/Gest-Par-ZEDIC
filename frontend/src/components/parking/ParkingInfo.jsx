@@ -31,6 +31,9 @@ import {
   ServicesList,
 } from '../../styles/components/ParkingInfo.styles';
 
+const DEFAULT_LOGO_URL = 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Parking_icon.svg';
+const DEFAULT_PORTADA_URL = 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80';
+
 const ParkingInfo = ({ parkingData, onClose }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogInfo, setDialogInfo] = useState({});
@@ -101,19 +104,23 @@ const ParkingInfo = ({ parkingData, onClose }) => {
     }
   ];
 
-  // Banner superior con imagen genérica de Unsplash
-  const headerImage = "https://source.unsplash.com/800x180/?parking";
-
   return (
     <Paper elevation={4} sx={{ overflow: 'hidden', bgcolor: '#f8fafc' }}>
-      {/* Banner superior con imagen personalizada usando <img> */}
       <Box sx={{ width: '100%', height: 180, position: 'relative', overflow: 'hidden' }}>
         <img
-          src={headerImage}
+          src={parkingData?.portada_url || DEFAULT_PORTADA_URL}
           alt={parkingData?.nombre || parkingData?.name || 'parking'}
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          onError={e => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80'; }}
+          onError={e => { e.target.onerror = null; e.target.src = DEFAULT_PORTADA_URL; }}
         />
+        <Box sx={{ position: 'absolute', left: 24, bottom: -40, zIndex: 2 }}>
+          <img
+            src={parkingData?.logo_url || DEFAULT_LOGO_URL}
+            alt="Logo parqueadero"
+            style={{ width: 80, height: 80, borderRadius: '50%', border: '4px solid white', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', background: '#fff', objectFit: 'cover' }}
+            onError={e => { e.target.onerror = null; e.target.src = DEFAULT_LOGO_URL; }}
+          />
+        </Box>
         <Button onClick={onClose} sx={{ position: 'absolute', top: 16, right: 16, bgcolor: 'rgba(255,255,255,0.8)', color: '#2563eb', fontWeight: 700, borderRadius: 2, px: 2, boxShadow: 2, '&:hover': { bgcolor: '#2563eb', color: 'white' } }}>Cerrar</Button>
       </Box>
       <Box sx={{ p: { xs: 2, md: 4 } }}>
