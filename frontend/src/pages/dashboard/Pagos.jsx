@@ -49,6 +49,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
+const DEFAULT_LOGO_URL = 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Parking_icon.svg';
 
 const TabPanel = ({ children, value, index }) => (
   <div hidden={value !== index}>
@@ -386,6 +387,23 @@ const FormularioPago = ({ open, onClose, onGuardar }) => {
 
 const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
   const [metodoPago, setMetodoPago] = useState('efectivo');
+  const [parqueadero, setParqueadero] = useState(null);
+
+  useEffect(() => {
+    const fetchParqueadero = async () => {
+      if (factura && factura.parqueadero_id) {
+        try {
+          const res = await fetch(`https://gest-par-zedic.onrender.com/api/parqueaderos/${factura.parqueadero_id}`);
+          const data = await res.json();
+          setParqueadero(data.data);
+        } catch (err) {
+          setParqueadero(null);
+        }
+      }
+    };
+    fetchParqueadero();
+  }, [factura]);
+
   if (!factura) return null;
 
   // Mostrar detalles adicionales
@@ -393,6 +411,12 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
 
   // Función para imprimir factura
   const handleImprimir = () => {
+    const logo = parqueadero?.logo_url || DEFAULT_LOGO_URL;
+    const nombre = parqueadero?.nombre || 'Gest-Par ZEDIC';
+    const nit = parqueadero?.nit || '900000000-1';
+    const direccion = parqueadero?.direccion || 'Calle 123 #45-67';
+    const telefono = parqueadero?.telefono || '300 123 4567';
+    const email = parqueadero?.email || 'info@zedic.com';
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
       <html>
@@ -401,7 +425,7 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
         <style>
           body { font-family: Arial, sans-serif; margin: 40px; }
           .header { display: flex; align-items: center; border-bottom: 2px solid #1976d2; padding-bottom: 10px; margin-bottom: 20px; }
-          .logo { width: 80px; height: 80px; margin-right: 20px; }
+          .logo { width: 80px; height: 80px; margin-right: 20px; object-fit: cover; border-radius: 12px; border: 2px solid #1976d2; background: #fff; }
           .company-info { font-size: 16px; }
           .factura-title { text-align: right; font-size: 28px; color: #1976d2; font-weight: bold; }
           .section { margin-bottom: 20px; }
@@ -414,22 +438,22 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
       </head>
       <body>
         <div class="header">
-          <img src="https://i.ibb.co/6b8Qw1d/logo-zedic.png" class="logo" alt="Logo" />
+          <img src="${logo}" class="logo" alt="Logo" />
           <div class="company-info">
-            <div><strong>Gest-Par ZEDIC</strong></div>
-            <div>NIT: 900000000-1</div>
-            <div>Dirección: Calle 123 #45-67</div>
-            <div>Tel: 300 123 4567</div>
-            <div>Email: info@zedic.com</div>
+            <div><strong>${nombre}</strong></div>
+            <div>NIT: ${nit}</div>
+            <div>Dirección: ${direccion}</div>
+            <div>Tel: ${telefono}</div>
+            <div>Email: ${email}</div>
           </div>
           <div style="flex:1"></div>
-          <div class="factura-title">Factura #{factura.id || ''}</div>
+          <div class="factura-title">Factura #${factura.id || ''}</div>
         </div>
         <div class="section">
-          <strong>Cliente:</strong> {factura.usuario_nombre || ''}<br/>
-          <strong>Placa:</strong> {factura.placa || ''}<br/>
-          <strong>Servicio:</strong> {factura.servicio_nombre || ''}<br/>
-          <strong>Fecha de emisión:</strong> {factura.fecha_creacion ? new Date(factura.fecha_creacion).toLocaleString() : ''}
+          <strong>Cliente:</strong> ${factura.usuario_nombre || ''}<br/>
+          <strong>Placa:</strong> ${factura.placa || ''}<br/>
+          <strong>Servicio:</strong> ${factura.servicio_nombre || ''}<br/>
+          <strong>Fecha de emisión:</strong> ${factura.fecha_creacion ? new Date(factura.fecha_creacion).toLocaleString() : ''}
         </div>
         <div class="section">
           <table class="details-table">

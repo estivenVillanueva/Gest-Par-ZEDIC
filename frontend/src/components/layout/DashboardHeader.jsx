@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   AppBar,
@@ -24,6 +24,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import safeparkingLogo from '../../assets/safeparking.png';
 import { useAuth } from '../../../logic/AuthContext';
+import { io } from 'socket.io-client';
 
 const navigationItems = [
   { 
@@ -57,8 +58,44 @@ const DashboardHeader = () => {
   const location = useLocation();
   const [anchorEl, setAnchorEl] = useState(null);
   const [notificationsAnchor, setNotificationsAnchor] = useState(null);
-  const { logout } = useAuth();
+  const [notificaciones, setNotificaciones] = useState([]);
+  const { logout, currentUser } = useAuth();
   const navigate = useNavigate();
+  const socketRef = useRef(null);
+
+  useEffect(() => {
+    const fetchNotificaciones = async () => {
+      if (!currentUser?.id) return;
+      try {
+        const res = await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/${currentUser.id}/notificaciones`);
+        const data = await res.json();
+        setNotificaciones(data.data || []);
+      } catch (err) {
+        setNotificaciones([]);
+      }
+    };
+    fetchNotificaciones();
+  }, [currentUser]);
+
+  useEffect(() => {
+    // Conéctate solo una vez
+    if (!socketRef.current) {
+      socketRef.current = io('https://gest-par-zedic.onrender.com', {
+        transports: ['websocket'],
+      });
+      socketRef.current.on('nueva_notificacion', (notificacion) => {
+        if (notificacion.usuario_id === currentUser.id) {
+          setNotificaciones(prev => [notificacion, ...prev]);
+        }
+      });
+    }
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+    };
+  }, [currentUser]);
 
   const handleProfileClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -73,6 +110,13 @@ const DashboardHeader = () => {
     setNotificationsAnchor(null);
   };
 
+  const handleMarcarLeida = async (id) => {
+    try {
+      await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${id}/leida`, { method: 'PUT' });
+      setNotificaciones(prev => prev.map(n => n.id === id ? { ...n, leida: true } : n));
+    } catch {}
+  };
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -82,6 +126,8 @@ const DashboardHeader = () => {
       // Puedes mostrar un mensaje de error si lo deseas
     }
   };
+
+  const unreadCount = notificaciones.filter(n => !n.leida).length;
 
   return (
     <AppBar 
@@ -161,7 +207,7 @@ const DashboardHeader = () => {
                 onClick={handleNotificationsClick}
                 sx={{ color: '#64748B' }}
               >
-                <Badge badgeContent={3} color="error">
+                <Badge badgeContent={unreadCount} color="error">
                   <NotificationsIcon />
                 </Badge>
               </IconButton>
@@ -210,15 +256,18 @@ const DashboardHeader = () => {
               Notificaciones
             </Typography>
             <Divider />
-            <MenuItem onClick={handleClose}>
-              Nuevo vehículo registrado
-            </MenuItem>
-            <MenuItem onClick={handleClose}>
-              Pago pendiente
-            </MenuItem>
-            <MenuItem onClick={handleClose}>
-              Actualización del sistema
-            </MenuItem>
+            {notificaciones.length === 0 && (
+              <MenuItem disabled>No hay notificaciones</MenuItem>
+            )}
+            {notificaciones.map((n) => (
+              <MenuItem
+                key={n.id}
+                onClick={() => { handleMarcarLeida(n.id); handleClose(); }}
+                sx={{ fontWeight: n.leida ? 400 : 700, bgcolor: n.leida ? 'inherit' : '#e3f2fd' }}
+              >
+                {n.titulo}
+              </MenuItem>
+            ))}
           </Menu>
 
           {/* Menú de Usuario */}

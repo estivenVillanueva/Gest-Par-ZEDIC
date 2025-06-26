@@ -5,6 +5,7 @@ import dns from 'dns';
 import { promisify } from 'util';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import { notificacionesQueries, crearYEmitirNotificacion } from '../queries/notificaciones.queries.js';
 
 const router = express.Router();
 
@@ -351,6 +352,36 @@ router.get('/verificar/:token', async (req, res) => {
     } catch (error) {
         res.status(500).send('Error al verificar el correo.');
     }
+});
+
+// Crear notificación y emitir en tiempo real
+router.post('/notificaciones', async (req, res) => {
+  try {
+    const notificacion = await crearYEmitirNotificacion(req.io, req.body);
+    res.status(201).json({ success: true, data: notificacion });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Listar notificaciones por usuario
+router.get('/:usuario_id/notificaciones', async (req, res) => {
+  try {
+    const notificaciones = await notificacionesQueries.listarPorUsuario(req.params.usuario_id);
+    res.json({ success: true, data: notificaciones });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Marcar notificación como leída
+router.put('/notificaciones/:id/leida', async (req, res) => {
+  try {
+    const notificacion = await notificacionesQueries.marcarLeida(req.params.id);
+    res.json({ success: true, data: notificacion });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 export const usuarioRoutes = router; 

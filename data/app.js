@@ -10,10 +10,19 @@ import { rolesRoutes } from './routes/roles.routes.js';
 import ingresosRoutes from './routes/ingresos.routes.js';
 import reservasRoutes from './routes/reservas.routes.js';
 import pagosRoutes from './routes/pagos.routes.js';
+import http from 'http';
+import { Server as SocketIOServer } from 'socket.io';
 
 dotenv.config();
 
 const app = express();
+const server = http.createServer(app);
+const io = new SocketIOServer(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
+});
 
 // Middleware
 const allowedOrigins = [
@@ -45,6 +54,11 @@ app.use(cors({
 }));
 app.use(express.json());
 
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
 // Rutas
 app.use('/api/parqueaderos', parqueaderoRoutes);
 app.use('/api/usuarios', usuarioRoutes);
@@ -74,19 +88,11 @@ app.use((err, req, res, next) => {
     });
 });
 
-const startServer = (port) => {
-    const numericPort = typeof port === 'string' ? parseInt(port, 10) : port;
-    app.listen(numericPort, () => {
-        console.log(`Servidor corriendo en el puerto ${numericPort}`);
-    }).on('error', (err) => {
-        if (err.code === 'EADDRINUSE') {
-            console.log(`El puerto ${numericPort} está en uso, intentando con el puerto ${numericPort + 1}`);
-            startServer(numericPort + 1);
-        } else {
-            console.error('Error al iniciar el servidor:', err);
-        }
-    });
-};
+io.on('connection', (socket) => {
+  console.log('Cliente conectado:', socket.id);
+});
 
-const PORT = process.env.PORT || 3000;
-startServer(PORT); 
+const PORT = process.env.PORT || 3001;
+server.listen(PORT, () => {
+  console.log(`Servidor escuchando en puerto ${PORT}`);
+}); 

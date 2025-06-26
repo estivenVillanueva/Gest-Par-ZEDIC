@@ -1,6 +1,7 @@
 import express from 'express';
 import { vehiculoQueries } from '../queries/vehiculo.queries.js';
 import { facturaQueries } from '../queries/factura.queries.js';
+import { crearYEmitirNotificacion } from '../queries/notificaciones.queries.js';
 
 const router = express.Router();
 
@@ -82,6 +83,13 @@ router.post('/', async (req, res) => {
         const nuevoVehiculo = await vehiculoQueries.createVehiculo({ placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento, puesto });
         // Generar facturas periódicas después de crear el vehículo
         await facturaQueries.generateFacturasPeriodicas();
+        // Notificación automática
+        await crearYEmitirNotificacion(req.io, {
+          usuario_id: usuario_id || null,
+          titulo: 'Nuevo vehículo registrado',
+          mensaje: `Se ha registrado el vehículo ${placa} en el sistema.`,
+          tipo: 'vehiculo'
+        });
         res.status(201).json({
             success: true,
             data: nuevoVehiculo

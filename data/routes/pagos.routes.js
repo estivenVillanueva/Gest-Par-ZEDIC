@@ -5,6 +5,7 @@ import {
     marcarComoPagada 
 } from '../queries/pagos.queries.js';
 import { facturaQueries } from '../queries/factura.queries.js';
+import { crearYEmitirNotificacion } from '../queries/notificaciones.queries.js';
 
 const router = express.Router();
 
@@ -43,6 +44,13 @@ router.put('/:facturaId/pagar', async (req, res) => {
             return res.status(400).json({ error: 'El método de pago es requerido.' });
         }
         const facturaPagada = await marcarComoPagada(facturaId, metodo_pago);
+        // Notificación automática
+        await crearYEmitirNotificacion(req.io, {
+          usuario_id: facturaPagada.usuario_id || null,
+          titulo: 'Pago registrado',
+          mensaje: `Se ha registrado el pago de la factura #${facturaId}.`,
+          tipo: 'pago'
+        });
         res.json(facturaPagada);
     } catch (error) {
         console.error('Error al marcar factura como pagada:', error);

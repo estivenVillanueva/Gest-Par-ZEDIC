@@ -1,5 +1,6 @@
 import express from 'express';
 import reservasQueries from '../queries/reservas.queries.js';
+import { crearYEmitirNotificacion } from '../queries/notificaciones.queries.js';
 
 const router = express.Router();
 
@@ -7,6 +8,13 @@ const router = express.Router();
 router.post('/', async (req, res) => {
   try {
     const reserva = await reservasQueries.crearReserva(req.body);
+    // Notificación automática
+    await crearYEmitirNotificacion(req.io, {
+      usuario_id: reserva.usuario_id || null,
+      titulo: 'Nueva solicitud de reserva',
+      mensaje: `Se ha realizado una solicitud de reserva para el parqueadero.`,
+      tipo: 'reserva'
+    });
     res.status(201).json(reserva);
   } catch (error) {
     res.status(500).json({ error: error.message });
