@@ -34,6 +34,7 @@ import BadgeIcon from '@mui/icons-material/Badge';
 import WorkIcon from '@mui/icons-material/Work';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../logic/AuthContext';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 
 const DEFAULT_LOGO_URL = 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Parking_icon.svg';
 const DEFAULT_PORTADA_URL = 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80';
@@ -359,31 +360,27 @@ const ParqueaderoProfile = () => {
             style={{ width: '100%', maxHeight: 220, objectFit: 'cover', borderRadius: 12 }}
             onError={e => { e.target.onerror = null; e.target.src = DEFAULT_PORTADA_URL; }}
           />
-
-          {/* Botones de portada flotantes */}
-          <Box sx={{
-            position: 'absolute',
-            top: 16,
-            right: 24,
-            display: 'flex',
-            gap: 1,
-            bgcolor: 'rgba(255,255,255,0.85)',
-            borderRadius: 3,
-            boxShadow: 3,
-            p: 1,
-            zIndex: 3
-          }}>
-            <Tooltip title="Quitar portada">
-              <IconButton color="error" onClick={() => handleSavePortada('')} size="small">
-                <span className="material-icons">delete</span>
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Cambiar portada">
-              <IconButton color="primary" onClick={() => portadaInputRef && portadaInputRef.click()} size="small">
-                <span className="material-icons">photo_camera</span>
-              </IconButton>
-            </Tooltip>
-          </Box>
+          {/* Icono de cámara para cambiar portada */}
+          <IconButton
+            color="primary"
+            size="small"
+            onClick={() => portadaInputRef && portadaInputRef.click()}
+            sx={{
+              position: 'absolute',
+              right: 24,
+              bottom: 16,
+              bgcolor: 'rgba(255,255,255,0.85)',
+              borderRadius: '50%',
+              boxShadow: 2,
+              p: 0.5,
+              zIndex: 3,
+              border: '1.5px solid #e0e0e0',
+              '&:hover': { bgcolor: 'rgba(255,255,255,1)' }
+            }}
+            aria-label="Cambiar portada"
+          >
+            <PhotoCameraIcon fontSize="small" />
+          </IconButton>
 
           {/* Logo superpuesto */}
           <Avatar
@@ -401,31 +398,27 @@ const ParqueaderoProfile = () => {
             }}
             onError={e => { e.target.onerror = null; e.target.src = DEFAULT_LOGO_URL; }}
           />
-
-          {/* Botones de logo flotantes */}
-          <Box sx={{
-            position: 'absolute',
-            left: 40,
-            bottom: -70,
-            display: 'flex',
-            gap: 1,
-            bgcolor: 'rgba(255,255,255,0.85)',
-            borderRadius: 3,
-            boxShadow: 3,
-            p: 1,
-            zIndex: 3
-          }}>
-            <Tooltip title="Quitar logo">
-              <IconButton color="error" onClick={() => handleSaveLogo('')} size="small">
-                <span className="material-icons">delete</span>
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Cambiar logo">
-              <IconButton color="primary" onClick={() => logoInputRef && logoInputRef.click()} size="small">
-                <span className="material-icons">photo_camera</span>
-              </IconButton>
-            </Tooltip>
-          </Box>
+          {/* Icono de cámara para cambiar logo */}
+          <IconButton
+            color="primary"
+            size="small"
+            onClick={() => logoInputRef && logoInputRef.click()}
+            sx={{
+              position: 'absolute',
+              left: 100,
+              bottom: -20,
+              bgcolor: 'rgba(255,255,255,0.85)',
+              borderRadius: '50%',
+              boxShadow: 2,
+              p: 0.5,
+              zIndex: 3,
+              border: '1.5px solid #e0e0e0',
+              '&:hover': { bgcolor: 'rgba(255,255,255,1)' }
+            }}
+            aria-label="Cambiar logo"
+          >
+            <PhotoCameraIcon fontSize="small" />
+          </IconButton>
 
           <input
             type="file"
