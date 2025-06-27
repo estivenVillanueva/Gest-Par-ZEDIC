@@ -1,5 +1,5 @@
 import express from 'express';
-import { facturaQueries, detalleFacturaQueries } from '../queries/factura.queries.js';
+import { facturaQueries, detalleFacturaQueries, getFacturaCompletaById } from '../queries/factura.queries.js';
 
 const router = express.Router();
 
@@ -171,6 +171,18 @@ router.delete('/detalles/:id', async (req, res) => {
             error: error.message
         });
     }
+});
+
+// Nueva ruta para obtener factura completa
+router.get('/completa/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await getFacturaCompletaById(id);
+    if (!data) return res.status(404).json({ error: 'Factura no encontrada' });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 export const facturaRoutes = router; 
