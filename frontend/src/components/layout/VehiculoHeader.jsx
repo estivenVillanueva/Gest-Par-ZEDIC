@@ -99,7 +99,7 @@ const VehiculoHeader = () => {
                 display: { xs: 'none', sm: 'block' }
               }}
             >
-              Gest-Par ZEDIC
+              Gest-Par ZEDI
             </Typography>
           </Box>
 
