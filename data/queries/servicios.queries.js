@@ -2,13 +2,13 @@ import { pool } from '../postgres.js';
 
 export const serviciosQueries = {
     // Crear un nuevo servicio
-    async createServicio({ nombre, descripcion, precio, duracion, estado, parqueadero_id }) {
+    async createServicio({ nombre, descripcion, precio, duracion, estado, parqueadero_id, precio_minuto = 0, precio_hora = 0, precio_dia = 0 }) {
         const query = `
-            INSERT INTO servicios (nombre, descripcion, precio, duracion, estado, parqueadero_id)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO servicios (nombre, descripcion, precio, duracion, estado, parqueadero_id, precio_minuto, precio_hora, precio_dia)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             RETURNING *
         `;
-        const values = [nombre, descripcion, precio, duracion, estado, parqueadero_id];
+        const values = [nombre, descripcion, precio, duracion, estado, parqueadero_id, precio_minuto, precio_hora, precio_dia];
         const result = await pool.query(query, values);
         return result.rows[0];
     },
@@ -28,7 +28,7 @@ export const serviciosQueries = {
     },
 
     // Actualizar servicio
-    async updateServicio(id, { nombre, descripcion, precio, duracion, estado, parqueadero_id }) {
+    async updateServicio(id, { nombre, descripcion, precio, duracion, estado, parqueadero_id, precio_minuto = 0, precio_hora = 0, precio_dia = 0 }) {
         const query = `
             UPDATE servicios
             SET nombre = $1,
@@ -36,11 +36,14 @@ export const serviciosQueries = {
                 precio = $3,
                 duracion = $4,
                 estado = $5,
-                parqueadero_id = $6
-            WHERE id = $7
+                parqueadero_id = $6,
+                precio_minuto = $7,
+                precio_hora = $8,
+                precio_dia = $9
+            WHERE id = $10
             RETURNING *
         `;
-        const values = [nombre, descripcion, precio, duracion, estado, parqueadero_id, id];
+        const values = [nombre, descripcion, precio, duracion, estado, parqueadero_id, precio_minuto, precio_hora, precio_dia, id];
         const result = await pool.query(query, values);
         return result.rows[0];
     },

@@ -670,13 +670,16 @@ const ParqueaderoProfile = () => {
                 onChange={e => setEditValue({ ...editValue, descripcion: e.target.value })}
                 sx={{ mb: 2 }}
               />
-              <TextField
-                fullWidth
-                label="Precio"
-                value={editValue.precio}
-                onChange={e => setEditValue({ ...editValue, precio: e.target.value })}
-                sx={{ mb: 2 }}
-              />
+              {/* Mostrar campo Precio solo si la duración NO es hora, minuto, día o uso */}
+              {!( ['hora','minuto','día','dias','días','uso'].includes((editValue.duracion || '').toLowerCase()) ) && (
+                <TextField
+                  fullWidth
+                  label="Precio"
+                  value={editValue.precio}
+                  onChange={e => setEditValue({ ...editValue, precio: e.target.value })}
+                  sx={{ mb: 2 }}
+                />
+              )}
               <TextField
                 select
                 fullWidth
@@ -716,40 +719,85 @@ const ParqueaderoProfile = () => {
                 <MenuItem value="inactivo">Inactivo</MenuItem>
               </TextField>
               {/* Mostrar campos de tarifa solo si el servicio es por uso, hora, minuto o día */}
-              {['uso', 'hora', 'minuto', 'día', 'dias', 'días'].includes((editValue.duracion || '').toLowerCase()) && (
-                <>
-                  <TextField
-                    fullWidth
-                    label="Precio por minuto"
-                    type="number"
-                    value={editValue.precio_minuto || ''}
-                    onChange={e => setEditValue({ ...editValue, precio_minuto: e.target.value })}
-                    sx={{ mb: 2 }}
-                    inputProps={{ min: 0 }}
-                    helperText="Solo para servicios por uso."
-                  />
-                  <TextField
-                    fullWidth
-                    label="Precio por hora"
-                    type="number"
-                    value={editValue.precio_hora || ''}
-                    onChange={e => setEditValue({ ...editValue, precio_hora: e.target.value })}
-                    sx={{ mb: 2 }}
-                    inputProps={{ min: 0 }}
-                    helperText="Solo para servicios por uso."
-                  />
-                  <TextField
-                    fullWidth
-                    label="Precio por día"
-                    type="number"
-                    value={editValue.precio_dia || ''}
-                    onChange={e => setEditValue({ ...editValue, precio_dia: e.target.value })}
-                    sx={{ mb: 2 }}
-                    inputProps={{ min: 0 }}
-                    helperText="Solo para servicios por uso."
-                  />
-                </>
-              )}
+              {(() => {
+                const dur = (editValue.duracion || '').toLowerCase();
+                if (dur === 'hora') {
+                  return (
+                    <TextField
+                      fullWidth
+                      label="Precio por hora"
+                      type="number"
+                      value={editValue.precio_hora || ''}
+                      onChange={e => setEditValue({ ...editValue, precio_hora: e.target.value })}
+                      sx={{ mb: 2 }}
+                      inputProps={{ min: 0 }}
+                      helperText="Solo para servicios por hora."
+                    />
+                  );
+                } else if (dur === 'minuto') {
+                  return (
+                    <TextField
+                      fullWidth
+                      label="Precio por minuto"
+                      type="number"
+                      value={editValue.precio_minuto || ''}
+                      onChange={e => setEditValue({ ...editValue, precio_minuto: e.target.value })}
+                      sx={{ mb: 2 }}
+                      inputProps={{ min: 0 }}
+                      helperText="Solo para servicios por minuto."
+                    />
+                  );
+                } else if (['día', 'dias', 'días'].includes(dur)) {
+                  return (
+                    <TextField
+                      fullWidth
+                      label="Precio por día"
+                      type="number"
+                      value={editValue.precio_dia || ''}
+                      onChange={e => setEditValue({ ...editValue, precio_dia: e.target.value })}
+                      sx={{ mb: 2 }}
+                      inputProps={{ min: 0 }}
+                      helperText="Solo para servicios por día."
+                    />
+                  );
+                } else if (dur === 'uso') {
+                  return (
+                    <>
+                      <TextField
+                        fullWidth
+                        label="Precio por minuto"
+                        type="number"
+                        value={editValue.precio_minuto || ''}
+                        onChange={e => setEditValue({ ...editValue, precio_minuto: e.target.value })}
+                        sx={{ mb: 2 }}
+                        inputProps={{ min: 0 }}
+                        helperText="Solo para servicios por uso."
+                      />
+                      <TextField
+                        fullWidth
+                        label="Precio por hora"
+                        type="number"
+                        value={editValue.precio_hora || ''}
+                        onChange={e => setEditValue({ ...editValue, precio_hora: e.target.value })}
+                        sx={{ mb: 2 }}
+                        inputProps={{ min: 0 }}
+                        helperText="Solo para servicios por uso."
+                      />
+                      <TextField
+                        fullWidth
+                        label="Precio por día"
+                        type="number"
+                        value={editValue.precio_dia || ''}
+                        onChange={e => setEditValue({ ...editValue, precio_dia: e.target.value })}
+                        sx={{ mb: 2 }}
+                        inputProps={{ min: 0 }}
+                        helperText="Solo para servicios por uso."
+                      />
+                    </>
+                  );
+                }
+                return null;
+              })()}
             </Box>
           ) : (
             <TextField
