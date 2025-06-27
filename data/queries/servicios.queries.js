@@ -3,8 +3,14 @@ import { pool } from '../postgres.js';
 export const serviciosQueries = {
     // Crear un nuevo servicio
     async createServicio({ nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto = 0, precio_hora = 0, precio_dia = 0 }) {
-        // Normalizar campos numéricos vacíos a null
-        const safePrecio = (precio === '' ? null : precio);
+        // Normalizar campos numéricos vacíos a null o a un valor válido
+        let safePrecio = precio;
+        if (safePrecio === '' || safePrecio === undefined || safePrecio === null) {
+            if (duracion === 'minuto') safePrecio = precio_minuto || 0;
+            else if (duracion === 'hora') safePrecio = precio_hora || 0;
+            else if (duracion === 'día' || duracion === 'dia') safePrecio = precio_dia || 0;
+            else safePrecio = 0;
+        }
         const safePrecioMinuto = (precio_minuto === '' ? null : precio_minuto);
         const safePrecioHora = (precio_hora === '' ? null : precio_hora);
         const safePrecioDia = (precio_dia === '' ? null : precio_dia);
