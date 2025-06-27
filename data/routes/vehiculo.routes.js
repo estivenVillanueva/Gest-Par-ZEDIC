@@ -86,6 +86,7 @@ router.post('/', async (req, res) => {
         // Notificación automática
         await crearYEmitirNotificacion(req.io, {
           usuario_id: usuario_id || null,
+          parqueadero_id: parqueadero_id || null,
           titulo: 'Nuevo vehículo registrado',
           mensaje: `Se ha registrado el vehículo ${placa} en el sistema.`,
           tipo: 'vehiculo'

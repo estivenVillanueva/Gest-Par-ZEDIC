@@ -11,6 +11,7 @@ router.post('/', async (req, res) => {
     // Notificación automática
     await crearYEmitirNotificacion(req.io, {
       usuario_id: reserva.usuario_id || null,
+      parqueadero_id: reserva.parqueadero_id || null,
       titulo: 'Nueva solicitud de reserva',
       mensaje: `Se ha realizado una solicitud de reserva para el parqueadero.`,
       tipo: 'reserva'

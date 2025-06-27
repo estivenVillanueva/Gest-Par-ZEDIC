@@ -47,6 +47,7 @@ router.put('/:facturaId/pagar', async (req, res) => {
         // Notificación automática
         await crearYEmitirNotificacion(req.io, {
           usuario_id: facturaPagada.usuario_id || null,
+          parqueadero_id: facturaPagada.parqueadero_id || null,
           titulo: 'Pago registrado',
           mensaje: `Se ha registrado el pago de la factura #${facturaId}.`,
           tipo: 'pago'
