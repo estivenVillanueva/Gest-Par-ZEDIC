@@ -393,7 +393,7 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
     const fetchParqueadero = async () => {
       if (factura && factura.parqueadero_id) {
         try {
-          const res = await fetch(`https://gest-par-zedic.onrender.com/api/parqueaderos/${factura.parqueadero_id}`);
+          const res = await fetch(`${API_URL}/api/parqueaderos/${factura.parqueadero_id}`);
           const data = await res.json();
           setParqueadero(data.data);
         } catch (err) {
@@ -410,7 +410,12 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
   const detallesContacto = [factura.dueno_telefono, factura.dueno_email].filter(Boolean).join(' | ');
 
   // Función para imprimir factura
-  const handleImprimir = () => {
+  const handleImprimir = async () => {
+    if (!factura) return;
+    // Llama a la nueva API de factura completa
+    const res = await fetch(`${API_URL}/api/facturas/completa/${factura.id}`);
+    const data = await res.json();
+    const { factura: f, detalles, parqueadero, vehiculo, numIngresos, numSalidas } = data;
     const logo = parqueadero?.logo_url || DEFAULT_LOGO_URL;
     const nombre = parqueadero?.nombre || 'Gest-Par ZEDIC';
     const nit = parqueadero?.nit || '900000000-1';
@@ -447,13 +452,19 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
             <div>Email: ${email}</div>
           </div>
           <div style="flex:1"></div>
-          <div class="factura-title">Factura #${factura.id || ''}</div>
+          <div class="factura-title">Factura #${f.id || ''}</div>
         </div>
         <div class="section">
-          <strong>Cliente:</strong> ${factura.usuario_nombre || ''}<br/>
-          <strong>Placa:</strong> ${factura.placa || ''}<br/>
-          <strong>Servicio:</strong> ${factura.servicio_nombre || ''}<br/>
-          <strong>Fecha de emisión:</strong> ${factura.fecha_creacion ? new Date(factura.fecha_creacion).toLocaleString() : ''}
+          <strong>Cliente:</strong> ${vehiculo?.dueno_nombre || f.usuario_nombre || ''}<br/>
+          <strong>Placa:</strong> ${vehiculo?.placa || ''}<br/>
+          <strong>Marca:</strong> ${vehiculo?.marca || ''}<br/>
+          <strong>Modelo:</strong> ${vehiculo?.modelo || ''}<br/>
+          <strong>Color:</strong> ${vehiculo?.color || ''}<br/>
+          <strong>Tipo:</strong> ${vehiculo?.tipo || ''}<br/>
+          <strong>Servicio:</strong> ${f.servicio_nombre || ''}<br/>
+          <strong>Fecha de emisión:</strong> ${f.fecha_creacion ? new Date(f.fecha_creacion).toLocaleString() : ''}<br/>
+          <strong>Entradas registradas:</strong> ${numIngresos}<br/>
+          <strong>Salidas registradas:</strong> ${numSalidas}
         </div>
         <div class="section">
           <table class="details-table">
@@ -466,13 +477,13 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
               </tr>
             </thead>
             <tbody>
-              ${(factura.detalles && factura.detalles.length > 0)
-                ? factura.detalles.map(det => `
+              ${(detalles && detalles.length > 0)
+                ? detalles.map(det => `
                   <tr>
-                    <td>${det.servicio_id}</td>
-                    <td>${det.cantidad}</td>
+                    <td>${det.servicio_nombre || det.tipo_servicio || ''}</td>
+                    <td>${det.cantidad || 1}</td>
                     <td>$${parseFloat(det.precio_unitario).toLocaleString('es-CO')}</td>
-                    <td>$${parseFloat(det.subtotal).toLocaleString('es-CO')}</td>
+                    <td>$${parseFloat(det.subtotal || det.valor_total || 0).toLocaleString('es-CO')}</td>
                   </tr>
                 `).join('')
                 : `<tr><td colspan="4">Sin detalles</td></tr>`}
@@ -480,7 +491,7 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
           </table>
         </div>
         <div class="total">
-          Total: $${(factura.total || factura.valor_total || 0).toLocaleString('es-CO')}
+          Total: $${(f.total || f.valor_total || 0).toLocaleString('es-CO')}
         </div>
         <div class="footer">
           ¡Gracias por preferirnos!<br/>

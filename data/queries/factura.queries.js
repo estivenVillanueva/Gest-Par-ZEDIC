@@ -157,4 +157,51 @@ export const detalleFacturaQueries = {
         const result = await pool.query(query, [id]);
         return result.rows[0];
     }
-}; 
+};
+
+// Obtener factura completa por ID (con detalles, parqueadero, vehículo, logo, entradas/salidas)
+async function getFacturaCompletaById(id) {
+    // 1. Obtener la factura y su servicio
+    const facturaQuery = `
+        SELECT f.*, s.nombre as servicio_nombre, s.precio as servicio_precio, f.parqueadero_id, f.vehiculo_id
+        FROM factura f
+        JOIN servicios s ON f.id_servicio = s.id
+        WHERE f.id = $1
+    `;
+    const facturaRes = await pool.query(facturaQuery, [id]);
+    const factura = facturaRes.rows[0];
+    if (!factura) return null;
+
+    // 2. Obtener detalles de la factura
+    const detalles = await detalleFacturaQueries.getDetallesByFacturaId(id);
+
+    // 3. Obtener datos del parqueadero
+    const parqueaderoQuery = 'SELECT * FROM parqueaderos WHERE id = $1';
+    const parqueaderoRes = await pool.query(parqueaderoQuery, [factura.parqueadero_id]);
+    const parqueadero = parqueaderoRes.rows[0];
+
+    // 4. Obtener datos del vehículo
+    const vehiculoQuery = 'SELECT * FROM vehiculos WHERE id = $1';
+    const vehiculoRes = await pool.query(vehiculoQuery, [factura.vehiculo_id]);
+    const vehiculo = vehiculoRes.rows[0];
+
+    // 5. Contar ingresos y salidas del vehículo
+    const ingresosQuery = 'SELECT COUNT(*) FROM ingresos WHERE vehiculo_id = $1';
+    const ingresosRes = await pool.query(ingresosQuery, [factura.vehiculo_id]);
+    const numIngresos = parseInt(ingresosRes.rows[0].count, 10);
+    // Para salidas, cuenta los ingresos con hora_salida no nula
+    const salidasQuery = 'SELECT COUNT(*) FROM ingresos WHERE vehiculo_id = $1 AND hora_salida IS NOT NULL';
+    const salidasRes = await pool.query(salidasQuery, [factura.vehiculo_id]);
+    const numSalidas = parseInt(salidasRes.rows[0].count, 10);
+
+    return {
+        factura,
+        detalles,
+        parqueadero,
+        vehiculo,
+        numIngresos,
+        numSalidas
+    };
+}
+
+export { getFacturaCompletaById }; 
