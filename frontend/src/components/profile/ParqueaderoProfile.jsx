@@ -96,7 +96,7 @@ const ParqueaderoProfile = () => {
   const [portadaTimestamp, setPortadaTimestamp] = useState(Date.now());
 
   const CLOUDINARY_UPLOAD_PRESET = 'Gest-par-zedic';
-  const CLOUDINARY_CLOUD_NAME = 'dnudkdqyr';
+  const CLOUDINARY_CLOUD_NAME = 'dnuddkdyr';
 
   const uploadToBackend = async (file) => {
     const formData = new FormData();
