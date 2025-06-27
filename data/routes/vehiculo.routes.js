@@ -107,6 +107,7 @@ router.post('/', async (req, res) => {
 // Actualizar vehículo
 router.put('/:placa', async (req, res) => {
     try {
+        console.log('BODY UPDATE VEHICULO:', req.body);
         const { marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento, puesto } = req.body;
         // Validar que el puesto esté disponible (excepto si es el mismo vehículo)
         if (puesto) {
@@ -116,6 +117,7 @@ router.put('/:placa', async (req, res) => {
             }
         }
         const vehiculoActualizado = await vehiculoQueries.updateVehiculo(req.params.placa, { marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento, puesto });
+        console.log('RESULTADO UPDATE VEHICULO:', vehiculoActualizado);
         if (!vehiculoActualizado) {
             return res.status(404).json({
                 success: false,
