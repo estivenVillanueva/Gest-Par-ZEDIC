@@ -7,34 +7,35 @@ export const MinimalCard = styled(Card)(({ theme }) => ({
   maxWidth: 320,
   margin: '0 auto',
   borderRadius: 20,
-  background: '#fff',
+  background: '#f8fafc',
   boxShadow: '0 4px 24px 0 rgba(31, 38, 135, 0.07)',
   border: '1.5px solid #f0f4fa',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  padding: theme.spacing(3, 2, 2, 2),
+  padding: theme.spacing(4, 2, 3, 2),
   transition: 'all 0.25s cubic-bezier(0.4,0,0.2,1)',
   cursor: 'pointer',
   '&:hover': {
     boxShadow: '0 12px 32px 0 rgba(31, 38, 135, 0.13)',
     borderColor: theme.palette.primary.main,
-    transform: 'translateY(-4px) scale(1.03)',
+    background: '#e3eaf6',
+    transform: 'translateY(-6px) scale(1.04)',
   },
 }));
 
 export const MinimalIcon = styled(Box)(({ theme }) => ({
-  width: 56,
-  height: 56,
+  width: 64,
+  height: 64,
   borderRadius: '50%',
   background: 'linear-gradient(135deg, #3498f3 0%, #2B6CA3 100%)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   color: '#fff',
-  fontSize: 32,
+  fontSize: 38,
   boxShadow: '0 2px 8px rgba(52,152,243,0.10)',
-  marginBottom: theme.spacing(2),
+  marginBottom: theme.spacing(2.5),
 }));
 
 export const MinimalBadge = styled(Chip)(({ theme }) => ({
@@ -62,7 +63,8 @@ export const MinimalFab = styled(Fab)(({ theme }) => ({
 
 export const MinimalGrid = styled(Grid)(({ theme }) => ({
   marginTop: theme.spacing(3),
-  justifyContent: 'flex-start',
+  justifyContent: 'center',
+  gap: theme.spacing(3),
 }));
 
 export const MinimalFilterBar = styled(Box)(({ theme }) => ({
@@ -71,8 +73,8 @@ export const MinimalFilterBar = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   marginBottom: theme.spacing(3),
   flexWrap: 'wrap',
-  background: '#fff',
-  borderRadius: 14,
-  boxShadow: '0 2px 12px rgba(52,152,243,0.05)',
-  padding: theme.spacing(2, 3),
+  background: '#f4f6fa',
+  borderRadius: 18,
+  boxShadow: '0 2px 16px rgba(52,152,243,0.07)',
+  padding: theme.spacing(2.5, 4),
 })); 
