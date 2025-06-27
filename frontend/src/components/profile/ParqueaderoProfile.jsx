@@ -17,6 +17,7 @@ import {
   Divider,
   Alert,
   Snackbar,
+  Tooltip,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import InfoIcon from '@mui/icons-material/Info';
@@ -358,6 +359,32 @@ const ParqueaderoProfile = () => {
             style={{ width: '100%', maxHeight: 220, objectFit: 'cover', borderRadius: 12 }}
             onError={e => { e.target.onerror = null; e.target.src = DEFAULT_PORTADA_URL; }}
           />
+
+          {/* Botones de portada flotantes */}
+          <Box sx={{
+            position: 'absolute',
+            top: 16,
+            right: 24,
+            display: 'flex',
+            gap: 1,
+            bgcolor: 'rgba(255,255,255,0.85)',
+            borderRadius: 3,
+            boxShadow: 3,
+            p: 1,
+            zIndex: 3
+          }}>
+            <Tooltip title="Quitar portada">
+              <IconButton color="error" onClick={() => handleSavePortada('')} size="small">
+                <span className="material-icons">delete</span>
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Cambiar portada">
+              <IconButton color="primary" onClick={() => portadaInputRef && portadaInputRef.click()} size="small">
+                <span className="material-icons">photo_camera</span>
+              </IconButton>
+            </Tooltip>
+          </Box>
+
           {/* Logo superpuesto */}
           <Avatar
             src={`${parqueaderoInfo.logo_url || DEFAULT_LOGO_URL}?t=${logoTimestamp}`}
@@ -374,30 +401,32 @@ const ParqueaderoProfile = () => {
             }}
             onError={e => { e.target.onerror = null; e.target.src = DEFAULT_LOGO_URL; }}
           />
-          <Button
-            size="small"
-            color="error"
-            sx={{ position: 'absolute', left: 150, bottom: -30, zIndex: 2 }}
-            onClick={() => handleSaveLogo('')}
-          >
-            Quitar logo
-          </Button>
-          <Button
-            size="small"
-            color="error"
-            sx={{ position: 'absolute', left: 40, top: 10, zIndex: 2, background: 'rgba(255,255,255,0.7)' }}
-            onClick={() => handleSavePortada('')}
-          >
-            Quitar portada
-          </Button>
-          <Button
-            size="small"
-            color="primary"
-            sx={{ position: 'absolute', left: 150, bottom: 0, zIndex: 2 }}
-            onClick={() => logoInputRef && logoInputRef.click()}
-          >
-            Cambiar logo
-          </Button>
+
+          {/* Botones de logo flotantes */}
+          <Box sx={{
+            position: 'absolute',
+            left: 40,
+            bottom: -70,
+            display: 'flex',
+            gap: 1,
+            bgcolor: 'rgba(255,255,255,0.85)',
+            borderRadius: 3,
+            boxShadow: 3,
+            p: 1,
+            zIndex: 3
+          }}>
+            <Tooltip title="Quitar logo">
+              <IconButton color="error" onClick={() => handleSaveLogo('')} size="small">
+                <span className="material-icons">delete</span>
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Cambiar logo">
+              <IconButton color="primary" onClick={() => logoInputRef && logoInputRef.click()} size="small">
+                <span className="material-icons">photo_camera</span>
+              </IconButton>
+            </Tooltip>
+          </Box>
+
           <input
             type="file"
             accept="image/*"
@@ -405,14 +434,6 @@ const ParqueaderoProfile = () => {
             ref={ref => setLogoInputRef(ref)}
             onChange={handleLogoChange}
           />
-          <Button
-            size="small"
-            color="primary"
-            sx={{ position: 'absolute', left: 160, top: 10, zIndex: 2, background: 'rgba(255,255,255,0.7)' }}
-            onClick={() => portadaInputRef && portadaInputRef.click()}
-          >
-            Cambiar portada
-          </Button>
           <input
             type="file"
             accept="image/*"
