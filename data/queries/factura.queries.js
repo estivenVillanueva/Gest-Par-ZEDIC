@@ -113,7 +113,7 @@ export const detalleFacturaQueries = {
     // Crear un nuevo detalle de factura
     async createDetalleFactura({ tipoServicio, precioUnitario, valorTotal, idFactura, idServicio }) {
         const query = `
-            INSERT INTO factura_detalles (tipo_servicio, precio_unitario, valor_total, id_factura, id_servicio)
+            INSERT INTO factura_detalles (tipo_servicio, precio_unitario, valor_total, factura_id, id_servicio)
             VALUES ($1, $2, $3, $4, $5)
             RETURNING *
         `;
@@ -128,7 +128,7 @@ export const detalleFacturaQueries = {
             SELECT df.*, s.nombre as servicio_nombre
             FROM factura_detalles df
             JOIN servicios s ON df.id_servicio = s.id
-            WHERE df.id_factura = $1
+            WHERE df.factura_id = $1
         `;
         const result = await pool.query(query, [idFactura]);
         return result.rows;
@@ -141,7 +141,7 @@ export const detalleFacturaQueries = {
             SET tipo_servicio = $1,
                 precio_unitario = $2,
                 valor_total = $3,
-                id_factura = $4,
+                factura_id = $4,
                 id_servicio = $5
             WHERE id = $6
             RETURNING *
