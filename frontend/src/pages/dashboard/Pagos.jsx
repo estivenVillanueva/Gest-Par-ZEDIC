@@ -411,6 +411,7 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
 
   // Función para imprimir factura
   const handleImprimir = async () => {
+    console.log("Factura a imprimir:", factura);
     if (!factura) return;
     // Llama a la nueva API de factura completa
     const res = await fetch(`${API_URL}/api/facturas/completa/${factura.id}`);

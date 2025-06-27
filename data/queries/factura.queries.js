@@ -113,7 +113,7 @@ export const detalleFacturaQueries = {
     // Crear un nuevo detalle de factura
     async createDetalleFactura({ tipoServicio, precioUnitario, valorTotal, idFactura, idServicio }) {
         const query = `
-            INSERT INTO detalle_factura (tipo_servicio, precio_unitario, valor_total, id_factura, id_servicio)
+            INSERT INTO factura_detalles (tipo_servicio, precio_unitario, valor_total, id_factura, id_servicio)
             VALUES ($1, $2, $3, $4, $5)
             RETURNING *
         `;
@@ -126,7 +126,7 @@ export const detalleFacturaQueries = {
     async getDetallesByFacturaId(idFactura) {
         const query = `
             SELECT df.*, s.nombre as servicio_nombre
-            FROM detalle_factura df
+            FROM factura_detalles df
             JOIN servicios s ON df.id_servicio = s.id
             WHERE df.id_factura = $1
         `;
@@ -137,7 +137,7 @@ export const detalleFacturaQueries = {
     // Actualizar detalle de factura
     async updateDetalleFactura(id, { tipoServicio, precioUnitario, valorTotal, idFactura, idServicio }) {
         const query = `
-            UPDATE detalle_factura
+            UPDATE factura_detalles
             SET tipo_servicio = $1,
                 precio_unitario = $2,
                 valor_total = $3,
@@ -153,7 +153,7 @@ export const detalleFacturaQueries = {
 
     // Eliminar detalle de factura
     async deleteDetalleFactura(id) {
-        const query = 'DELETE FROM detalle_factura WHERE id = $1 RETURNING *';
+        const query = 'DELETE FROM factura_detalles WHERE id = $1 RETURNING *';
         const result = await pool.query(query, [id]);
         return result.rows[0];
     }
