@@ -140,8 +140,17 @@ export default function Ingresos() {
 
   const handleRegistrarIngreso = async () => {
     if (!vehiculo && placa) {
-      // Si no existe el vehículo, crear uno rápido solo con la placa
       try {
+        // Buscar el servicio por minuto del parqueadero
+        const resServicios = await axios.get(`${API_URL}/api/servicios/parqueadero/${currentUser?.parqueadero_id}`);
+        let servicioMinuto = null;
+        if (resServicios.data && resServicios.data.data) {
+          servicioMinuto = resServicios.data.data.find(s => (s.duracion || '').toLowerCase() === 'minuto');
+        }
+        if (!servicioMinuto) {
+          setSnackbar({ open: true, message: 'No hay servicio por minuto configurado para este parqueadero.', severity: 'error' });
+          return;
+        }
         const resVehiculo = await axios.post(`${API_URL}/api/vehiculos`, {
           placa,
           marca: '',
@@ -149,10 +158,10 @@ export default function Ingresos() {
           color: '',
           tipo: 'ocasional',
           usuario_id: null,
-          parqueadero_id: currentUser?.parqueadero_id
+          parqueadero_id: currentUser?.parqueadero_id,
+          servicio_id: servicioMinuto.id
         });
         setVehiculo(resVehiculo.data.data);
-        // Registrar el ingreso con el nuevo vehículo
         await axios.post(`${API_URL}/api/ingresos`, { vehiculo_id: resVehiculo.data.data.id, observaciones });
         setSnackbar({ open: true, message: 'Ingreso rápido registrado', severity: 'success' });
         setOpenIngreso(false);
