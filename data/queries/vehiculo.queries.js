@@ -45,17 +45,17 @@ export const vehiculoQueries = {
                 tipo = $4,
                 usuario_id = $5,
                 parqueadero_id = $6,
-                servicio_id = $8,
-                dueno_nombre = $9,
-                dueno_telefono = $10,
-                dueno_email = $11,
-                dueno_documento = $12,
-                puesto = $13,
+                servicio_id = $7,
+                dueno_nombre = $8,
+                dueno_telefono = $9,
+                dueno_email = $10,
+                dueno_documento = $11,
+                puesto = $12,
                 updated_at = CURRENT_TIMESTAMP
-            WHERE placa = $7
+            WHERE placa = $13
             RETURNING *
         `;
-        const values = [marca, modelo, color, tipo, usuario_id, parqueadero_id, placa, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento, puesto];
+        const values = [marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento, puesto, placa];
         const result = await pool.query(query, values);
         return result.rows[0];
     },
