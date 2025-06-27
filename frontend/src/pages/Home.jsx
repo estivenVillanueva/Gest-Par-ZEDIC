@@ -232,18 +232,20 @@ const Home = () => {
                       style={{ width: '100%', display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}
                     >
                       {visibleParqueaderos.map((parqueadero) => (
-                        <Grid item xs={12} sm={6} md={4} key={parqueadero.id} sx={{ display: 'flex', justifyContent: 'center' }}>
+                        <Grid item xs={12} sm={6} md={4} key={parqueadero.id} sx={{ display: 'flex', justifyContent: 'center', mb: 4, mx: 2 }}>
                           <ParqueaderoCard
                             elevation={1}
                             sx={{
-                              borderRadius: 2,
+                              borderRadius: 4,
                               boxShadow: '0 2px 8px rgba(33, 150, 243, 0.08)',
                               bgcolor: '#fff',
                               p: 2,
                               minWidth: 260,
                               maxWidth: 320,
                               mx: 'auto',
-                              mb: 2
+                              mb: 2,
+                              transition: 'box-shadow 0.25s, transform 0.18s',
+                              '&:hover': { boxShadow: '0 8px 24px rgba(33, 150, 243, 0.16)', transform: 'translateY(-4px) scale(1.02)' }
                             }}
                           >
                             <CardContent>
