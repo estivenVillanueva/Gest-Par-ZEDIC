@@ -192,7 +192,7 @@ export default function Ingresos() {
           usuario_id: null,
           parqueadero_id: currentUser?.parqueadero_id,
           servicio_id: servicioMinuto.id,
-          puesto: puestoSeleccionado
+          puesto: Number(puestoSeleccionado)
         });
         setVehiculo(resVehiculo.data.data);
         await axios.post(`${API_URL}/api/ingresos`, { vehiculo_id: resVehiculo.data.data.id, observaciones });
@@ -232,7 +232,7 @@ export default function Ingresos() {
         dueno_telefono: vehiculo.dueno_telefono || '',
         dueno_email: vehiculo.dueno_email || '',
         dueno_documento: vehiculo.dueno_documento || '',
-        puesto: puestoSeleccionado
+        puesto: Number(puestoSeleccionado)
       });
       await axios.post(`${API_URL}/api/ingresos`, { vehiculo_id: vehiculo.id, observaciones });
       setSnackbar({ open: true, message: 'Ingreso registrado', severity: 'success' });
