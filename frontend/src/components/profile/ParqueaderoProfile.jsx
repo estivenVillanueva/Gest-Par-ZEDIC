@@ -715,6 +715,41 @@ const ParqueaderoProfile = () => {
                 <MenuItem value="activo">Activo</MenuItem>
                 <MenuItem value="inactivo">Inactivo</MenuItem>
               </TextField>
+              {/* Mostrar campos de tarifa solo si el servicio es por uso, hora, minuto o día */}
+              {['uso', 'hora', 'minuto', 'día', 'dias', 'días'].includes((editValue.duracion || '').toLowerCase()) && (
+                <>
+                  <TextField
+                    fullWidth
+                    label="Precio por minuto"
+                    type="number"
+                    value={editValue.precio_minuto || ''}
+                    onChange={e => setEditValue({ ...editValue, precio_minuto: e.target.value })}
+                    sx={{ mb: 2 }}
+                    inputProps={{ min: 0 }}
+                    helperText="Solo para servicios por uso."
+                  />
+                  <TextField
+                    fullWidth
+                    label="Precio por hora"
+                    type="number"
+                    value={editValue.precio_hora || ''}
+                    onChange={e => setEditValue({ ...editValue, precio_hora: e.target.value })}
+                    sx={{ mb: 2 }}
+                    inputProps={{ min: 0 }}
+                    helperText="Solo para servicios por uso."
+                  />
+                  <TextField
+                    fullWidth
+                    label="Precio por día"
+                    type="number"
+                    value={editValue.precio_dia || ''}
+                    onChange={e => setEditValue({ ...editValue, precio_dia: e.target.value })}
+                    sx={{ mb: 2 }}
+                    inputProps={{ min: 0 }}
+                    helperText="Solo para servicios por uso."
+                  />
+                </>
+              )}
             </Box>
           ) : (
             <TextField
@@ -747,7 +782,10 @@ const ParqueaderoProfile = () => {
                     precio: editValue.precio,
                     duracion: editValue.duracion,
                     estado: editValue.estado,
-                    parqueadero_id: parqueaderoInfo.id
+                    parqueadero_id: parqueaderoInfo.id,
+                    precio_minuto: editValue.precio_minuto || 0,
+                    precio_hora: editValue.precio_hora || 0,
+                    precio_dia: editValue.precio_dia || 0
                   })
                 })
                   .then(res => res.json())
@@ -771,7 +809,10 @@ const ParqueaderoProfile = () => {
                     precio: editValue.precio,
                     duracion: editValue.duracion,
                     estado: editValue.estado,
-                    parqueadero_id: parqueaderoInfo.id
+                    parqueadero_id: parqueaderoInfo.id,
+                    precio_minuto: editValue.precio_minuto || 0,
+                    precio_hora: editValue.precio_hora || 0,
+                    precio_dia: editValue.precio_dia || 0
                   })
                 })
                   .then(res => res.json())
