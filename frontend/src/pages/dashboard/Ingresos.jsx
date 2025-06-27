@@ -221,9 +221,18 @@ export default function Ingresos() {
     try {
       // Actualizar el puesto del vehículo antes de registrar el ingreso
       await axios.put(`${API_URL}/api/vehiculos/${vehiculo.placa}`, {
-        puesto: puestoSeleccionado,
+        marca: vehiculo.marca || '',
+        modelo: vehiculo.modelo || '',
+        color: vehiculo.color || '',
+        tipo: vehiculo.tipo || 'ocasional',
+        usuario_id: vehiculo.usuario_id || null,
         parqueadero_id: currentUser?.parqueadero_id,
-        servicio_id: vehiculo.servicio_id || (servicioVehiculo && servicioVehiculo.id) || undefined
+        servicio_id: vehiculo.servicio_id || (servicioVehiculo && servicioVehiculo.id) || undefined,
+        dueno_nombre: vehiculo.dueno_nombre || '',
+        dueno_telefono: vehiculo.dueno_telefono || '',
+        dueno_email: vehiculo.dueno_email || '',
+        dueno_documento: vehiculo.dueno_documento || '',
+        puesto: puestoSeleccionado
       });
       await axios.post(`${API_URL}/api/ingresos`, { vehiculo_id: vehiculo.id, observaciones });
       setSnackbar({ open: true, message: 'Ingreso registrado', severity: 'success' });
