@@ -11,9 +11,16 @@ export const serviciosQueries = {
             else if (duracion === 'día' || duracion === 'dia') safePrecio = precio_dia || 0;
             else safePrecio = 0;
         }
-        const safePrecioMinuto = (precio_minuto === '' ? null : precio_minuto);
-        const safePrecioHora = (precio_hora === '' ? null : precio_hora);
-        const safePrecioDia = (precio_dia === '' ? null : precio_dia);
+        // Copiar precio a precio_minuto, precio_hora o precio_dia si corresponde
+        let safePrecioMinuto = (precio_minuto === '' || precio_minuto === 0 || precio_minuto === null || precio_minuto === undefined)
+            ? ((duracion === 'minuto' && safePrecio) ? safePrecio : 0)
+            : precio_minuto;
+        let safePrecioHora = (precio_hora === '' || precio_hora === 0 || precio_hora === null || precio_hora === undefined)
+            ? ((duracion === 'hora' && safePrecio) ? safePrecio : 0)
+            : precio_hora;
+        let safePrecioDia = (precio_dia === '' || precio_dia === 0 || precio_dia === null || precio_dia === undefined)
+            ? (((duracion === 'día' || duracion === 'dia') && safePrecio) ? safePrecio : 0)
+            : precio_dia;
         console.log('--- CREAR SERVICIO ---');
         console.log('Datos recibidos:', { nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto, precio_hora, precio_dia });
         try {
@@ -53,6 +60,16 @@ export const serviciosQueries = {
         console.log('--- ACTUALIZAR SERVICIO ---');
         console.log('Datos recibidos:', { id, nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto, precio_hora, precio_dia });
         try {
+            // Copiar precio a precio_minuto, precio_hora o precio_dia si corresponde
+            let safePrecioMinuto = (precio_minuto === '' || precio_minuto === 0 || precio_minuto === null || precio_minuto === undefined)
+                ? ((duracion === 'minuto' && precio) ? precio : 0)
+                : precio_minuto;
+            let safePrecioHora = (precio_hora === '' || precio_hora === 0 || precio_hora === null || precio_hora === undefined)
+                ? ((duracion === 'hora' && precio) ? precio : 0)
+                : precio_hora;
+            let safePrecioDia = (precio_dia === '' || precio_dia === 0 || precio_dia === null || precio_dia === undefined)
+                ? (((duracion === 'día' || duracion === 'dia') && precio) ? precio : 0)
+                : precio_dia;
             const query = `
                 UPDATE servicios
                 SET nombre = $1,
@@ -68,7 +85,7 @@ export const serviciosQueries = {
                 WHERE id = $11
                 RETURNING *
             `;
-            const values = [nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto, precio_hora, precio_dia, id];
+            const values = [nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, safePrecioMinuto, safePrecioHora, safePrecioDia, id];
             console.log('Query:', query);
             console.log('Values:', values);
             const result = await pool.query(query, values);
