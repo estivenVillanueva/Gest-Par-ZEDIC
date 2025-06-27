@@ -177,6 +177,11 @@ const ParqueaderoProfile = () => {
     cargarDatosParqueadero();
   }, [currentUser]);
 
+  // Redirección automática al inicio al ingresar a este perfil
+  useEffect(() => {
+    navigate('/');
+  }, [navigate]);
+
   const handleEdit = (field, value) => {
     setEditField(field);
     setEditValue(value);
