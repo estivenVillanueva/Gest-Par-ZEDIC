@@ -204,6 +204,12 @@ export default function Ingresos() {
         setPuestoSeleccionado('');
         fetchIngresos();
         fetchHistorial();
+        // Abrir automáticamente el diálogo de salida para mostrar el contador
+        const ingresosActualizados = await axios.get(`${API_URL}/api/ingresos/actuales?parqueadero_id=${currentUser?.parqueadero_id}`);
+        const nuevoIngreso = ingresosActualizados.data.find(ing => ing.vehiculo_id === resVehiculo.data.data.id);
+        if (nuevoIngreso) {
+          handleOpenSalidaDialog(nuevoIngreso);
+        }
         return;
       } catch (e) {
         setSnackbar({ open: true, message: 'Error al registrar ingreso rápido', severity: 'error' });
