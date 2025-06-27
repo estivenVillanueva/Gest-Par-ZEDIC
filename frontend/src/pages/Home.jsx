@@ -236,7 +236,7 @@ const Home = () => {
                           <ParqueaderoCard
                             elevation={1}
                             sx={{
-                              borderRadius: 4,
+                              borderRadius: 1,
                               boxShadow: '0 2px 8px rgba(33, 150, 243, 0.08)',
                               bgcolor: '#fff',
                               p: 2,
