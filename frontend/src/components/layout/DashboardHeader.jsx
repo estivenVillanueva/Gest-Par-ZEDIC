@@ -24,7 +24,6 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import safeparkingLogo from '../../assets/safeparking.png';
 import { useAuth } from '../../../logic/AuthContext';
-import { io } from 'socket.io-client';
 
 const navigationItems = [
   { 
@@ -61,9 +60,9 @@ const DashboardHeader = () => {
   const [notificaciones, setNotificaciones] = useState([]);
   const { logout, currentUser } = useAuth();
   const navigate = useNavigate();
-  const socketRef = useRef(null);
 
   useEffect(() => {
+    let intervalId;
     const fetchNotificaciones = async () => {
       if (!currentUser?.id) return;
       try {
@@ -75,25 +74,12 @@ const DashboardHeader = () => {
       }
     };
     fetchNotificaciones();
-  }, [currentUser]);
-
-  useEffect(() => {
-    // Conéctate solo una vez
-    if (!socketRef.current) {
-      socketRef.current = io('https://gest-par-zedic.onrender.com', {
-        transports: ['websocket'],
-      });
-      socketRef.current.on('nueva_notificacion', (notificacion) => {
-        if (notificacion.usuario_id === currentUser.id) {
-          setNotificaciones(prev => [notificacion, ...prev]);
-        }
-      });
+    // Polling cada 10 segundos
+    if (currentUser?.id) {
+      intervalId = setInterval(fetchNotificaciones, 10000);
     }
     return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        socketRef.current = null;
-      }
+      if (intervalId) clearInterval(intervalId);
     };
   }, [currentUser]);
 
