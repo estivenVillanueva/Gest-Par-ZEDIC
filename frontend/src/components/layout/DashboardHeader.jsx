@@ -24,6 +24,9 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import safeparkingLogo from '../../assets/safeparking.png';
 import { useAuth } from '../../../logic/AuthContext';
+import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';
+import EventNoteIcon from '@mui/icons-material/EventNote';
+import { format } from 'date-fns';
 
 const navigationItems = [
   { 
@@ -254,15 +257,56 @@ const DashboardHeader = () => {
             {notificaciones.length === 0 && (
               <MenuItem disabled>No hay notificaciones</MenuItem>
             )}
-            {notificaciones.map((n) => (
-              <MenuItem
-                key={n.id}
-                onClick={() => { handleMarcarLeida(n.id); handleClose(); }}
-                sx={{ fontWeight: n.leida ? 400 : 700, bgcolor: n.leida ? 'inherit' : '#e3f2fd' }}
-              >
-                {n.titulo}
-              </MenuItem>
-            ))}
+            {notificaciones.map((n) => {
+              let icon = null;
+              let color = '#1976d2';
+              let link = null;
+              if (n.tipo === 'pago') {
+                icon = <PaymentIcon sx={{ color: '#43a047', mr: 1 }} />;
+                color = '#e8f5e9';
+                link = `/dashboard/pagos`;
+              } else if (n.tipo === 'vehiculo') {
+                icon = <DirectionsCarIcon sx={{ color: '#1976d2', mr: 1 }} />;
+                color = '#e3f2fd';
+                link = `/dashboard/vehiculos`;
+              } else if (n.tipo === 'pago_pendiente') {
+                icon = <AssignmentLateIcon sx={{ color: '#fbc02d', mr: 1 }} />;
+                color = '#fffde7';
+                link = `/dashboard/pagos`;
+              } else if (n.tipo === 'reserva') {
+                icon = <EventNoteIcon sx={{ color: '#8e24aa', mr: 1 }} />;
+                color = '#f3e5f5';
+                link = `/dashboard/solicitudes`;
+              }
+              return (
+                <MenuItem
+                  key={n.id}
+                  onClick={() => {
+                    handleMarcarLeida(n.id);
+                    handleClose();
+                    if (link) navigate(link);
+                  }}
+                  sx={{
+                    fontWeight: n.leida ? 400 : 700,
+                    bgcolor: n.leida ? 'inherit' : color,
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 1,
+                    borderBottom: '1px solid #f0f0f0',
+                    py: 1.5
+                  }}
+                >
+                  {icon}
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 0.2 }}>{n.titulo}</Typography>
+                    <Typography variant="body2" sx={{ whiteSpace: 'normal', color: '#555' }}>{n.mensaje}</Typography>
+                    <Typography variant="caption" sx={{ color: '#888', mt: 0.5, display: 'block' }}>
+                      {n.created_at ? format(new Date(n.created_at), 'dd/MM/yyyy HH:mm') : ''}
+                    </Typography>
+                  </Box>
+                </MenuItem>
+              );
+            })}
           </Menu>
 
           {/* Menú de Usuario */}
