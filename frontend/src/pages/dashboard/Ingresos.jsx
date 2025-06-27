@@ -469,6 +469,10 @@ export default function Ingresos() {
                 variant="contained"
                 color="primary"
                 onClick={async () => {
+                  if (!puestoSeleccionado) {
+                    setSnackbar({ open: true, message: 'Debes seleccionar un puesto disponible.', severity: 'error' });
+                    return;
+                  }
                   try {
                     const resVehiculo = await axios.post(`${API_URL}/api/vehiculos`, {
                       placa,
@@ -477,7 +481,8 @@ export default function Ingresos() {
                       color: '',
                       tipo: 'ocasional',
                       usuario_id: null,
-                      parqueadero_id: currentUser?.parqueadero_id
+                      parqueadero_id: currentUser?.parqueadero_id,
+                      puesto: Number(puestoSeleccionado)
                     });
                     setVehiculo(resVehiculo.data.data);
                     await axios.post(`${API_URL}/api/ingresos`, { vehiculo_id: resVehiculo.data.data.id, observaciones });
@@ -486,6 +491,7 @@ export default function Ingresos() {
                     setPlaca('');
                     setVehiculo(null);
                     setObservaciones('');
+                    setPuestoSeleccionado('');
                     fetchIngresos();
                     fetchHistorial();
                   } catch (e) {
