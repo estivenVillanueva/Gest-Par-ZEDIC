@@ -6,6 +6,7 @@ import {
 } from '../queries/pagos.queries.js';
 import { facturaQueries } from '../queries/factura.queries.js';
 import { crearYEmitirNotificacion } from '../queries/notificaciones.queries.js';
+import { pool } from '../postgres.js';
 
 const router = express.Router();
 
@@ -18,7 +19,7 @@ router.get('/pendientes/:parqueaderoId', async (req, res) => {
         // Notificar al admin por cada pago pendiente
         for (const pendiente of pendientes) {
           // Buscar si ya existe una notificación para esta factura pendiente
-          const existe = await req.app.get('db').query(
+          const existe = await pool.query(
             `SELECT 1 FROM notificaciones WHERE parqueadero_id = $1 AND tipo = 'pago_pendiente' AND mensaje LIKE $2`,
             [parqueaderoId, `%factura #${pendiente.id}%`]
           );
