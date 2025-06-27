@@ -3,6 +3,11 @@ import { pool } from '../postgres.js';
 export const serviciosQueries = {
     // Crear un nuevo servicio
     async createServicio({ nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto = 0, precio_hora = 0, precio_dia = 0 }) {
+        // Normalizar campos numéricos vacíos a null
+        const safePrecio = (precio === '' ? null : precio);
+        const safePrecioMinuto = (precio_minuto === '' ? null : precio_minuto);
+        const safePrecioHora = (precio_hora === '' ? null : precio_hora);
+        const safePrecioDia = (precio_dia === '' ? null : precio_dia);
         console.log('--- CREAR SERVICIO ---');
         console.log('Datos recibidos:', { nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto, precio_hora, precio_dia });
         try {
@@ -11,7 +16,7 @@ export const serviciosQueries = {
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
                 RETURNING *
             `;
-            const values = [nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto, precio_hora, precio_dia];
+            const values = [nombre, descripcion, safePrecio, duracion, estado, parqueadero_id, tipo_cobro, safePrecioMinuto, safePrecioHora, safePrecioDia];
             console.log('Query:', query);
             console.log('Values:', values);
             const result = await pool.query(query, values);
