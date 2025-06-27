@@ -220,7 +220,7 @@ export default function Ingresos() {
     }
     try {
       // Actualizar el puesto del vehículo antes de registrar el ingreso
-      await axios.put(`${API_URL}/api/vehiculos/${vehiculo.placa}`, {
+      await axios.put(`${API_URL}/api/vehiculos/${vehiculo.placa.toUpperCase()}`, {
         marca: vehiculo.marca || '',
         modelo: vehiculo.modelo || '',
         color: vehiculo.color || '',
