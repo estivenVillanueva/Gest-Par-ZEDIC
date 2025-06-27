@@ -164,8 +164,8 @@ async function getFacturaCompletaById(id) {
     // 1. Obtener la factura y su servicio
     const facturaQuery = `
         SELECT f.*, s.nombre as servicio_nombre, s.precio as servicio_precio, f.parqueadero_id, f.vehiculo_id
-        FROM factura f
-        JOIN servicios s ON f.id_servicio = s.id
+        FROM facturas f
+        JOIN servicios s ON f.servicio_id = s.id
         WHERE f.id = $1
     `;
     const facturaRes = await pool.query(facturaQuery, [id]);
