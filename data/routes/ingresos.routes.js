@@ -9,6 +9,8 @@ import {
   listarHistorialPorParqueadero,
   eliminarIngreso
 } from '../queries/ingresos.queries.js';
+import { serviciosQueries } from '../queries/servicios.queries.js';
+import { vehiculoQueries } from '../queries/vehiculo.queries.js';
 
 const router = express.Router();
 
@@ -16,6 +18,41 @@ const router = express.Router();
 router.post('/', async (req, res) => {
   try {
     const { vehiculo_id, observaciones } = req.body;
+
+    // Obtener el vehículo y su parqueadero
+    const vehiculo = await vehiculoQueries.getVehiculoById(vehiculo_id);
+    if (!vehiculo) {
+      return res.status(404).json({ error: 'Vehículo no encontrado' });
+    }
+
+    // Buscar el servicio correcto del parqueadero actual según la duración
+    const servicios = await serviciosQueries.getServiciosByParqueadero(vehiculo.parqueadero_id);
+    let servicioCorrecto = null;
+    if (vehiculo.servicio_id) {
+      // Buscar el servicio del mismo tipo (minuto, hora, día) en el parqueadero
+      const servicioVehiculo = servicios.find(s => s.id === vehiculo.servicio_id);
+      if (servicioVehiculo) {
+        if ((servicioVehiculo.duracion || '').toLowerCase() === 'minuto') {
+          servicioCorrecto = servicios.find(s => (s.duracion || '').toLowerCase() === 'minuto');
+        } else if ((servicioVehiculo.duracion || '').toLowerCase() === 'hora') {
+          servicioCorrecto = servicios.find(s => (s.duracion || '').toLowerCase() === 'hora');
+        } else if ((servicioVehiculo.duracion || '').toLowerCase() === 'día' || (servicioVehiculo.duracion || '').toLowerCase() === 'dia') {
+          servicioCorrecto = servicios.find(s => ['día','dia'].includes((s.duracion || '').toLowerCase()));
+        }
+      }
+    }
+    // Si no se encontró por el tipo del vehículo, buscar por prioridad: minuto, hora, día
+    if (!servicioCorrecto) {
+      servicioCorrecto = servicios.find(s => (s.duracion || '').toLowerCase() === 'minuto')
+        || servicios.find(s => (s.duracion || '').toLowerCase() === 'hora')
+        || servicios.find(s => ['día','dia'].includes((s.duracion || '').toLowerCase()));
+    }
+    if (servicioCorrecto && vehiculo.servicio_id !== servicioCorrecto.id) {
+      // Actualizar el servicio_id del vehículo si es necesario
+      await vehiculoQueries.updateVehiculo(vehiculo.placa, { ...vehiculo, servicio_id: servicioCorrecto.id });
+    }
+
+    // Registrar el ingreso normalmente
     const ingreso = await registrarIngreso(vehiculo_id, observaciones);
     res.status(201).json(ingreso);
   } catch (error) {
