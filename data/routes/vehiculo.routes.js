@@ -72,6 +72,7 @@ router.get('/placa/:placa', async (req, res) => {
 // Crear un nuevo vehículo
 router.post('/', async (req, res) => {
     try {
+        console.log('BODY CREATE VEHICULO:', req.body);
         const { placa, marca, modelo, color, tipo, usuario_id, parqueadero_id, servicio_id, dueno_nombre, dueno_telefono, dueno_email, dueno_documento, puesto } = req.body;
         // Validar que el puesto esté disponible
         if (puesto) {

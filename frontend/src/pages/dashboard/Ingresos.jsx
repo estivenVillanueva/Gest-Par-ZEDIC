@@ -244,7 +244,11 @@ export default function Ingresos() {
       fetchIngresos();
       fetchHistorial();
     } catch (e) {
-      setSnackbar({ open: true, message: 'Error al registrar ingreso', severity: 'error' });
+      let msg = 'Error al registrar ingreso';
+      if (e.response && e.response.data && e.response.data.message) {
+        msg = e.response.data.message;
+      }
+      setSnackbar({ open: true, message: msg, severity: 'error' });
     }
   };
 
