@@ -17,7 +17,6 @@ import {
   Divider,
   Alert,
   Snackbar,
-  Tooltip,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import InfoIcon from '@mui/icons-material/Info';
@@ -34,7 +33,6 @@ import BadgeIcon from '@mui/icons-material/Badge';
 import WorkIcon from '@mui/icons-material/Work';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../logic/AuthContext';
-import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 
 const DEFAULT_LOGO_URL = 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Parking_icon.svg';
 const DEFAULT_PORTADA_URL = 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80';
@@ -98,7 +96,7 @@ const ParqueaderoProfile = () => {
   const [portadaTimestamp, setPortadaTimestamp] = useState(Date.now());
 
   const CLOUDINARY_UPLOAD_PRESET = 'Gest-par-zedic';
-  const CLOUDINARY_CLOUD_NAME = 'dnuddkdyr';
+  const CLOUDINARY_CLOUD_NAME = 'dnudkdqyr';
 
   const uploadToBackend = async (file) => {
     const formData = new FormData();
@@ -331,7 +329,7 @@ const ParqueaderoProfile = () => {
           </Typography>
           <Typography variant="h6" color="text.secondary" gutterBottom>
             Tu cuenta ha sido creada exitosamente.<br />
-            Empecemos a configurar tu parqueadero en el sistema.
+            
           </Typography>
           <Button
             variant="contained"
@@ -360,28 +358,6 @@ const ParqueaderoProfile = () => {
             style={{ width: '100%', maxHeight: 220, objectFit: 'cover', borderRadius: 12 }}
             onError={e => { e.target.onerror = null; e.target.src = DEFAULT_PORTADA_URL; }}
           />
-          {/* Icono de cámara para cambiar portada */}
-          <IconButton
-            color="primary"
-            size="small"
-            onClick={() => portadaInputRef && portadaInputRef.click()}
-            sx={{
-              position: 'absolute',
-              right: 24,
-              bottom: 16,
-              bgcolor: 'rgba(255,255,255,0.85)',
-              borderRadius: '50%',
-              boxShadow: 2,
-              p: 0.5,
-              zIndex: 3,
-              border: '1.5px solid #e0e0e0',
-              '&:hover': { bgcolor: 'rgba(255,255,255,1)' }
-            }}
-            aria-label="Cambiar portada"
-          >
-            <PhotoCameraIcon fontSize="small" />
-          </IconButton>
-
           {/* Logo superpuesto */}
           <Avatar
             src={`${parqueaderoInfo.logo_url || DEFAULT_LOGO_URL}?t=${logoTimestamp}`}
@@ -398,28 +374,30 @@ const ParqueaderoProfile = () => {
             }}
             onError={e => { e.target.onerror = null; e.target.src = DEFAULT_LOGO_URL; }}
           />
-          {/* Icono de cámara para cambiar logo */}
-          <IconButton
-            color="primary"
+          <Button
             size="small"
-            onClick={() => logoInputRef && logoInputRef.click()}
-            sx={{
-              position: 'absolute',
-              left: 120,
-              bottom: -10,
-              bgcolor: 'rgba(255,255,255,0.85)',
-              borderRadius: '50%',
-              boxShadow: 2,
-              p: 0.5,
-              zIndex: 3,
-              border: '1.5px solid #e0e0e0',
-              '&:hover': { bgcolor: 'rgba(255,255,255,1)' }
-            }}
-            aria-label="Cambiar logo"
+            color="error"
+            sx={{ position: 'absolute', left: 150, bottom: -30, zIndex: 2 }}
+            onClick={() => handleSaveLogo('')}
           >
-            <PhotoCameraIcon fontSize="small" />
-          </IconButton>
-
+            Quitar logo
+          </Button>
+          <Button
+            size="small"
+            color="error"
+            sx={{ position: 'absolute', left: 40, top: 10, zIndex: 2, background: 'rgba(255,255,255,0.7)' }}
+            onClick={() => handleSavePortada('')}
+          >
+            Quitar portada
+          </Button>
+          <Button
+            size="small"
+            color="primary"
+            sx={{ position: 'absolute', left: 150, bottom: 0, zIndex: 2 }}
+            onClick={() => logoInputRef && logoInputRef.click()}
+          >
+            Cambiar logo
+          </Button>
           <input
             type="file"
             accept="image/*"
@@ -427,6 +405,14 @@ const ParqueaderoProfile = () => {
             ref={ref => setLogoInputRef(ref)}
             onChange={handleLogoChange}
           />
+          <Button
+            size="small"
+            color="primary"
+            sx={{ position: 'absolute', left: 160, top: 10, zIndex: 2, background: 'rgba(255,255,255,0.7)' }}
+            onClick={() => portadaInputRef && portadaInputRef.click()}
+          >
+            Cambiar portada
+          </Button>
           <input
             type="file"
             accept="image/*"
@@ -684,16 +670,13 @@ const ParqueaderoProfile = () => {
                 onChange={e => setEditValue({ ...editValue, descripcion: e.target.value })}
                 sx={{ mb: 2 }}
               />
-              {/* Mostrar campo Precio solo si la duración NO es hora, minuto, día o uso */}
-              {!( ['hora','minuto','día','dias','días','uso'].includes((editValue.duracion || '').toLowerCase()) ) && (
-                <TextField
-                  fullWidth
-                  label="Precio"
-                  value={editValue.precio}
-                  onChange={e => setEditValue({ ...editValue, precio: e.target.value })}
-                  sx={{ mb: 2 }}
-                />
-              )}
+              <TextField
+                fullWidth
+                label="Precio"
+                value={editValue.precio}
+                onChange={e => setEditValue({ ...editValue, precio: e.target.value })}
+                sx={{ mb: 2 }}
+              />
               <TextField
                 select
                 fullWidth
@@ -732,86 +715,6 @@ const ParqueaderoProfile = () => {
                 <MenuItem value="activo">Activo</MenuItem>
                 <MenuItem value="inactivo">Inactivo</MenuItem>
               </TextField>
-              {/* Mostrar campos de tarifa solo si el servicio es por uso, hora, minuto o día */}
-              {(() => {
-                const dur = (editValue.duracion || '').toLowerCase();
-                if (dur === 'hora') {
-                  return (
-                    <TextField
-                      fullWidth
-                      label="Precio por hora"
-                      type="number"
-                      value={editValue.precio_hora || ''}
-                      onChange={e => setEditValue({ ...editValue, precio_hora: e.target.value })}
-                      sx={{ mb: 2 }}
-                      inputProps={{ min: 0 }}
-                      helperText="Solo para servicios por hora."
-                    />
-                  );
-                } else if (dur === 'minuto') {
-                  return (
-                    <TextField
-                      fullWidth
-                      label="Precio por minuto"
-                      type="number"
-                      value={editValue.precio_minuto || ''}
-                      onChange={e => setEditValue({ ...editValue, precio_minuto: e.target.value })}
-                      sx={{ mb: 2 }}
-                      inputProps={{ min: 0 }}
-                      helperText="Solo para servicios por minuto."
-                    />
-                  );
-                } else if (['día', 'dias', 'días'].includes(dur)) {
-                  return (
-                    <TextField
-                      fullWidth
-                      label="Precio por día"
-                      type="number"
-                      value={editValue.precio_dia || ''}
-                      onChange={e => setEditValue({ ...editValue, precio_dia: e.target.value })}
-                      sx={{ mb: 2 }}
-                      inputProps={{ min: 0 }}
-                      helperText="Solo para servicios por día."
-                    />
-                  );
-                } else if (dur === 'uso') {
-                  return (
-                    <>
-                      <TextField
-                        fullWidth
-                        label="Precio por minuto"
-                        type="number"
-                        value={editValue.precio_minuto || ''}
-                        onChange={e => setEditValue({ ...editValue, precio_minuto: e.target.value })}
-                        sx={{ mb: 2 }}
-                        inputProps={{ min: 0 }}
-                        helperText="Solo para servicios por uso."
-                      />
-                      <TextField
-                        fullWidth
-                        label="Precio por hora"
-                        type="number"
-                        value={editValue.precio_hora || ''}
-                        onChange={e => setEditValue({ ...editValue, precio_hora: e.target.value })}
-                        sx={{ mb: 2 }}
-                        inputProps={{ min: 0 }}
-                        helperText="Solo para servicios por uso."
-                      />
-                      <TextField
-                        fullWidth
-                        label="Precio por día"
-                        type="number"
-                        value={editValue.precio_dia || ''}
-                        onChange={e => setEditValue({ ...editValue, precio_dia: e.target.value })}
-                        sx={{ mb: 2 }}
-                        inputProps={{ min: 0 }}
-                        helperText="Solo para servicios por uso."
-                      />
-                    </>
-                  );
-                }
-                return null;
-              })()}
             </Box>
           ) : (
             <TextField
@@ -835,20 +738,22 @@ const ParqueaderoProfile = () => {
               }
               if (editValue.index === -1) {
                 // Crear servicio
+                let tipoCobro = ['mes','semanal','quincenal','días'].includes(editValue.duracion) ? 'periodo' : ['minuto','hora','día'].includes(editValue.duracion) ? 'uso' : 'uso';
+                if (!tipoCobro) tipoCobro = 'uso'; // Valor por defecto
+                const bodyServicio = {
+                  nombre: editValue.nombre,
+                  descripcion: editValue.descripcion,
+                  precio: editValue.precio,
+                  duracion: editValue.duracion,
+                  estado: editValue.estado,
+                  parqueadero_id: parqueaderoInfo.id,
+                  tipo_cobro: tipoCobro || 'uso',
+                };
+                console.log('Enviando servicio:', bodyServicio);
                 fetch(SERVICIOS_API_URL, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    nombre: editValue.nombre,
-                    descripcion: editValue.descripcion,
-                    precio: editValue.precio,
-                    duracion: editValue.duracion,
-                    estado: editValue.estado,
-                    parqueadero_id: parqueaderoInfo.id,
-                    precio_minuto: editValue.precio_minuto || 0,
-                    precio_hora: editValue.precio_hora || 0,
-                    precio_dia: editValue.precio_dia || 0
-                  })
+                  body: JSON.stringify(bodyServicio)
                 })
                   .then(res => res.json())
                   .then(data => {
@@ -861,21 +766,22 @@ const ParqueaderoProfile = () => {
                   });
               } else {
                 // Editar servicio
-                const servicioId = parqueaderoInfo.servicios[editValue.index].id;
-                fetch(`${SERVICIOS_API_URL}/${servicioId}`, {
+                let tipoCobro = ['mes','semanal','quincenal','días'].includes(editValue.duracion) ? 'periodo' : ['minuto','hora','día'].includes(editValue.duracion) ? 'uso' : 'uso';
+                if (!tipoCobro) tipoCobro = 'uso'; // Valor por defecto
+                const bodyServicio = {
+                  nombre: editValue.nombre,
+                  descripcion: editValue.descripcion,
+                  precio: editValue.precio,
+                  duracion: editValue.duracion,
+                  estado: editValue.estado,
+                  parqueadero_id: parqueaderoInfo.id,
+                  tipo_cobro: tipoCobro || 'uso',
+                };
+                console.log('Enviando servicio (update):', bodyServicio);
+                fetch(`${SERVICIOS_API_URL}/${parqueaderoInfo.servicios[editValue.index].id}`, {
                   method: 'PUT',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    nombre: editValue.nombre,
-                    descripcion: editValue.descripcion,
-                    precio: editValue.precio,
-                    duracion: editValue.duracion,
-                    estado: editValue.estado,
-                    parqueadero_id: parqueaderoInfo.id,
-                    precio_minuto: editValue.precio_minuto || 0,
-                    precio_hora: editValue.precio_hora || 0,
-                    precio_dia: editValue.precio_dia || 0
-                  })
+                  body: JSON.stringify(bodyServicio)
                 })
                   .then(res => res.json())
                   .then(data => {

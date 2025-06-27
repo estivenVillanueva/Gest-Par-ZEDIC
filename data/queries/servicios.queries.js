@@ -3,6 +3,24 @@ import { pool } from '../postgres.js';
 export const serviciosQueries = {
     // Crear un nuevo servicio
     async createServicio({ nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto = 0, precio_hora = 0, precio_dia = 0 }) {
+        // Normalizar campos numéricos vacíos a null o a un valor válido
+        let safePrecio = precio;
+        if (safePrecio === '' || safePrecio === undefined || safePrecio === null) {
+            if (duracion === 'minuto') safePrecio = precio_minuto || 0;
+            else if (duracion === 'hora') safePrecio = precio_hora || 0;
+            else if (duracion === 'día' || duracion === 'dia') safePrecio = precio_dia || 0;
+            else safePrecio = 0;
+        }
+        // Copiar precio a precio_minuto, precio_hora o precio_dia si corresponde
+        let safePrecioMinuto = (precio_minuto === '' || precio_minuto === 0 || precio_minuto === null || precio_minuto === undefined)
+            ? ((duracion === 'minuto' && safePrecio) ? safePrecio : 0)
+            : precio_minuto;
+        let safePrecioHora = (precio_hora === '' || precio_hora === 0 || precio_hora === null || precio_hora === undefined)
+            ? ((duracion === 'hora' && safePrecio) ? safePrecio : 0)
+            : precio_hora;
+        let safePrecioDia = (precio_dia === '' || precio_dia === 0 || precio_dia === null || precio_dia === undefined)
+            ? (((duracion === 'día' || duracion === 'dia') && safePrecio) ? safePrecio : 0)
+            : precio_dia;
         console.log('--- CREAR SERVICIO ---');
         console.log('Datos recibidos:', { nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto, precio_hora, precio_dia });
         try {
@@ -11,7 +29,7 @@ export const serviciosQueries = {
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
                 RETURNING *
             `;
-            const values = [nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto, precio_hora, precio_dia];
+            const values = [nombre, descripcion, safePrecio, duracion, estado, parqueadero_id, tipo_cobro, safePrecioMinuto, safePrecioHora, safePrecioDia];
             console.log('Query:', query);
             console.log('Values:', values);
             const result = await pool.query(query, values);
@@ -42,6 +60,16 @@ export const serviciosQueries = {
         console.log('--- ACTUALIZAR SERVICIO ---');
         console.log('Datos recibidos:', { id, nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto, precio_hora, precio_dia });
         try {
+            // Copiar precio a precio_minuto, precio_hora o precio_dia si corresponde
+            let safePrecioMinuto = (precio_minuto === '' || precio_minuto === 0 || precio_minuto === null || precio_minuto === undefined)
+                ? ((duracion === 'minuto' && precio) ? precio : 0)
+                : precio_minuto;
+            let safePrecioHora = (precio_hora === '' || precio_hora === 0 || precio_hora === null || precio_hora === undefined)
+                ? ((duracion === 'hora' && precio) ? precio : 0)
+                : precio_hora;
+            let safePrecioDia = (precio_dia === '' || precio_dia === 0 || precio_dia === null || precio_dia === undefined)
+                ? (((duracion === 'día' || duracion === 'dia') && precio) ? precio : 0)
+                : precio_dia;
             const query = `
                 UPDATE servicios
                 SET nombre = $1,
@@ -57,7 +85,7 @@ export const serviciosQueries = {
                 WHERE id = $11
                 RETURNING *
             `;
-            const values = [nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto, precio_hora, precio_dia, id];
+            const values = [nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, safePrecioMinuto, safePrecioHora, safePrecioDia, id];
             console.log('Query:', query);
             console.log('Values:', values);
             const result = await pool.query(query, values);
