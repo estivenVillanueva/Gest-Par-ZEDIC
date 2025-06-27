@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import {
   Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Snackbar, Alert, Box, Autocomplete, Card, CardContent, Divider
@@ -31,12 +31,43 @@ export default function Ingresos() {
   const [filtroPlaca, setFiltroPlaca] = useState('');
   const [servicioVehiculo, setServicioVehiculo] = useState(null);
   const [placaError, setPlacaError] = useState('');
+  const [tiempoTranscurrido, setTiempoTranscurrido] = useState({ dias: 0, horas: 0, minutos: 0 });
+  const [valorCalculado, setValorCalculado] = useState(0);
+  const timerRef = useRef(null);
 
   useEffect(() => {
     fetchIngresos();
     fetchHistorial();
     fetchPlacas();
   }, []);
+
+  useEffect(() => {
+    if (openSalida && salidaInfo && salidaInfo.hora_entrada && salidaInfo.tipo_cobro === 'uso') {
+      const entrada = new Date(salidaInfo.hora_entrada);
+      const tarifaMin = Number(salidaInfo.precio_minuto) || 0;
+      const tarifaHora = Number(salidaInfo.precio_hora) || 0;
+      const tarifaDia = Number(salidaInfo.precio_dia) || 0;
+      function actualizarTiempoYValor() {
+        const ahora = new Date();
+        let diffMs = ahora - entrada;
+        let diffMin = Math.floor(diffMs / 60000);
+        let diffHoras = Math.floor(diffMin / 60);
+        let diffDias = Math.floor(diffHoras / 24);
+        let minutosRestantes = diffMin % 60;
+        let horasRestantes = diffHoras % 24;
+        setTiempoTranscurrido({ dias: diffDias, horas: horasRestantes, minutos: minutosRestantes });
+        const valor = (diffDias * tarifaDia) + (horasRestantes * tarifaHora) + (minutosRestantes * tarifaMin);
+        setValorCalculado(valor);
+      }
+      actualizarTiempoYValor();
+      timerRef.current = setInterval(actualizarTiempoYValor, 1000);
+      return () => clearInterval(timerRef.current);
+    } else {
+      setTiempoTranscurrido({ dias: 0, horas: 0, minutos: 0 });
+      setValorCalculado(0);
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
+  }, [openSalida, salidaInfo]);
 
   const fetchIngresos = async () => {
     if (!currentUser?.parqueadero_id) return;
@@ -413,6 +444,19 @@ export default function Ingresos() {
         <DialogTitle sx={{ fontWeight: 700, color: 'primary.main' }}>Registrar Salida</DialogTitle>
         <DialogContent>
           <Typography>Vehículo con servicio por uso. Por favor, ingrese el valor a pagar.</Typography>
+          {salidaInfo && salidaInfo.tipo_cobro === 'uso' && (
+            <Box sx={{ my: 2, p: 2, bgcolor: '#f5faff', borderRadius: 2, textAlign: 'center' }}>
+              <Typography variant="subtitle2" color="primary">Tiempo transcurrido:</Typography>
+              <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
+                {tiempoTranscurrido.dias > 0 && `${tiempoTranscurrido.dias}d `}
+                {tiempoTranscurrido.horas}h {tiempoTranscurrido.minutos}m
+              </Typography>
+              <Typography variant="subtitle2" color="primary">Valor calculado:</Typography>
+              <Typography variant="h5" fontWeight={700} color="success.main">
+                {valorCalculado.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              </Typography>
+            </Box>
+          )}
           <TextField
             autoFocus
             margin="dense"
@@ -434,7 +478,7 @@ export default function Ingresos() {
               setValorPagado(value);
             }}
             error={!!errorValorPagado}
-            helperText={errorValorPagado}
+            helperText={errorValorPagado || `Sugerido: ${valorCalculado.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             sx={{ mt: 2 }}
           />
         </DialogContent>

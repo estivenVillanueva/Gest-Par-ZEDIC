@@ -37,13 +37,28 @@ router.put('/:id/salida', async (req, res) => {
 
     // Si no tiene servicio o es por uso, requiere pago
     if (!ingresoInfo.tipo_cobro || ingresoInfo.tipo_cobro === 'uso') {
+        // Calcular el valor automáticamente si no se envía valor_pagado
+        let valorFinal = valor_pagado;
         if (valor_pagado === undefined || valor_pagado === null) {
-            return res.status(400).json({ error: 'Se requiere el valor pagado para este tipo de servicio.' });
+          // Calcular diferencia de tiempo
+          const entrada = new Date(ingresoInfo.hora_entrada);
+          const salida = new Date();
+          let diffMs = salida - entrada;
+          let diffMin = Math.floor(diffMs / 60000);
+          let diffHoras = Math.floor(diffMin / 60);
+          let diffDias = Math.floor(diffHoras / 24);
+          let minutosRestantes = diffMin % 60;
+          let horasRestantes = diffHoras % 24;
+          // Tomar tarifas del servicio
+          const tarifaMin = Number(ingresoInfo.precio_minuto) || 0;
+          const tarifaHora = Number(ingresoInfo.precio_hora) || 0;
+          const tarifaDia = Number(ingresoInfo.precio_dia) || 0;
+          valorFinal = (diffDias * tarifaDia) + (horasRestantes * tarifaHora) + (minutosRestantes * tarifaMin);
         }
-        if (typeof valor_pagado !== 'number' || valor_pagado < 0) {
+        if (typeof valorFinal !== 'number' || valorFinal < 0) {
             return res.status(400).json({ error: 'El valor pagado no puede ser negativo.' });
         }
-        const salida = await registrarSalida(id, valor_pagado);
+        const salida = await registrarSalida(id, valorFinal);
         res.json(salida);
     } else { // tipo_cobro === 'periodo'
         const salida = await registrarSalida(id, 0);

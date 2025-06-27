@@ -43,7 +43,10 @@ async function getIngresoConServicio(id) {
         v.id AS vehiculo_id,
         s.tipo_cobro,
         s.precio,
-        s.nombre AS servicio_nombre
+        s.nombre AS servicio_nombre,
+        s.precio_minuto,
+        s.precio_hora,
+        s.precio_dia
      FROM ingresos i
      JOIN vehiculos v ON i.vehiculo_id = v.id
      LEFT JOIN servicios s ON v.servicio_id = s.id
