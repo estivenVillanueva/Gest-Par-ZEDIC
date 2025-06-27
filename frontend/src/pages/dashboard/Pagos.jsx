@@ -413,9 +413,16 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
   const handleImprimir = async () => {
     console.log("Factura a imprimir:", factura);
     if (!factura) return;
-    // Llama a la nueva API de factura completa
     const res = await fetch(`${API_URL}/api/facturas/completa/${factura.id}`);
+    if (!res.ok) {
+      alert("No se pudo obtener la factura. Verifica que exista en el sistema.");
+      return;
+    }
     const data = await res.json();
+    if (!data || !data.factura) {
+      alert("Factura no encontrada o datos incompletos.");
+      return;
+    }
     const { factura: f, detalles, parqueadero, vehiculo, numIngresos, numSalidas } = data;
     const logo = parqueadero?.logo_url || DEFAULT_LOGO_URL;
     const nombre = parqueadero?.nombre || 'Gest-Par ZEDIC';
@@ -423,6 +430,14 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
     const direccion = parqueadero?.direccion || 'Calle 123 #45-67';
     const telefono = parqueadero?.telefono || '300 123 4567';
     const email = parqueadero?.email || 'info@zedic.com';
+    const cliente = vehiculo?.dueno_nombre || f.usuario_nombre || 'No registrado';
+    const placa = vehiculo?.placa || 'No registrado';
+    const marca = vehiculo?.marca || 'No registrado';
+    const modelo = vehiculo?.modelo || 'No registrado';
+    const color = vehiculo?.color || 'No registrado';
+    const tipo = vehiculo?.tipo || 'No registrado';
+    const servicio = f.servicio_nombre || 'No registrado';
+    const fechaEmision = f.fecha_creacion ? new Date(f.fecha_creacion).toLocaleString() : 'No registrado';
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
       <html>
@@ -456,14 +471,14 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
           <div class="factura-title">Factura #${f.id || ''}</div>
         </div>
         <div class="section">
-          <strong>Cliente:</strong> ${vehiculo?.dueno_nombre || f.usuario_nombre || ''}<br/>
-          <strong>Placa:</strong> ${vehiculo?.placa || ''}<br/>
-          <strong>Marca:</strong> ${vehiculo?.marca || ''}<br/>
-          <strong>Modelo:</strong> ${vehiculo?.modelo || ''}<br/>
-          <strong>Color:</strong> ${vehiculo?.color || ''}<br/>
-          <strong>Tipo:</strong> ${vehiculo?.tipo || ''}<br/>
-          <strong>Servicio:</strong> ${f.servicio_nombre || ''}<br/>
-          <strong>Fecha de emisión:</strong> ${f.fecha_creacion ? new Date(f.fecha_creacion).toLocaleString() : ''}<br/>
+          <strong>Cliente:</strong> ${cliente}<br/>
+          <strong>Placa:</strong> ${placa}<br/>
+          <strong>Marca:</strong> ${marca}<br/>
+          <strong>Modelo:</strong> ${modelo}<br/>
+          <strong>Color:</strong> ${color}<br/>
+          <strong>Tipo:</strong> ${tipo}<br/>
+          <strong>Servicio:</strong> ${servicio}<br/>
+          <strong>Fecha de emisión:</strong> ${fechaEmision}<br/>
           <strong>Entradas registradas:</strong> ${numIngresos}<br/>
           <strong>Salidas registradas:</strong> ${numSalidas}
         </div>
@@ -481,9 +496,9 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
               ${(detalles && detalles.length > 0)
                 ? detalles.map(det => `
                   <tr>
-                    <td>${det.servicio_nombre || det.tipo_servicio || ''}</td>
+                    <td>${det.servicio_nombre || det.tipo_servicio || 'No registrado'}</td>
                     <td>${det.cantidad || 1}</td>
-                    <td>$${parseFloat(det.precio_unitario).toLocaleString('es-CO')}</td>
+                    <td>$${parseFloat(det.precio_unitario || 0).toLocaleString('es-CO')}</td>
                     <td>$${parseFloat(det.subtotal || det.valor_total || 0).toLocaleString('es-CO')}</td>
                   </tr>
                 `).join('')

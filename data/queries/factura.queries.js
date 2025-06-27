@@ -172,27 +172,49 @@ async function getFacturaCompletaById(id) {
     const factura = facturaRes.rows[0];
     if (!factura) return null;
 
-    // 2. Obtener detalles de la factura
-    const detalles = await detalleFacturaQueries.getDetallesByFacturaId(id);
+    // 2. Obtener detalles de la factura (si no hay, devuelve [])
+    let detalles = [];
+    try {
+        detalles = await detalleFacturaQueries.getDetallesByFacturaId(id) || [];
+    } catch (e) {
+        detalles = [];
+    }
 
-    // 3. Obtener datos del parqueadero
-    const parqueaderoQuery = 'SELECT * FROM parqueaderos WHERE id = $1';
-    const parqueaderoRes = await pool.query(parqueaderoQuery, [factura.parqueadero_id]);
-    const parqueadero = parqueaderoRes.rows[0];
+    // 3. Obtener datos del parqueadero (si no hay, devuelve null)
+    let parqueadero = null;
+    try {
+        const parqueaderoQuery = 'SELECT * FROM parqueaderos WHERE id = $1';
+        const parqueaderoRes = await pool.query(parqueaderoQuery, [factura.parqueadero_id]);
+        parqueadero = parqueaderoRes.rows[0] || null;
+    } catch (e) {
+        parqueadero = null;
+    }
 
-    // 4. Obtener datos del vehículo
-    const vehiculoQuery = 'SELECT * FROM vehiculos WHERE id = $1';
-    const vehiculoRes = await pool.query(vehiculoQuery, [factura.vehiculo_id]);
-    const vehiculo = vehiculoRes.rows[0];
+    // 4. Obtener datos del vehículo (si no hay, devuelve null)
+    let vehiculo = null;
+    try {
+        const vehiculoQuery = 'SELECT * FROM vehiculos WHERE id = $1';
+        const vehiculoRes = await pool.query(vehiculoQuery, [factura.vehiculo_id]);
+        vehiculo = vehiculoRes.rows[0] || null;
+    } catch (e) {
+        vehiculo = null;
+    }
 
-    // 5. Contar ingresos y salidas del vehículo
-    const ingresosQuery = 'SELECT COUNT(*) FROM ingresos WHERE vehiculo_id = $1';
-    const ingresosRes = await pool.query(ingresosQuery, [factura.vehiculo_id]);
-    const numIngresos = parseInt(ingresosRes.rows[0].count, 10);
-    // Para salidas, cuenta los ingresos con hora_salida no nula
-    const salidasQuery = 'SELECT COUNT(*) FROM ingresos WHERE vehiculo_id = $1 AND hora_salida IS NOT NULL';
-    const salidasRes = await pool.query(salidasQuery, [factura.vehiculo_id]);
-    const numSalidas = parseInt(salidasRes.rows[0].count, 10);
+    // 5. Contar ingresos y salidas del vehículo (si no hay, devuelve 0)
+    let numIngresos = 0;
+    let numSalidas = 0;
+    try {
+        const ingresosQuery = 'SELECT COUNT(*) FROM ingresos WHERE vehiculo_id = $1';
+        const ingresosRes = await pool.query(ingresosQuery, [factura.vehiculo_id]);
+        numIngresos = parseInt(ingresosRes.rows[0]?.count || '0', 10);
+        // Para salidas, cuenta los ingresos con hora_salida no nula
+        const salidasQuery = 'SELECT COUNT(*) FROM ingresos WHERE vehiculo_id = $1 AND hora_salida IS NOT NULL';
+        const salidasRes = await pool.query(salidasQuery, [factura.vehiculo_id]);
+        numSalidas = parseInt(salidasRes.rows[0]?.count || '0', 10);
+    } catch (e) {
+        numIngresos = 0;
+        numSalidas = 0;
+    }
 
     return {
         factura,
