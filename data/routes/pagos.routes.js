@@ -15,6 +15,23 @@ router.get('/pendientes/:parqueaderoId', async (req, res) => {
         await facturaQueries.generateFacturasPeriodicas();
         const { parqueaderoId } = req.params;
         const pendientes = await getPagosPendientes(parqueaderoId);
+        // Notificar al admin por cada pago pendiente
+        for (const pendiente of pendientes) {
+          // Buscar si ya existe una notificación para esta factura pendiente
+          const existe = await req.app.get('db').query(
+            `SELECT 1 FROM notificaciones WHERE parqueadero_id = $1 AND tipo = 'pago_pendiente' AND mensaje LIKE $2`,
+            [parqueaderoId, `%factura #${pendiente.id}%`]
+          );
+          if (existe.rows.length === 0) {
+            await crearYEmitirNotificacion(req.io, {
+              usuario_id: null,
+              parqueadero_id: parqueaderoId,
+              titulo: 'Pago pendiente',
+              mensaje: `El usuario ${pendiente.usuario_nombre} con placa ${pendiente.placa} todavía tiene pendiente el pago de la factura #${pendiente.id}.`,
+              tipo: 'pago_pendiente'
+            });
+          }
+        }
         res.json(pendientes);
     } catch (error) {
         console.error('Error al obtener pagos pendientes:', error);
