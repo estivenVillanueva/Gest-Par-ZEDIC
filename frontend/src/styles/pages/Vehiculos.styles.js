@@ -5,22 +5,22 @@ export const MinimalCard = styled(Card)(({ theme }) => ({
   position: 'relative',
   minHeight: 260,
   maxWidth: 320,
-  margin: '0 auto',
-  borderRadius: 20,
+  margin: '24px auto',
+  borderRadius: 1,
   background: '#f8fafc',
-  boxShadow: '0 4px 24px 0 rgba(31, 38, 135, 0.07)',
+  boxShadow: '0 2px 12px 0 rgba(31, 38, 135, 0.07)',
   border: '1.5px solid #f0f4fa',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  padding: theme.spacing(4, 2, 3, 2),
+  padding: theme.spacing(3, 2, 2.5, 2),
   transition: 'all 0.25s cubic-bezier(0.4,0,0.2,1)',
   cursor: 'pointer',
   '&:hover': {
-    boxShadow: '0 12px 32px 0 rgba(31, 38, 135, 0.13)',
+    boxShadow: '0 8px 24px 0 rgba(31, 38, 135, 0.13)',
     borderColor: theme.palette.primary.main,
     background: '#e3eaf6',
-    transform: 'translateY(-6px) scale(1.04)',
+    transform: 'translateY(-4px) scale(1.03)',
   },
 }));
 
@@ -64,7 +64,7 @@ export const MinimalFab = styled(Fab)(({ theme }) => ({
 export const MinimalGrid = styled(Grid)(({ theme }) => ({
   marginTop: theme.spacing(3),
   justifyContent: 'center',
-  gap: theme.spacing(3),
+  gap: theme.spacing(4),
 }));
 
 export const MinimalFilterBar = styled(Box)(({ theme }) => ({
