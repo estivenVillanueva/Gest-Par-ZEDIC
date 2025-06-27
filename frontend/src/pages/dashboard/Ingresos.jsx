@@ -309,6 +309,8 @@ export default function Ingresos() {
     }
   };
 
+  const esServicioPeriodo = servicioVehiculo && (servicioVehiculo.tipo_cobro === 'periodo');
+
   return (
     <Box sx={{ p: { xs: 1, md: 4 }, bgcolor: '#f4f6fa', minHeight: '100vh' }}>
       <Typography variant="h4" fontWeight={700} gutterBottom color="primary.main">
@@ -532,24 +534,26 @@ export default function Ingresos() {
               </Button>
             </Box>
           )}
-          <TextField
-            margin="normal"
-            fullWidth
-            select
-            label="Puesto"
-            name="puesto"
-            value={puestoSeleccionado}
-            onChange={e => setPuestoSeleccionado(e.target.value)}
-            required
-            sx={{ mt: 2 }}
-            helperText={puestosDisponibles.length === 0 ? 'No hay puestos disponibles' : 'Selecciona un puesto disponible'}
-            disabled={puestosDisponibles.length === 0}
-          >
-            <MenuItem value="">No asignado</MenuItem>
-            {puestosDisponibles.map(p => (
-              <MenuItem key={p} value={p}>{p}</MenuItem>
-            ))}
-          </TextField>
+          {!esServicioPeriodo && (
+            <TextField
+              margin="normal"
+              fullWidth
+              select
+              label="Puesto"
+              name="puesto"
+              value={puestoSeleccionado}
+              onChange={e => setPuestoSeleccionado(e.target.value)}
+              required
+              sx={{ mt: 2 }}
+              helperText={puestosDisponibles.length === 0 ? 'No hay puestos disponibles' : 'Selecciona un puesto disponible'}
+              disabled={puestosDisponibles.length === 0}
+            >
+              <MenuItem value="">No asignado</MenuItem>
+              {puestosDisponibles.map(p => (
+                <MenuItem key={p} value={p}>{p}</MenuItem>
+              ))}
+            </TextField>
+          )}
           <TextField
             label="Observaciones"
             value={observaciones}
