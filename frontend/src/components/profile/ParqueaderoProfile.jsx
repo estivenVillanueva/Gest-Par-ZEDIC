@@ -405,8 +405,8 @@ const ParqueaderoProfile = () => {
             onClick={() => logoInputRef && logoInputRef.click()}
             sx={{
               position: 'absolute',
-              left: 100,
-              bottom: -20,
+              left: 120,
+              bottom: -10,
               bgcolor: 'rgba(255,255,255,0.85)',
               borderRadius: '50%',
               boxShadow: 2,
