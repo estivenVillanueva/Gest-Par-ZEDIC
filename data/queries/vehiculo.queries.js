@@ -15,7 +15,7 @@ export const vehiculoQueries = {
 
     // Obtener vehículo por placa
     async getVehiculoByPlaca(placa) {
-        const query = 'SELECT * FROM vehiculos WHERE placa = $1';
+        const query = 'SELECT * FROM vehiculos WHERE LOWER(placa) = LOWER($1)';
         const result = await pool.query(query, [placa]);
         return result.rows[0];
     },
