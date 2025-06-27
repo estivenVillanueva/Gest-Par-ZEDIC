@@ -170,11 +170,13 @@ export default function Ingresos() {
     if (!vehiculo && placa) {
       try {
         // Buscar el servicio por minuto del parqueadero
-        const resServicios = await axios.get(`${API_URL}/api/servicios/parqueadero/${currentUser?.parqueadero_id}`);
         let servicioMinuto = null;
-        if (resServicios.data && resServicios.data.data) {
-          servicioMinuto = resServicios.data.data.find(s => (s.duracion || '').toLowerCase() === 'minuto');
-        }
+        try {
+          const resServicios = await axios.get(`${API_URL}/api/servicios/parqueadero/${currentUser?.parqueadero_id}`);
+          if (resServicios.data && resServicios.data.data) {
+            servicioMinuto = resServicios.data.data.find(s => (s.duracion || '').toLowerCase() === 'minuto');
+          }
+        } catch {}
         if (!servicioMinuto) {
           setSnackbar({ open: true, message: 'No hay servicio por minuto configurado para este parqueadero.', severity: 'error' });
           return;
@@ -204,6 +206,12 @@ export default function Ingresos() {
         setPuestoSeleccionado('');
         fetchIngresos();
         fetchHistorial();
+        // Abrir automáticamente el diálogo de salida para mostrar el contador
+        const ingresosActualizados = await axios.get(`${API_URL}/api/ingresos/actuales?parqueadero_id=${currentUser?.parqueadero_id}`);
+        const nuevoIngreso = ingresosActualizados.data.find(ing => ing.vehiculo_id === resVehiculo.data.data.id);
+        if (nuevoIngreso) {
+          handleOpenSalidaDialog(nuevoIngreso);
+        }
         return;
       } catch (e) {
         setSnackbar({ open: true, message: 'Error al registrar ingreso rápido', severity: 'error' });
@@ -473,6 +481,18 @@ export default function Ingresos() {
                     setSnackbar({ open: true, message: 'Debes seleccionar un puesto disponible.', severity: 'error' });
                     return;
                   }
+                  // Buscar el servicio por minuto del parqueadero
+                  let servicioMinuto = null;
+                  try {
+                    const resServicios = await axios.get(`${API_URL}/api/servicios/parqueadero/${currentUser?.parqueadero_id}`);
+                    if (resServicios.data && resServicios.data.data) {
+                      servicioMinuto = resServicios.data.data.find(s => (s.duracion || '').toLowerCase() === 'minuto');
+                    }
+                  } catch {}
+                  if (!servicioMinuto) {
+                    setSnackbar({ open: true, message: 'No hay servicio por minuto configurado para este parqueadero.', severity: 'error' });
+                    return;
+                  }
                   try {
                     const resVehiculo = await axios.post(`${API_URL}/api/vehiculos`, {
                       placa,
@@ -482,6 +502,7 @@ export default function Ingresos() {
                       tipo: 'ocasional',
                       usuario_id: null,
                       parqueadero_id: currentUser?.parqueadero_id,
+                      servicio_id: servicioMinuto.id,
                       puesto: Number(puestoSeleccionado)
                     });
                     setVehiculo(resVehiculo.data.data);
@@ -494,6 +515,13 @@ export default function Ingresos() {
                     setPuestoSeleccionado('');
                     fetchIngresos();
                     fetchHistorial();
+                    // Abrir automáticamente el diálogo de salida para mostrar el contador
+                    const ingresosActualizados = await axios.get(`${API_URL}/api/ingresos/actuales?parqueadero_id=${currentUser?.parqueadero_id}`);
+                    const nuevoIngreso = ingresosActualizados.data.find(ing => ing.vehiculo_id === resVehiculo.data.data.id);
+                    if (nuevoIngreso) {
+                      handleOpenSalidaDialog(nuevoIngreso);
+                    }
+                    return;
                   } catch (e) {
                     setSnackbar({ open: true, message: 'Error al registrar ingreso rápido', severity: 'error' });
                   }
