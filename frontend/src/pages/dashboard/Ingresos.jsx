@@ -42,11 +42,13 @@ export default function Ingresos() {
   }, []);
 
   useEffect(() => {
-    if (openSalida && salidaInfo && salidaInfo.hora_entrada && salidaInfo.tipo_cobro === 'uso') {
+    const tiposCobroConContador = ['uso', 'hora', 'minuto', 'día', 'dias', 'días'];
+    if (openSalida && salidaInfo && salidaInfo.hora_entrada && tiposCobroConContador.includes((salidaInfo.tipo_cobro || '').toLowerCase())) {
       const entrada = new Date(salidaInfo.hora_entrada);
       const tarifaMin = Number(salidaInfo.precio_minuto) || 0;
       const tarifaHora = Number(salidaInfo.precio_hora) || 0;
       const tarifaDia = Number(salidaInfo.precio_dia) || 0;
+      const tipoCobro = (salidaInfo.tipo_cobro || '').toLowerCase();
       function actualizarTiempoYValor() {
         const ahora = new Date();
         let diffMs = ahora - entrada;
@@ -56,7 +58,16 @@ export default function Ingresos() {
         let minutosRestantes = diffMin % 60;
         let horasRestantes = diffHoras % 24;
         setTiempoTranscurrido({ dias: diffDias, horas: horasRestantes, minutos: minutosRestantes });
-        const valor = (diffDias * tarifaDia) + (horasRestantes * tarifaHora) + (minutosRestantes * tarifaMin);
+        let valor = 0;
+        if (tipoCobro === 'uso') {
+          valor = (diffDias * tarifaDia) + (horasRestantes * tarifaHora) + (minutosRestantes * tarifaMin);
+        } else if (tipoCobro === 'hora') {
+          valor = diffHoras * tarifaHora + minutosRestantes * tarifaMin;
+        } else if (tipoCobro === 'minuto') {
+          valor = diffMin * tarifaMin;
+        } else if (['día', 'dias', 'días'].includes(tipoCobro)) {
+          valor = diffDias * tarifaDia + horasRestantes * tarifaHora + minutosRestantes * tarifaMin;
+        }
         setValorCalculado(valor);
       }
       actualizarTiempoYValor();
@@ -444,7 +455,7 @@ export default function Ingresos() {
         <DialogTitle sx={{ fontWeight: 700, color: 'primary.main' }}>Registrar Salida</DialogTitle>
         <DialogContent>
           <Typography>Vehículo con servicio por uso. Por favor, ingrese el valor a pagar.</Typography>
-          {salidaInfo && salidaInfo.tipo_cobro === 'uso' && (
+          {salidaInfo && ['uso', 'hora', 'minuto', 'día', 'dias', 'días'].includes((salidaInfo.tipo_cobro || '').toLowerCase()) && (
             <Box sx={{ my: 2, p: 2, bgcolor: '#f5faff', borderRadius: 2, textAlign: 'center' }}>
               <Typography variant="subtitle2" color="primary">Tiempo transcurrido:</Typography>
               <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
