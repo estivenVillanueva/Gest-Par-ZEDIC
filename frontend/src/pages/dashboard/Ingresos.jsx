@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import {
-  Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Snackbar, Alert, Box, Autocomplete, Card, CardContent, Divider
+  Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Snackbar, Alert, Box, Autocomplete, Card, CardContent, Divider, MenuItem
 } from '@mui/material';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -33,6 +33,8 @@ export default function Ingresos() {
   const [placaError, setPlacaError] = useState('');
   const [tiempoTranscurrido, setTiempoTranscurrido] = useState({ dias: 0, horas: 0, minutos: 0 });
   const [valorCalculado, setValorCalculado] = useState(0);
+  const [puestosDisponibles, setPuestosDisponibles] = useState([]);
+  const [puestoSeleccionado, setPuestoSeleccionado] = useState('');
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -79,6 +81,32 @@ export default function Ingresos() {
       if (timerRef.current) clearInterval(timerRef.current);
     }
   }, [openSalida, salidaInfo]);
+
+  useEffect(() => {
+    const fetchPuestos = async () => {
+      if (openIngreso && currentUser?.parqueadero_id) {
+        try {
+          const parqueaderoRes = await axios.get(`${API_URL}/api/parqueaderos/${currentUser.parqueadero_id}`);
+          const capacidadParq = parqueaderoRes.data?.data?.capacidad || 0;
+          const vehiculosRes = await axios.get(`${API_URL}/api/vehiculos?parqueadero_id=${currentUser.parqueadero_id}`);
+          const ocupados = vehiculosRes.data?.data?.map(v => v.puesto).filter(Boolean);
+          let disponibles = [];
+          for (let i = 1; i <= capacidadParq; i++) {
+            if (!ocupados.includes(i)) {
+              disponibles.push(i);
+            }
+          }
+          setPuestosDisponibles(disponibles);
+        } catch (e) {
+          setPuestosDisponibles([]);
+        }
+      }
+    };
+    fetchPuestos();
+    if (!openIngreso) {
+      setPuestoSeleccionado('');
+    }
+  }, [openIngreso, currentUser]);
 
   const fetchIngresos = async () => {
     if (!currentUser?.parqueadero_id) return;
@@ -151,6 +179,10 @@ export default function Ingresos() {
           setSnackbar({ open: true, message: 'No hay servicio por minuto configurado para este parqueadero.', severity: 'error' });
           return;
         }
+        if (!puestoSeleccionado) {
+          setSnackbar({ open: true, message: 'Debes seleccionar un puesto disponible.', severity: 'error' });
+          return;
+        }
         const resVehiculo = await axios.post(`${API_URL}/api/vehiculos`, {
           placa,
           marca: '',
@@ -159,7 +191,8 @@ export default function Ingresos() {
           tipo: 'ocasional',
           usuario_id: null,
           parqueadero_id: currentUser?.parqueadero_id,
-          servicio_id: servicioMinuto.id
+          servicio_id: servicioMinuto.id,
+          puesto: puestoSeleccionado
         });
         setVehiculo(resVehiculo.data.data);
         await axios.post(`${API_URL}/api/ingresos`, { vehiculo_id: resVehiculo.data.data.id, observaciones });
@@ -168,6 +201,7 @@ export default function Ingresos() {
         setPlaca('');
         setVehiculo(null);
         setObservaciones('');
+        setPuestoSeleccionado('');
         fetchIngresos();
         fetchHistorial();
         return;
@@ -180,13 +214,20 @@ export default function Ingresos() {
       setSnackbar({ open: true, message: 'Debes seleccionar un vehículo válido', severity: 'error' });
       return;
     }
+    if (!puestoSeleccionado) {
+      setSnackbar({ open: true, message: 'Debes seleccionar un puesto disponible.', severity: 'error' });
+      return;
+    }
     try {
+      // Actualizar el puesto del vehículo antes de registrar el ingreso
+      await axios.put(`${API_URL}/api/vehiculos/${vehiculo.id}`, { puesto: puestoSeleccionado });
       await axios.post(`${API_URL}/api/ingresos`, { vehiculo_id: vehiculo.id, observaciones });
       setSnackbar({ open: true, message: 'Ingreso registrado', severity: 'success' });
       setOpenIngreso(false);
       setPlaca('');
       setVehiculo(null);
       setObservaciones('');
+      setPuestoSeleccionado('');
       fetchIngresos();
       fetchHistorial();
     } catch (e) {
@@ -440,6 +481,24 @@ export default function Ingresos() {
               </Button>
             </Box>
           )}
+          <TextField
+            margin="normal"
+            fullWidth
+            select
+            label="Puesto"
+            name="puesto"
+            value={puestoSeleccionado}
+            onChange={e => setPuestoSeleccionado(e.target.value)}
+            required
+            sx={{ mt: 2 }}
+            helperText={puestosDisponibles.length === 0 ? 'No hay puestos disponibles' : 'Selecciona un puesto disponible'}
+            disabled={puestosDisponibles.length === 0}
+          >
+            <MenuItem value="">No asignado</MenuItem>
+            {puestosDisponibles.map(p => (
+              <MenuItem key={p} value={p}>{p}</MenuItem>
+            ))}
+          </TextField>
           <TextField
             label="Observaciones"
             value={observaciones}
