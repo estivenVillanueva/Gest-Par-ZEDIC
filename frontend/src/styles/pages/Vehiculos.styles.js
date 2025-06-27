@@ -6,7 +6,7 @@ export const MinimalCard = styled(Card)(({ theme }) => ({
   minHeight: 260,
   maxWidth: 320,
   margin: '24px auto',
-  borderRadius: 1,
+  borderRadius: 3,
   background: '#f8fafc',
   boxShadow: '0 2px 12px 0 rgba(31, 38, 135, 0.07)',
   border: '1.5px solid #f0f4fa',

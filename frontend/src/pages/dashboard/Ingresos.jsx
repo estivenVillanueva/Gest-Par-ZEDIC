@@ -322,12 +322,12 @@ export default function Ingresos() {
       <Divider sx={{ mb: 3 }} />
       <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, mb: 4 }}>
         {/* Tarjeta de vehículos dentro */}
-        <Card sx={{ flex: 1, borderRadius: 4, boxShadow: 4, p: 2, bgcolor: '#f8fafc' }}>
+        <Card sx={{ flex: 1, borderRadius: 1, boxShadow: 4, p: 2, bgcolor: '#f8fafc' }}>
           <CardContent>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 700, color: 'primary.main' }}>
               🚗 Vehículos dentro del parqueadero
             </Typography>
-            <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: 2 }}>
+            <TableContainer component={Paper} sx={{ borderRadius: 1, boxShadow: 2 }}>
               <Table size="small">
                 <TableHead sx={{ bgcolor: '#e3f2fd' }}>
                   <TableRow>
@@ -360,7 +360,7 @@ export default function Ingresos() {
       </Box>
 
       {/* Historial moderno */}
-      <Card sx={{ borderRadius: 4, boxShadow: 4, p: 2, bgcolor: '#f8fafc', mb: 4 }}>
+      <Card sx={{ borderRadius: 1, boxShadow: 4, p: 2, bgcolor: '#f8fafc', mb: 4 }}>
         <CardContent>
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 700, color: 'primary.main' }}>
             📋 Historial de ingresos y salidas
@@ -374,7 +374,7 @@ export default function Ingresos() {
               sx={{ width: 200, mr: 2 }}
             />
           </Box>
-          <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: 2 }}>
+          <TableContainer component={Paper} sx={{ borderRadius: 1, boxShadow: 2 }}>
             <Table size="small">
               <TableHead sx={{ bgcolor: '#e3f2fd' }}>
                 <TableRow>
@@ -456,7 +456,7 @@ export default function Ingresos() {
           />
           {loadingPlaca && <Typography color="info.main">Buscando vehículo...</Typography>}
           {vehiculo && (
-            <Card sx={{ mt: 2, mb: 2, bgcolor: '#f5faff', borderRadius: 3, boxShadow: 1 }}>
+            <Card sx={{ mt: 2, mb: 2, bgcolor: '#f5faff', borderRadius: 1, boxShadow: 1 }}>
               <CardContent>
                 <Typography variant="subtitle1" fontWeight={600}>Vehículo seleccionado:</Typography>
                 <Typography variant="body2">Placa: <b>{vehiculo.placa}</b></Typography>
