@@ -384,4 +384,14 @@ router.put('/notificaciones/:id/leida', async (req, res) => {
   }
 });
 
+// Listar notificaciones por parqueadero
+router.get('/parqueadero/:parqueadero_id/notificaciones', async (req, res) => {
+  try {
+    const notificaciones = await notificacionesQueries.listarPorParqueadero(req.params.parqueadero_id);
+    res.json({ success: true, data: notificaciones });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 export const usuarioRoutes = router; 

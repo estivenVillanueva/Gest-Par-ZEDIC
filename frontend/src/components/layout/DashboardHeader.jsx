@@ -64,9 +64,18 @@ const DashboardHeader = () => {
   useEffect(() => {
     let intervalId;
     const fetchNotificaciones = async () => {
-      if (!currentUser?.id) return;
+      if (!currentUser) return;
       try {
-        const res = await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/${currentUser.id}/notificaciones`);
+        let url = '';
+        if (currentUser.tipo_usuario === 'admin' && currentUser.parqueadero_id) {
+          url = `https://gest-par-zedic.onrender.com/api/usuarios/parqueadero/${currentUser.parqueadero_id}/notificaciones`;
+        } else if (currentUser.id) {
+          url = `https://gest-par-zedic.onrender.com/api/usuarios/${currentUser.id}/notificaciones`;
+        } else {
+          setNotificaciones([]);
+          return;
+        }
+        const res = await fetch(url);
         const data = await res.json();
         setNotificaciones(data.data || []);
       } catch (err) {
@@ -75,7 +84,7 @@ const DashboardHeader = () => {
     };
     fetchNotificaciones();
     // Polling cada 10 segundos
-    if (currentUser?.id) {
+    if (currentUser) {
       intervalId = setInterval(fetchNotificaciones, 10000);
     }
     return () => {

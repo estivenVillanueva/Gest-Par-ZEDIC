@@ -2,13 +2,13 @@ import { pool } from '../postgres.js';
 
 export const notificacionesQueries = {
   // Crear una notificación
-  async crearNotificacion({ usuario_id, titulo, mensaje, tipo }) {
+  async crearNotificacion({ usuario_id, parqueadero_id, titulo, mensaje, tipo }) {
     const query = `
-      INSERT INTO notificaciones (usuario_id, titulo, mensaje, tipo)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO notificaciones (usuario_id, parqueadero_id, titulo, mensaje, tipo)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *
     `;
-    const values = [usuario_id, titulo, mensaje, tipo];
+    const values = [usuario_id, parqueadero_id, titulo, mensaje, tipo];
     const result = await pool.query(query, values);
     return result.rows[0];
   },
@@ -22,6 +22,18 @@ export const notificacionesQueries = {
       LIMIT 50
     `;
     const result = await pool.query(query, [usuario_id]);
+    return result.rows;
+  },
+
+  // Listar notificaciones por parqueadero
+  async listarPorParqueadero(parqueadero_id) {
+    const query = `
+      SELECT * FROM notificaciones
+      WHERE parqueadero_id = $1
+      ORDER BY created_at DESC
+      LIMIT 50
+    `;
+    const result = await pool.query(query, [parqueadero_id]);
     return result.rows;
   },
 
