@@ -1,30 +1,35 @@
 import React from 'react';
 import { Box, Typography, Divider, Avatar } from '@mui/material';
+import { useAuth } from '../../../logic/AuthContext';
 
 const DEFAULT_LOGO_URL = 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Parking_icon.svg';
 
 const FacturaPreview = ({ factura, parqueadero, vehiculo, detalles, numIngresos, numSalidas }) => {
-  if (!factura) return null;
-  // Datos del parqueadero
-  const logo = parqueadero?.logo_url || DEFAULT_LOGO_URL;
-  const nombre = parqueadero?.nombre || 'Gest-Par ZEDIC';
-  const direccion = parqueadero?.direccion || 'No especificada';
-  const telefono = parqueadero?.telefono || 'No especificado';
-  const email = parqueadero?.email || 'No especificado';
-  const horarios = parqueadero?.horarios || '';
-  const descripcion = parqueadero?.descripcion || '';
+  const { currentUser } = useAuth();
+  // Usar datos del perfil si parqueadero está vacío o incompleto
+  const parqueaderoData = (parqueadero && parqueadero.nombre) ? parqueadero : (currentUser?.parqueadero || {});
+
+  const logo = parqueaderoData.logo_url || DEFAULT_LOGO_URL;
+  const nombre = parqueaderoData.nombre || 'Gest-Par ZEDIC';
+  const direccion = parqueaderoData.direccion || 'No especificada';
+  const telefono = parqueaderoData.telefono || 'No especificado';
+  const email = parqueaderoData.email || 'No especificado';
+  const horarios = parqueaderoData.horarios || '';
+  const descripcion = parqueaderoData.descripcion || '';
 
   // Datos del cliente
-  const clienteNombre = vehiculo?.dueno_nombre || factura.usuario_nombre || 'No registrado';
-  const clientePlaca = vehiculo?.placa || factura.placa || 'No registrado';
-  const clienteTelefono = vehiculo?.dueno_telefono || factura.dueno_telefono || '';
-  const clienteEmail = vehiculo?.dueno_email || factura.dueno_email || '';
+  const clienteNombre = vehiculo?.dueno_nombre || factura?.usuario_nombre || 'No registrado';
+  const clientePlaca = vehiculo?.placa || factura?.placa || 'No registrado';
+  const clienteTelefono = vehiculo?.dueno_telefono || factura?.dueno_telefono || '';
+  const clienteEmail = vehiculo?.dueno_email || factura?.dueno_email || '';
   const marca = vehiculo?.marca || 'No registrado';
   const modelo = vehiculo?.modelo || 'No registrado';
   const color = vehiculo?.color || 'No registrado';
   const tipo = vehiculo?.tipo || 'No registrado';
-  const servicio = factura.servicio_nombre || 'No registrado';
-  const fechaEmision = factura.fecha_creacion ? new Date(factura.fecha_creacion).toLocaleString() : 'No registrado';
+  const servicio = factura?.servicio_nombre || 'No registrado';
+  const fechaEmision = factura?.fecha_creacion ? new Date(factura.fecha_creacion).toLocaleString() : 'No registrado';
+
+  if (!factura) return null;
 
   return (
     <Box className="factura-modal" sx={{ p: 4, bgcolor: '#fff', borderRadius: 2, maxWidth: 600, mx: 'auto', boxShadow: 3 }}>
