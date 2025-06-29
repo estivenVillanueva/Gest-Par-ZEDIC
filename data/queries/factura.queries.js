@@ -121,6 +121,20 @@ export const facturaQueries = {
         `;
         const result = await pool.query(query, [usuario_id]);
         return result.rows;
+    },
+
+    // Listar todas las facturas
+    async getAllFacturas() {
+        const query = `
+            SELECT f.*, p.nombre as parqueadero_nombre, p.direccion as parqueadero_direccion, v.placa as vehiculo_placa, s.nombre as servicio_nombre
+            FROM facturas f
+            LEFT JOIN parqueaderos p ON f.parqueadero_id = p.id
+            LEFT JOIN vehiculos v ON f.vehiculo_id = v.id
+            LEFT JOIN servicios s ON f.servicio_id = s.id
+            ORDER BY f.fecha_creacion DESC
+        `;
+        const result = await pool.query(query);
+        return result.rows;
     }
 };
 

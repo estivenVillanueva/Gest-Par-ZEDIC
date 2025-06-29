@@ -210,4 +210,14 @@ router.get('/usuario/:usuario_id', async (req, res) => {
   }
 });
 
+// Listar todas las facturas
+router.get('/', async (req, res) => {
+  try {
+    const facturas = await facturaQueries.getAllFacturas();
+    res.json({ success: true, data: facturas });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al obtener facturas', error: error.message });
+  }
+});
+
 export const facturaRoutes = router; 
