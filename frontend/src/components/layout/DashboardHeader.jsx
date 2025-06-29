@@ -279,8 +279,8 @@ const DashboardHeader = () => {
                 link = `/dashboard/solicitudes`;
               }
               return (
-                <MenuItem
-                  key={n.id}
+              <MenuItem
+                key={n.id}
                   onClick={() => {
                     handleMarcarLeida(n.id);
                     handleClose();
@@ -295,7 +295,7 @@ const DashboardHeader = () => {
                     borderBottom: '1px solid #f0f0f0',
                     py: 1.5
                   }}
-                >
+              >
                   {icon}
                   <Box sx={{ flex: 1 }}>
                     <Typography variant="subtitle2" sx={{ mb: 0.2 }}>{n.titulo}</Typography>
@@ -304,7 +304,7 @@ const DashboardHeader = () => {
                       {n.created_at ? format(new Date(n.created_at), 'dd/MM/yyyy HH:mm') : ''}
                     </Typography>
                   </Box>
-                </MenuItem>
+              </MenuItem>
               );
             })}
           </Menu>

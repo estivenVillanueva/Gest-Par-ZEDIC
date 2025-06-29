@@ -6,3 +6,27 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.07);
   margin-bottom: 16px;
 } 
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  .factura-modal, .factura-modal * {
+    visibility: visible !important;
+  }
+  .factura-modal {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100vw !important;
+    background: white !important;
+    z-index: 9999 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .MuiDialog-root, .MuiDialog-container, .MuiDialog-paper {
+    box-shadow: none !important;
+    background: none !important;
+  }
+} 

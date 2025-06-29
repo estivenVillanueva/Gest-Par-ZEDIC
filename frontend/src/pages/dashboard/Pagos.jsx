@@ -47,6 +47,7 @@ import es from 'date-fns/locale/es';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import FacturaPreview from '../../components/payment/FacturaPreview';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
 const DEFAULT_LOGO_URL = 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Parking_icon.svg';
@@ -388,16 +389,28 @@ const FormularioPago = ({ open, onClose, onGuardar }) => {
 const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
   const [metodoPago, setMetodoPago] = useState('efectivo');
   const [parqueadero, setParqueadero] = useState(null);
+  const [detalles, setDetalles] = useState([]);
+  const [vehiculo, setVehiculo] = useState(null);
+  const [numIngresos, setNumIngresos] = useState(0);
+  const [numSalidas, setNumSalidas] = useState(0);
 
   useEffect(() => {
     const fetchParqueadero = async () => {
       if (factura && factura.parqueadero_id) {
         try {
-          const res = await fetch(`${API_URL}/api/parqueaderos/${factura.parqueadero_id}`);
+          const res = await fetch(`${API_URL}/api/facturas/completa/${factura.id}`);
           const data = await res.json();
-          setParqueadero(data.data);
+          setParqueadero(data.parqueadero);
+          setDetalles(data.detalles);
+          setVehiculo(data.vehiculo);
+          setNumIngresos(data.numIngresos);
+          setNumSalidas(data.numSalidas);
         } catch (err) {
           setParqueadero(null);
+          setDetalles([]);
+          setVehiculo(null);
+          setNumIngresos(0);
+          setNumSalidas(0);
         }
       }
     };
@@ -406,187 +419,23 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
 
   if (!factura) return null;
 
-  // Mostrar detalles adicionales
-  const detallesContacto = [factura.dueno_telefono, factura.dueno_email].filter(Boolean).join(' | ');
-
-  // Función para imprimir factura
-  const handleImprimir = async () => {
-    console.log("Factura a imprimir:", factura);
-    if (!factura) return;
-    const res = await fetch(`${API_URL}/api/facturas/completa/${factura.id}`);
-    if (!res.ok) {
-      alert("No se pudo obtener la factura. Verifica que exista en el sistema.");
-      return;
-    }
-    const data = await res.json();
-    if (!data || !data.factura) {
-      alert("Factura no encontrada o datos incompletos.");
-      return;
-    }
-    const { factura: f, detalles, parqueadero, vehiculo, numIngresos, numSalidas } = data;
-    const logo = parqueadero?.logo_url || DEFAULT_LOGO_URL;
-    const nombre = parqueadero?.nombre || 'Gest-Par ZEDIC';
-    const nit = parqueadero?.nit || '900000000-1';
-    const direccion = parqueadero?.direccion || 'Calle 123 #45-67';
-    const telefono = parqueadero?.telefono || '300 123 4567';
-    const email = parqueadero?.email || 'info@zedic.com';
-    const cliente = vehiculo?.dueno_nombre || f.usuario_nombre || 'No registrado';
-    const placa = vehiculo?.placa || 'No registrado';
-    const marca = vehiculo?.marca || 'No registrado';
-    const modelo = vehiculo?.modelo || 'No registrado';
-    const color = vehiculo?.color || 'No registrado';
-    const tipo = vehiculo?.tipo || 'No registrado';
-    const servicio = f.servicio_nombre || 'No registrado';
-    const fechaEmision = f.fecha_creacion ? new Date(f.fecha_creacion).toLocaleString() : 'No registrado';
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-      <html>
-      <head>
-        <title>Factura</title>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 40px; }
-          .header { display: flex; align-items: center; border-bottom: 2px solid #1976d2; padding-bottom: 10px; margin-bottom: 20px; }
-          .logo { width: 80px; height: 80px; margin-right: 20px; object-fit: cover; border-radius: 12px; border: 2px solid #1976d2; background: #fff; }
-          .company-info { font-size: 16px; }
-          .factura-title { text-align: right; font-size: 28px; color: #1976d2; font-weight: bold; }
-          .section { margin-bottom: 20px; }
-          .details-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-          .details-table th, .details-table td { border: 1px solid #bbb; padding: 8px; text-align: center; }
-          .details-table th { background: #e3f2fd; color: #1976d2; font-weight: bold; }
-          .total { text-align: right; font-size: 20px; font-weight: bold; margin-top: 20px; }
-          .footer { margin-top: 40px; font-size: 14px; color: #888; text-align: center; border-top: 1px solid #ccc; padding-top: 10px; }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <img src="${logo}" class="logo" alt="Logo" />
-          <div class="company-info">
-            <div><strong>${nombre}</strong></div>
-            <div>NIT: ${nit}</div>
-            <div>Dirección: ${direccion}</div>
-            <div>Tel: ${telefono}</div>
-            <div>Email: ${email}</div>
-          </div>
-          <div style="flex:1"></div>
-          <div class="factura-title">Factura #${f.id || ''}</div>
-        </div>
-        <div class="section">
-          <strong>Cliente:</strong> ${cliente}<br/>
-          <strong>Placa:</strong> ${placa}<br/>
-          <strong>Marca:</strong> ${marca}<br/>
-          <strong>Modelo:</strong> ${modelo}<br/>
-          <strong>Color:</strong> ${color}<br/>
-          <strong>Tipo:</strong> ${tipo}<br/>
-          <strong>Servicio:</strong> ${servicio}<br/>
-          <strong>Fecha de emisión:</strong> ${fechaEmision}<br/>
-          <strong>Entradas registradas:</strong> ${numIngresos}<br/>
-          <strong>Salidas registradas:</strong> ${numSalidas}
-        </div>
-        <div class="section">
-          <table class="details-table">
-            <thead>
-              <tr>
-                <th>Servicio</th>
-                <th>Cantidad</th>
-                <th>Precio unitario</th>
-                <th>Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${(detalles && detalles.length > 0)
-                ? detalles.map(det => `
-                  <tr>
-                    <td>${det.servicio_nombre || det.tipo_servicio || 'No registrado'}</td>
-                    <td>${det.cantidad || 1}</td>
-                    <td>$${parseFloat(det.precio_unitario || 0).toLocaleString('es-CO')}</td>
-                    <td>$${parseFloat(det.subtotal || det.valor_total || 0).toLocaleString('es-CO')}</td>
-                  </tr>
-                `).join('')
-                : `<tr><td colspan="4">Sin detalles</td></tr>`}
-            </tbody>
-          </table>
-        </div>
-        <div class="total">
-          Total: $${(f.total || f.valor_total || 0).toLocaleString('es-CO')}
-        </div>
-        <div class="footer">
-          ¡Gracias por preferirnos!<br/>
-          Esta factura es válida para efectos legales. Consulte términos y condiciones en www.zedic.com
-        </div>
-      </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
+  // Imprimir solo el modal
+  const handleImprimir = () => {
+    window.print();
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>Confirmar Pago</DialogTitle>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>Factura</DialogTitle>
       <DialogContent>
-        <Typography sx={{ mb: 2 }}>
-          ¿Confirmas que has recibido el pago de <strong>${parseInt(factura.total || factura.valor_total, 10).toLocaleString('es-CO')}</strong> para el servicio <strong>{factura.servicio_nombre}</strong> del vehículo <strong>{factura.placa}</strong>?
-        </Typography>
-        {factura.usuario_nombre === 'Dueño no registrado' && detallesContacto && (
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            <strong>Contacto:</strong> {detallesContacto}
-          </Typography>
-        )}
-        {factura.fecha_pago && (
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            <strong>Fecha de pago:</strong> {factura.fecha_pago}
-          </Typography>
-        )}
-        {factura.metodo_pago && (
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            <strong>Método de pago:</strong> {factura.metodo_pago}
-          </Typography>
-        )}
-        {factura.observaciones && (
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            <strong>Observaciones:</strong> {factura.observaciones}
-          </Typography>
-        )}
-        {/* Mostrar detalles de factura si existen */}
-        {factura.detalles && factura.detalles.length > 0 && (
-          <Box sx={{ mt: 2, mb: 2 }}>
-            <Typography variant="subtitle2" fontWeight={700}>Detalles de la factura:</Typography>
-            <Box component="table" sx={{ width: '100%', mt: 1, borderCollapse: 'collapse' }}>
-              <Box component="thead">
-                <Box component="tr">
-                  <Box component="th" sx={{ borderBottom: '1px solid #ccc', p: 1 }}>Servicio</Box>
-                  <Box component="th" sx={{ borderBottom: '1px solid #ccc', p: 1 }}>Cantidad</Box>
-                  <Box component="th" sx={{ borderBottom: '1px solid #ccc', p: 1 }}>Precio unitario</Box>
-                  <Box component="th" sx={{ borderBottom: '1px solid #ccc', p: 1 }}>Subtotal</Box>
-                </Box>
-              </Box>
-              <Box component="tbody">
-                {factura.detalles.map((det, idx) => (
-                  <Box component="tr" key={idx}>
-                    <Box component="td" sx={{ p: 1 }}>{det.servicio_id}</Box>
-                    <Box component="td" sx={{ p: 1 }}>{det.cantidad}</Box>
-                    <Box component="td" sx={{ p: 1 }}>{det.precio_unitario}</Box>
-                    <Box component="td" sx={{ p: 1 }}>{det.subtotal}</Box>
-                  </Box>
-                ))}
-              </Box>
-            </Box>
-          </Box>
-        )}
-        <FormControl fullWidth sx={{ mt: 2 }}>
-          <InputLabel>Método de Pago</InputLabel>
-          <Select
-            value={metodoPago}
-            label="Método de Pago"
-            onChange={(e) => setMetodoPago(e.target.value)}
-          >
-            <MenuItem value="efectivo">Efectivo</MenuItem>
-            <MenuItem value="transferencia">Transferencia</MenuItem>
-            <MenuItem value="tarjeta">Tarjeta</MenuItem>
-            <MenuItem value="otro">Otro</MenuItem>
-          </Select>
-        </FormControl>
-        {/* Botón para imprimir */}
+        <FacturaPreview
+          factura={factura}
+          parqueadero={parqueadero}
+          vehiculo={vehiculo}
+          detalles={detalles}
+          numIngresos={numIngresos}
+          numSalidas={numSalidas}
+        />
         <Button variant="outlined" color="primary" sx={{ mt: 2 }} onClick={handleImprimir}>
           Imprimir factura
         </Button>
