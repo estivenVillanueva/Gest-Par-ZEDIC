@@ -14,7 +14,11 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  MenuItem
+  MenuItem,
+  Paper,
+  Checkbox,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
@@ -47,8 +51,14 @@ const getVehiculoIcon = (tipo) => {
   }
 };
 
-const VehiculoCard = ({ vehiculo, onVerInfo }) => (
-  <MinimalCard onClick={() => onVerInfo(vehiculo)}>
+const VehiculoCard = ({ vehiculo, onVerInfo, seleccionado, onSeleccionar }) => (
+  <MinimalCard onClick={() => onVerInfo(vehiculo)} sx={{ position: 'relative' }}>
+    <Checkbox
+      checked={seleccionado}
+      onClick={e => { e.stopPropagation(); onSeleccionar(vehiculo.id); }}
+      sx={{ position: 'absolute', top: 10, left: 10, zIndex: 2 }}
+      color="primary"
+    />
     <MinimalIcon>
       {getVehiculoIcon(vehiculo.tipoVehiculo)}
     </MinimalIcon>
@@ -269,6 +279,9 @@ const Vehiculos = () => {
   const [parqueaderoSeleccionado, setParqueaderoSeleccionado] = useState('');
   const [asociarMsg, setAsociarMsg] = useState('');
   const [parqueaderosUsuario, setParqueaderosUsuario] = useState([]);
+  const [seleccionados, setSeleccionados] = useState([]);
+  const [openConfirmarEliminar, setOpenConfirmarEliminar] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { vehiculos, loading, error, agregarVehiculo, actualizarVehiculo, eliminarVehiculo, cargarVehiculos } = useVehiculo();
@@ -394,6 +407,24 @@ const Vehiculos = () => {
     }
   };
 
+  const handleSeleccionar = (id) => {
+    setSeleccionados(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  const handleEliminarSeleccionados = async () => {
+    try {
+      for (const id of seleccionados) {
+        const veh = vehiculos.find(v => v.id === id);
+        if (veh) await eliminarVehiculo(veh.placa);
+      }
+      setSeleccionados([]);
+      setOpenConfirmarEliminar(false);
+      setSnackbar({ open: true, message: 'Vehículos eliminados correctamente', severity: 'success' });
+    } catch (e) {
+      setSnackbar({ open: true, message: 'Error al eliminar vehículos', severity: 'error' });
+    }
+  };
+
   return (
     <Box sx={{ width: '100%', minHeight: '100vh', py: 5, px: { xs: 1, md: 6 }, bgcolor: '#f6f7fa' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
@@ -421,10 +452,26 @@ const Vehiculos = () => {
         <MinimalGrid container spacing={4}>
           {filteredVehiculos.map((vehiculo) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={vehiculo.id}>
-              <VehiculoCard vehiculo={vehiculo} onVerInfo={handleVerInfo} />
+              <VehiculoCard
+                vehiculo={vehiculo}
+                onVerInfo={handleVerInfo}
+                seleccionado={seleccionados.includes(vehiculo.id)}
+                onSeleccionar={handleSeleccionar}
+              />
             </Grid>
           ))}
         </MinimalGrid>
+      )}
+      {seleccionados.length > 0 && (
+        <Fab
+          color="error"
+          variant="extended"
+          sx={{ position: 'fixed', bottom: 100, right: 32, zIndex: 200 }}
+          onClick={() => setOpenConfirmarEliminar(true)}
+        >
+          <DeleteSweepIcon sx={{ mr: 1 }} />
+          Eliminar seleccionados ({seleccionados.length})
+        </Fab>
       )}
       <MinimalFab color="primary" aria-label="add" onClick={() => { setSelectedVehiculo(null); setOpenForm(true); }}>
         <AddIcon />
@@ -447,16 +494,31 @@ const Vehiculos = () => {
         </DialogActions>
       </Dialog>
       {/* Búsqueda de usuario */}
-      <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
-        <TextField
-          label="Buscar usuario por correo o ID"
-          value={searchUser}
-          onChange={e => setSearchUser(e.target.value)}
-          size="small"
-        />
-        <Button variant="contained" onClick={handleBuscarUsuario}>Buscar</Button>
-        {searchError && <Typography color="error">{searchError}</Typography>}
-      </Box>
+      <Paper elevation={3} sx={{
+        position: { xs: 'static', md: 'sticky' },
+        top: { md: 90 },
+        zIndex: 20,
+        mb: 4,
+        p: { xs: 2, sm: 3 },
+        borderRadius: 3,
+        bgcolor: '#fafdff',
+        maxWidth: 500,
+        mx: 'auto',
+        boxShadow: '0 4px 24px 0 rgba(31, 38, 135, 0.10)',
+        width: { xs: '100%', sm: 500 },
+      }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, gap: 2 }}>
+          <TextField
+            label="Buscar usuario por correo o ID"
+            value={searchUser}
+            onChange={e => setSearchUser(e.target.value)}
+            size="medium"
+            fullWidth
+          />
+          <Button variant="contained" size="large" sx={{ minWidth: 120, fontWeight: 700 }} onClick={handleBuscarUsuario}>Buscar</Button>
+        </Box>
+        {searchError && <Typography color="error" sx={{ mt: 1, textAlign: 'center' }}>{searchError}</Typography>}
+      </Paper>
       {usuarioBuscado && (
         <Box sx={{ mb: 2, p: 2, bgcolor: '#e3f2fd', borderRadius: 2 }}>
           <Typography variant="subtitle1" fontWeight={700}>Usuario encontrado:</Typography>
@@ -510,6 +572,19 @@ const Vehiculos = () => {
           <Button variant="contained" onClick={handleAsociarVehiculo} disabled={!currentUser?.parqueadero_id}>Asociar</Button>
         </DialogActions>
       </Dialog>
+      <Dialog open={openConfirmarEliminar} onClose={() => setOpenConfirmarEliminar(false)}>
+        <DialogTitle>¿Eliminar vehículos seleccionados?</DialogTitle>
+        <DialogContent>
+          <Typography>¿Estás seguro de que deseas eliminar los vehículos seleccionados? Esta acción no se puede deshacer.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenConfirmarEliminar(false)}>Cancelar</Button>
+          <Button onClick={handleEliminarSeleccionados} color="error" variant="contained">Eliminar</Button>
+        </DialogActions>
+      </Dialog>
+      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+        <Alert severity={snackbar.severity} sx={{ width: '100%' }}>{snackbar.message}</Alert>
+      </Snackbar>
     </Box>
   );
 };

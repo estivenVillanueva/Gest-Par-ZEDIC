@@ -154,7 +154,7 @@ function Reportes() {
 
           {/* Gráficas principales */}
           <Grid container spacing={3}>
-            <Grid item xs={12} md={2} lg={2.4} xl={2.4}>
+            <Grid item xs={12} md={2}>
               <Paper sx={{ p: 4, borderRadius: 2, boxShadow: 4, minHeight: 480, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: '#e3f2fd' }}>
                 <MonetizationOnIcon sx={{ fontSize: 32, color: '#2B6CA3', mb: 1 }} />
                 <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Ingresos por mes</Typography>
@@ -174,7 +174,7 @@ function Reportes() {
                 )}
               </Paper>
             </Grid>
-            <Grid item xs={12} md={2} lg={2.4} xl={2.4}>
+            <Grid item xs={12} md={2}>
               <Paper sx={{ p: 4, borderRadius: 2, boxShadow: 4, minHeight: 480, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: '#e8f5e9' }}>
                 <EventAvailableIcon sx={{ fontSize: 32, color: '#43a047', mb: 1 }} />
                 <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Servicios activos por tipo</Typography>
@@ -189,7 +189,7 @@ function Reportes() {
                 </ResponsiveContainer>
               </Paper>
             </Grid>
-            <Grid item xs={12} md={2} lg={2.4} xl={2.4}>
+            <Grid item xs={12} md={2}>
               <Paper sx={{ p: 4, borderRadius: 2, boxShadow: 4, minHeight: 480, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: '#fffde7' }}>
                 <DirectionsCarIcon sx={{ fontSize: 32, color: '#fbc02d', mb: 1 }} />
                 <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Ingresos de vehículos (últimos 7 días)</Typography>
@@ -203,7 +203,7 @@ function Reportes() {
                 </ResponsiveContainer>
               </Paper>
             </Grid>
-            <Grid item xs={12} md={2} lg={2.4} xl={2.4}>
+            <Grid item xs={12} md={2}>
               <Paper sx={{ p: 4, borderRadius: 2, boxShadow: 4, minHeight: 480, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Pagos pendientes vs pagados</Typography>
                 <ResponsiveContainer width="100%" height={160}>
@@ -217,7 +217,7 @@ function Reportes() {
                 </ResponsiveContainer>
               </Paper>
             </Grid>
-            <Grid item xs={12} md={2} lg={2.4} xl={2.4}>
+            <Grid item xs={12} md={2}>
               <Paper sx={{ p: 4, borderRadius: 2, boxShadow: 4, minHeight: 480, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Ocupación actual</Typography>
                 <Box sx={{ width: '100%', mb: 2 }}>
@@ -226,15 +226,15 @@ function Reportes() {
                 <Chip label={`${ocupacion.ocupados} de ${ocupacion.total} puestos ocupados (${ocupacionPorcentaje}%)`} color="primary" sx={{ fontSize: 18, p: 2 }} />
               </Paper>
             </Grid>
-            <Grid item xs={12} md={4} lg={4.8} xl={4.8}>
+            <Grid item xs={12} md={6}>
               <Paper sx={{ p: 4, borderRadius: 2, boxShadow: 4, minHeight: 480, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Vehículos por tipo</Typography>
-                <ResponsiveContainer width="100%" height={320}>
-                  <BarChart data={vehiculosTipoData}>
+                <ResponsiveContainer width="100%" height={380}>
+                  <BarChart data={vehiculosTipoData} barCategoryGap={40}>
                     <XAxis dataKey="tipo" fontSize={18} />
                     <YAxis fontSize={18} />
                     <Tooltip />
-                    <Bar dataKey="cantidad" fill="#43a047" radius={[8, 8, 0, 0]} barSize={60} />
+                    <Bar dataKey="cantidad" fill="#43a047" radius={[8, 8, 0, 0]} barSize={80} />
                   </BarChart>
                 </ResponsiveContainer>
               </Paper>
