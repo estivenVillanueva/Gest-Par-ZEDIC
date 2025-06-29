@@ -53,6 +53,13 @@ export const notificacionesQueries = {
     `;
     const result = await pool.query(query, [usuario_id]);
     return result.rows;
+  },
+
+  // Marcar todas las notificaciones de un parqueadero como leídas
+  async marcarTodasLeidasParqueadero(parqueadero_id) {
+    const query = 'UPDATE notificaciones SET leida = TRUE WHERE parqueadero_id = $1 RETURNING *';
+    const result = await pool.query(query, [parqueadero_id]);
+    return result.rows;
   }
 };
 

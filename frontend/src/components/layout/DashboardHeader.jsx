@@ -119,7 +119,11 @@ const DashboardHeader = () => {
   const handleMarcarTodasLeidas = async () => {
     if (!currentUser) return;
     try {
-      await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${currentUser.id}/todas-leidas`, { method: 'PUT' });
+      if (currentUser.tipo_usuario === 'admin' && currentUser.parqueadero_id) {
+        await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/parqueadero/${currentUser.parqueadero_id}/todas-leidas`, { method: 'PUT' });
+      } else {
+        await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${currentUser.id}/todas-leidas`, { method: 'PUT' });
+      }
       await fetchNotificaciones();
     } catch {}
     handleClose();

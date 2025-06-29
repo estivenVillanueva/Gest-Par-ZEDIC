@@ -25,6 +25,8 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import SearchIcon from '@mui/icons-material/Search';
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import LinkIcon from '@mui/icons-material/Link';
 import { MinimalCard, MinimalIcon, MinimalBadge, MinimalFab, MinimalGrid, MinimalFilterBar } from '../../styles/pages/Vehiculos.styles';
 import { useVehiculo } from '../../../logic/VehiculoContext';
 import { useAuth } from '../../../logic/AuthContext';
@@ -110,7 +112,7 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
       dueno_telefono: '',
       dueno_email: ''
     };
-    setForm(initialData || initialFormState);
+    setForm({ ...initialFormState, ...(initialData || {}) });
     if (initialData && initialData.servicio_id) {
       setForm(prevForm => ({ ...prevForm, servicio_id: initialData.servicio_id }));
     }
@@ -242,7 +244,7 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
             <Button color="error" onClick={() => { onEliminar(initialData.placa); onClose(); }}>Eliminar</Button>
           )}
           <Button onClick={onClose}>Cancelar</Button>
-          <Button type="submit" variant="contained" disabled={!!placaError || form.placa.length !== 6}>Guardar</Button>
+          <Button type="submit" variant="contained" disabled={!!placaError || (form.placa || '').length !== 6}>Guardar</Button>
         </DialogActions>
       </form>
     </Dialog>
@@ -256,9 +258,20 @@ const Vehiculos = () => {
   const [openForm, setOpenForm] = useState(false);
   const [selectedVehiculo, setSelectedVehiculo] = useState(null);
   const [openDeleteAll, setOpenDeleteAll] = useState(false);
+  const [searchUser, setSearchUser] = useState('');
+  const [usuarioBuscado, setUsuarioBuscado] = useState(null);
+  const [vehiculosUsuario, setVehiculosUsuario] = useState([]);
+  const [searchError, setSearchError] = useState('');
+  const [openFormUsuario, setOpenFormUsuario] = useState(false);
+  const [vehiculoParaAsociar, setVehiculoParaAsociar] = useState(null);
+  const [openAsociar, setOpenAsociar] = useState(false);
+  const [parqueaderos, setParqueaderos] = useState([]);
+  const [parqueaderoSeleccionado, setParqueaderoSeleccionado] = useState('');
+  const [asociarMsg, setAsociarMsg] = useState('');
+  const [parqueaderosUsuario, setParqueaderosUsuario] = useState([]);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { vehiculos, loading, error, agregarVehiculo, actualizarVehiculo, eliminarVehiculo } = useVehiculo();
+  const { vehiculos, loading, error, agregarVehiculo, actualizarVehiculo, eliminarVehiculo, cargarVehiculos } = useVehiculo();
   const { currentUser } = useAuth();
 
   const handleVerInfo = (vehiculo) => {
@@ -304,6 +317,82 @@ const Vehiculos = () => {
     }
     return matchGeneral && matchFecha;
   });
+
+  // Buscar usuario por correo o ID
+  const handleBuscarUsuario = async () => {
+    setSearchError('');
+    setUsuarioBuscado(null);
+    setVehiculosUsuario([]);
+    setParqueaderosUsuario([]);
+    if (!searchUser.trim()) return;
+    try {
+      let res;
+      if (searchUser.includes('@')) {
+        res = await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/correo/${searchUser}`);
+      } else {
+        res = await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/${searchUser}`);
+      }
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'Usuario no encontrado');
+      setUsuarioBuscado(data.data);
+      // Buscar vehículos de ese usuario
+      const vehRes = await fetch(`https://gest-par-zedic.onrender.com/api/vehiculos?usuario_id=${data.data.id}`);
+      const vehData = await vehRes.json();
+      setVehiculosUsuario(vehData.data || []);
+      // Buscar parqueaderos de ese usuario
+      const parqRes = await fetch(`https://gest-par-zedic.onrender.com/api/parqueaderos/usuario/${data.data.id}`);
+      const parqData = await parqRes.json();
+      if (parqData.success && parqData.data) {
+        // Puede ser objeto o array
+        setParqueaderosUsuario(Array.isArray(parqData.data) ? parqData.data : [parqData.data]);
+      }
+    } catch (err) {
+      setSearchError(err.message || 'Usuario no encontrado');
+    }
+  };
+
+  // Registrar vehículo para usuario buscado
+  const handleRegistrarVehiculoUsuario = async (form) => {
+    try {
+      const body = { ...form, usuario_id: usuarioBuscado.id };
+      const res = await fetch('https://gest-par-zedic.onrender.com/api/vehiculos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      setOpenFormUsuario(false);
+      // Refrescar lista
+      handleBuscarUsuario();
+    } catch (e) {
+      alert('Error al registrar vehículo: ' + e.message);
+    }
+  };
+
+  // Asociar vehículo existente a parqueadero
+  const handleAsociarVehiculo = async () => {
+    if (!vehiculoParaAsociar || !currentUser?.parqueadero_id) return;
+    try {
+      // 1. Obtener datos completos del vehículo
+      const resGet = await fetch(`https://gest-par-zedic.onrender.com/api/vehiculos/placa/${vehiculoParaAsociar.placa}`);
+      const vehiculoData = await resGet.json();
+      if (!vehiculoData.success || !vehiculoData.data) throw new Error('No se pudo obtener datos del vehículo');
+      // 2. Hacer PUT con todos los campos, cambiando solo parqueadero_id
+      const body = { ...vehiculoData.data, parqueadero_id: currentUser.parqueadero_id };
+      const res = await fetch(`https://gest-par-zedic.onrender.com/api/vehiculos/${vehiculoParaAsociar.placa}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      setAsociarMsg('Vehículo asociado correctamente');
+      setTimeout(() => { setOpenAsociar(false); setAsociarMsg(''); handleBuscarUsuario(); cargarVehiculos(); }, 1200);
+    } catch (e) {
+      setAsociarMsg('Error: ' + e.message);
+    }
+  };
 
   return (
     <Box sx={{ width: '100%', minHeight: '100vh', py: 5, px: { xs: 1, md: 6 }, bgcolor: '#f6f7fa' }}>
@@ -355,6 +444,70 @@ const Vehiculos = () => {
         <DialogActions>
           <Button onClick={() => setOpenDeleteAll(false)}>Cancelar</Button>
           <Button onClick={handleEliminarTodos} color="error" variant="contained">Eliminar</Button>
+        </DialogActions>
+      </Dialog>
+      {/* Búsqueda de usuario */}
+      <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+        <TextField
+          label="Buscar usuario por correo o ID"
+          value={searchUser}
+          onChange={e => setSearchUser(e.target.value)}
+          size="small"
+        />
+        <Button variant="contained" onClick={handleBuscarUsuario}>Buscar</Button>
+        {searchError && <Typography color="error">{searchError}</Typography>}
+      </Box>
+      {usuarioBuscado && (
+        <Box sx={{ mb: 2, p: 2, bgcolor: '#e3f2fd', borderRadius: 2 }}>
+          <Typography variant="subtitle1" fontWeight={700}>Usuario encontrado:</Typography>
+          <Typography>Nombre: {usuarioBuscado.nombre}</Typography>
+          <Typography>Correo: {usuarioBuscado.correo}</Typography>
+          <Typography>ID: {usuarioBuscado.id}</Typography>
+          <Typography>Tipo: {usuarioBuscado.tipo_usuario}</Typography>
+          <Box sx={{ display: 'flex', gap: 2, my: 1 }}>
+            <Button variant="contained" startIcon={<PlaylistAddIcon />} onClick={() => setOpenFormUsuario(true)}>
+              Registrar vehículo
+            </Button>
+          </Box>
+          <Typography sx={{ mt: 1, fontWeight: 700 }}>Vehículos de este usuario:</Typography>
+          {vehiculosUsuario.length === 0 ? (
+            <Typography>No tiene vehículos registrados.</Typography>
+          ) : (
+            vehiculosUsuario.map(v => (
+              <Box key={v.id || v.placa} sx={{ display: 'flex', alignItems: 'center', gap: 2, my: 1, p: 1, bgcolor: '#fff', borderRadius: 1 }}>
+                <DirectionsCarIcon color="primary" />
+                <Typography>{v.placa} - {v.tipo} - {v.marca} - {v.modelo}</Typography>
+                <Button size="small" variant="outlined" startIcon={<LinkIcon />} onClick={() => { setVehiculoParaAsociar(v); setOpenAsociar(true); }}>
+                  Asociar a parqueadero
+                </Button>
+              </Box>
+            ))
+          )}
+        </Box>
+      )}
+      {/* Modal registrar vehículo para usuario */}
+      <FormVehiculo
+        open={openFormUsuario}
+        onClose={() => setOpenFormUsuario(false)}
+        initialData={{ usuario_id: usuarioBuscado?.id || '' }}
+        onGuardar={handleRegistrarVehiculoUsuario}
+        onEliminar={null}
+      />
+      {/* Modal asociar vehículo a parqueadero */}
+      <Dialog open={openAsociar} onClose={() => setOpenAsociar(false)}>
+        <DialogTitle>Asociar vehículo a parqueadero</DialogTitle>
+        <DialogContent>
+          <Typography>Vehículo: {vehiculoParaAsociar?.placa}</Typography>
+          {currentUser?.parqueadero_id ? (
+            <Typography sx={{ mt: 2 }}>¿Deseas asociar este vehículo a tu parqueadero actual?</Typography>
+          ) : (
+            <Typography color="error" sx={{ mt: 2 }}>No tienes un parqueadero asignado.</Typography>
+          )}
+          {asociarMsg && <Typography color={asociarMsg.startsWith('Error') ? 'error' : 'primary'} sx={{ mt: 2 }}>{asociarMsg}</Typography>}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenAsociar(false)}>Cancelar</Button>
+          <Button variant="contained" onClick={handleAsociarVehiculo} disabled={!currentUser?.parqueadero_id}>Asociar</Button>
         </DialogActions>
       </Dialog>
     </Box>

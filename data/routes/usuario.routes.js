@@ -405,4 +405,11 @@ router.put('/notificaciones/:usuario_id/todas-leidas', async (req, res) => {
   }
 });
 
+// Marcar todas las notificaciones como leídas para un parqueadero
+router.put('/notificaciones/parqueadero/:parqueadero_id/todas-leidas', async (req, res) => {
+  const { parqueadero_id } = req.params;
+  const result = await notificacionesQueries.marcarTodasLeidasParqueadero(parqueadero_id);
+  res.json({ success: true, data: result });
+});
+
 export const usuarioRoutes = router; 

@@ -232,12 +232,19 @@ const MisVehiculos = () => {
   };
 
   const handleGuardar = async (data) => {
+    // Transformar tipoVehiculo a tipo
+    const vehiculoData = {
+      ...data,
+      tipo: data.tipoVehiculo,
+      usuario_id: currentUser.id
+    };
+    delete vehiculoData.tipoVehiculo;
     // Si es edición
     if (editingVehiculo) {
       const res = await fetch(`${API_URL}/api/vehiculos/${editingVehiculo.placa}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, usuario_id: currentUser.id })
+        body: JSON.stringify(vehiculoData)
       });
       if (!res.ok) throw new Error('Error al editar vehículo');
     } else {
@@ -245,7 +252,7 @@ const MisVehiculos = () => {
       const res = await fetch(`${API_URL}/api/vehiculos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, usuario_id: currentUser.id })
+        body: JSON.stringify(vehiculoData)
       });
       if (!res.ok) throw new Error('Error al agregar vehículo');
     }
