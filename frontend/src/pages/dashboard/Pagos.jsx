@@ -395,9 +395,6 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
   const [numSalidas, setNumSalidas] = useState(0);
   const { currentUser } = useAuth();
 
-  // Validar si el perfil del parqueadero está cargado
-  const parqueaderoReady = parqueadero && parqueadero.nombre || (currentUser?.parqueadero && currentUser.parqueadero.nombre);
-
   // LOGS DE DEPURACIÓN
   console.log('PagarDialog - parqueadero:', parqueadero);
   console.log('PagarDialog - currentUser?.parqueadero:', currentUser?.parqueadero);
@@ -436,9 +433,9 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>Factura</DialogTitle>
       <DialogContent>
-        {!parqueaderoReady ? (
+        {!factura ? (
           <Box sx={{ p: 4, textAlign: 'center' }}>
-            <Typography variant="h6">Cargando datos del parqueadero...</Typography>
+            <Typography variant="h6">Cargando datos de la factura...</Typography>
           </Box>
         ) : (
           <FacturaPreview
@@ -455,7 +452,7 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
           color="primary"
           sx={{ mt: 2 }}
           onClick={handleImprimir}
-          disabled={!parqueaderoReady}
+          disabled={!factura}
         >
           Imprimir factura
         </Button>

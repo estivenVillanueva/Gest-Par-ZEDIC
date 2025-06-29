@@ -6,7 +6,7 @@ export const facturaQueries = {
     // Crear una nueva factura
     async createFactura({ fechaIngreso, fechaSalida, valorTotal, idServicio }) {
         const query = `
-            INSERT INTO factura (fecha_ingreso, fecha_salida, valor_total, id_servicio)
+            INSERT INTO facturas (fecha_ingreso, fecha_salida, valor_total, id_servicio)
             VALUES ($1, $2, $3, $4)
             RETURNING *
         `;
@@ -19,7 +19,7 @@ export const facturaQueries = {
     async getFacturaById(id) {
         const query = `
             SELECT f.*, s.nombre as servicio_nombre, s.precio as servicio_precio
-            FROM factura f
+            FROM facturas f
             JOIN servicios s ON f.id_servicio = s.id
             WHERE f.id = $1
         `;
@@ -30,7 +30,7 @@ export const facturaQueries = {
     // Actualizar factura
     async updateFactura(id, { fechaIngreso, fechaSalida, valorTotal, idServicio }) {
         const query = `
-            UPDATE factura
+            UPDATE facturas
             SET fecha_ingreso = $1,
                 fecha_salida = $2,
                 valor_total = $3,
@@ -45,7 +45,7 @@ export const facturaQueries = {
 
     // Eliminar factura
     async deleteFactura(id) {
-        const query = 'DELETE FROM factura WHERE id = $1 RETURNING *';
+        const query = 'DELETE FROM facturas WHERE id = $1 RETURNING *';
         const result = await pool.query(query, [id]);
         return result.rows[0];
     },
