@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Paper, Grid, CircularProgress, Chip, LinearProgress } from '@mui/material';
+import { Box, Typography, Paper, Grid, CircularProgress, Chip, LinearProgress, Stack } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import LocalAtmIcon from '@mui/icons-material/LocalAtm';
+import GroupIcon from '@mui/icons-material/Group';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
 const COLORS = ['#2B6CA3', '#43a047', '#fbc02d', '#e53935', '#8e24aa'];
@@ -97,78 +99,148 @@ function Reportes() {
   // Ocupación actual
   const ocupacionPorcentaje = ocupacion.total ? Math.round((ocupacion.ocupados / ocupacion.total) * 100) : 0;
 
+  // KPIs rápidos
+  const totalVehiculos = vehiculos.length;
+  const totalServicios = servicios.length;
+  const ingresosAcumulados = ingresos
+    .filter(i => typeof i.valor_pagado === 'number' && i.valor_pagado > 0)
+    .reduce((acc, i) => acc + i.valor_pagado, 0);
+  const ocupacionPromedio = ocupacion.total ? Math.round((ocupacion.ocupados / ocupacion.total) * 100) : 0;
+
   return (
-    <Box sx={{ p: { xs: 1, md: 4 }, minHeight: '100vh', bgcolor: '#f6f7fa' }}>
+    <Box sx={{ p: { xs: 1, md: 3 }, minHeight: '100vh', bgcolor: '#f6f7fa' }}>
       <Typography variant="h4" fontWeight={800} color="primary.main" sx={{ mb: 3 }}>Estadísticas y Reportes</Typography>
       {loading ? <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}><CircularProgress /></Box> : (
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 3, borderRadius: 4, boxShadow: 4, minHeight: 350, display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: '#e3f2fd' }}>
-              <MonetizationOnIcon sx={{ fontSize: 40, color: '#2B6CA3', mb: 1 }} />
-              <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>Ingresos por mes</Typography>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={ingresosMesData}>
-                  <XAxis dataKey="mes" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="total" fill="#2B6CA3" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </Paper>
+        <>
+          {/* KPIs rápidos */}
+          <Grid container spacing={3} sx={{ mb: 3 }}>
+            <Grid item xs={6} md={3}>
+              <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 2, display: 'flex', alignItems: 'center', gap: 2, minHeight: 180 }}>
+                <DirectionsCarIcon sx={{ fontSize: 32, color: '#2B6CA3' }} />
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary">Total vehículos</Typography>
+                  <Typography variant="h5" fontWeight={700}>{totalVehiculos}</Typography>
+                </Box>
+              </Paper>
+            </Grid>
+            <Grid item xs={6} md={3}>
+              <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 2, display: 'flex', alignItems: 'center', gap: 2, minHeight: 180 }}>
+                <EventAvailableIcon sx={{ fontSize: 32, color: '#43a047' }} />
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary">Total servicios</Typography>
+                  <Typography variant="h5" fontWeight={700}>{totalServicios}</Typography>
+                </Box>
+              </Paper>
+            </Grid>
+            <Grid item xs={6} md={3}>
+              <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 2, display: 'flex', alignItems: 'center', gap: 2, minHeight: 180 }}>
+                <LocalAtmIcon sx={{ fontSize: 32, color: '#fbc02d' }} />
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary">Ingresos acumulados</Typography>
+                  <Typography variant="h5" fontWeight={700}>{ingresosAcumulados.toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 })}</Typography>
+                </Box>
+              </Paper>
+            </Grid>
+            <Grid item xs={6} md={3}>
+              <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 2, display: 'flex', alignItems: 'center', gap: 2, minHeight: 180 }}>
+                <GroupIcon sx={{ fontSize: 32, color: '#8e24aa' }} />
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary">Ocupación promedio</Typography>
+                  <Typography variant="h5" fontWeight={700}>{ocupacionPromedio}%</Typography>
+                </Box>
+              </Paper>
+            </Grid>
           </Grid>
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 3, borderRadius: 4, boxShadow: 4, minHeight: 350, display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: '#e8f5e9' }}>
-              <EventAvailableIcon sx={{ fontSize: 40, color: '#43a047', mb: 1 }} />
-              <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>Servicios activos por tipo</Typography>
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie data={serviciosTipoData} dataKey="cantidad" nameKey="tipo" cx="50%" cy="50%" outerRadius={70} label>
-                    {serviciosTipoData.map((entry, idx) => <Cell key={entry.tipo} fill={COLORS[idx % COLORS.length]} />)}
-                  </Pie>
-                  <Legend />
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </Paper>
+
+          {/* Gráficas principales */}
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={2} lg={2.4} xl={2.4}>
+              <Paper sx={{ p: 4, borderRadius: 2, boxShadow: 4, minHeight: 480, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: '#e3f2fd' }}>
+                <MonetizationOnIcon sx={{ fontSize: 32, color: '#2B6CA3', mb: 1 }} />
+                <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Ingresos por mes</Typography>
+                {ingresosMesData.length === 0 ? (
+                  <Box sx={{ height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+                    <Typography color="text.secondary" fontSize={18}>Sin datos para mostrar</Typography>
+                  </Box>
+                ) : (
+                  <ResponsiveContainer width="100%" height={320}>
+                    <BarChart data={ingresosMesData}>
+                      <XAxis dataKey="mes" fontSize={16} />
+                      <YAxis fontSize={16} />
+                      <Tooltip />
+                      <Bar dataKey="total" fill="#2B6CA3" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={2} lg={2.4} xl={2.4}>
+              <Paper sx={{ p: 4, borderRadius: 2, boxShadow: 4, minHeight: 480, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: '#e8f5e9' }}>
+                <EventAvailableIcon sx={{ fontSize: 32, color: '#43a047', mb: 1 }} />
+                <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Servicios activos por tipo</Typography>
+                <ResponsiveContainer width="100%" height={320}>
+                  <PieChart>
+                    <Pie data={serviciosTipoData} dataKey="cantidad" nameKey="tipo" cx="50%" cy="50%" outerRadius={75} label fontSize={14}>
+                      {serviciosTipoData.map((entry, idx) => <Cell key={entry.tipo} fill={COLORS[idx % COLORS.length]} />)}
+                    </Pie>
+                    <Legend fontSize={14} />
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={2} lg={2.4} xl={2.4}>
+              <Paper sx={{ p: 4, borderRadius: 2, boxShadow: 4, minHeight: 480, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: '#fffde7' }}>
+                <DirectionsCarIcon sx={{ fontSize: 32, color: '#fbc02d', mb: 1 }} />
+                <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Ingresos de vehículos (últimos 7 días)</Typography>
+                <ResponsiveContainer width="100%" height={160}>
+                  <BarChart data={ingresosPorDia}>
+                    <XAxis dataKey="dia" fontSize={12} />
+                    <YAxis fontSize={12} />
+                    <Tooltip />
+                    <Bar dataKey="cantidad" fill="#fbc02d" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={2} lg={2.4} xl={2.4}>
+              <Paper sx={{ p: 4, borderRadius: 2, boxShadow: 4, minHeight: 480, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Pagos pendientes vs pagados</Typography>
+                <ResponsiveContainer width="100%" height={160}>
+                  <PieChart>
+                    <Pie data={pagosPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={55} label fontSize={12}>
+                      {pagosPieData.map((entry, idx) => <Cell key={entry.name} fill={COLORS[idx % COLORS.length]} />)}
+                    </Pie>
+                    <Legend fontSize={12} />
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={2} lg={2.4} xl={2.4}>
+              <Paper sx={{ p: 4, borderRadius: 2, boxShadow: 4, minHeight: 480, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Ocupación actual</Typography>
+                <Box sx={{ width: '100%', mb: 2 }}>
+                  <LinearProgress variant="determinate" value={ocupacionPorcentaje} sx={{ height: 16, borderRadius: 8 }} />
+                </Box>
+                <Chip label={`${ocupacion.ocupados} de ${ocupacion.total} puestos ocupados (${ocupacionPorcentaje}%)`} color="primary" sx={{ fontSize: 18, p: 2 }} />
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={4} lg={4.8} xl={4.8}>
+              <Paper sx={{ p: 4, borderRadius: 2, boxShadow: 4, minHeight: 480, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Vehículos por tipo</Typography>
+                <ResponsiveContainer width="100%" height={320}>
+                  <BarChart data={vehiculosTipoData}>
+                    <XAxis dataKey="tipo" fontSize={18} />
+                    <YAxis fontSize={18} />
+                    <Tooltip />
+                    <Bar dataKey="cantidad" fill="#43a047" radius={[8, 8, 0, 0]} barSize={60} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </Paper>
+            </Grid>
           </Grid>
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 3, borderRadius: 4, boxShadow: 4, minHeight: 350, display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: '#fffde7' }}>
-              <DirectionsCarIcon sx={{ fontSize: 40, color: '#fbc02d', mb: 1 }} />
-              <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>Ingresos de vehículos (últimos 7 días)</Typography>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={ingresosPorDia}>
-                  <XAxis dataKey="dia" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="cantidad" fill="#fbc02d" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3, borderRadius: 4, boxShadow: 4, minHeight: 350, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>Pagos pendientes vs pagados</Typography>
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie data={pagosPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label>
-                    {pagosPieData.map((entry, idx) => <Cell key={entry.name} fill={COLORS[idx % COLORS.length]} />)}
-                  </Pie>
-                  <Legend />
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3, borderRadius: 4, boxShadow: 4, minHeight: 350, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>Ocupación actual</Typography>
-              <Box sx={{ width: '100%', mb: 2 }}>
-                <LinearProgress variant="determinate" value={ocupacionPorcentaje} sx={{ height: 16, borderRadius: 8 }} />
-              </Box>
-              <Chip label={`${ocupacion.ocupados} de ${ocupacion.total} puestos ocupados (${ocupacionPorcentaje}%)`} color="primary" sx={{ fontSize: 18, p: 2 }} />
-            </Paper>
-          </Grid>
-        </Grid>
+        </>
       )}
     </Box>
   );
