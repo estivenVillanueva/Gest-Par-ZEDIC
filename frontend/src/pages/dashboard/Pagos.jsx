@@ -399,8 +399,8 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
   const parqueaderoReady = parqueadero && parqueadero.nombre || (currentUser?.parqueadero && currentUser.parqueadero.nombre);
 
   // LOGS DE DEPURACIÓN
-  console.log('parqueadero (API):', parqueadero);
-  console.log('currentUser?.parqueadero (perfil):', currentUser?.parqueadero);
+  console.log('PagarDialog - parqueadero:', parqueadero);
+  console.log('PagarDialog - currentUser?.parqueadero:', currentUser?.parqueadero);
 
   useEffect(() => {
     const fetchParqueadero = async () => {
@@ -450,7 +450,13 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
             numSalidas={numSalidas}
           />
         )}
-        <Button variant="outlined" color="primary" sx={{ mt: 2 }} onClick={handleImprimir}>
+        <Button
+          variant="outlined"
+          color="primary"
+          sx={{ mt: 2 }}
+          onClick={handleImprimir}
+          disabled={!parqueaderoReady}
+        >
           Imprimir factura
         </Button>
       </DialogContent>

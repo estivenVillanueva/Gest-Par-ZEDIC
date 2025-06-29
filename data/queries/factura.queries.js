@@ -161,6 +161,7 @@ export const detalleFacturaQueries = {
 
 // Obtener factura completa por ID (con detalles, parqueadero, vehículo, logo, entradas/salidas)
 async function getFacturaCompletaById(id) {
+    console.log('Buscando factura completa para id:', id);
     // 1. Obtener la factura y su servicio
     const facturaQuery = `
         SELECT f.*, s.nombre as servicio_nombre, s.precio as servicio_precio, f.parqueadero_id, f.vehiculo_id
@@ -170,14 +171,17 @@ async function getFacturaCompletaById(id) {
     `;
     const facturaRes = await pool.query(facturaQuery, [id]);
     const factura = facturaRes.rows[0];
+    console.log('Factura encontrada:', factura);
     if (!factura) return null;
 
     // 2. Obtener detalles de la factura (si no hay, devuelve [])
     let detalles = [];
     try {
         detalles = await detalleFacturaQueries.getDetallesByFacturaId(id) || [];
+        console.log('Detalles encontrados:', detalles);
     } catch (e) {
         detalles = [];
+        console.log('Error obteniendo detalles:', e);
     }
 
     // 3. Obtener datos del parqueadero (si no hay, devuelve null)
@@ -186,8 +190,10 @@ async function getFacturaCompletaById(id) {
         const parqueaderoQuery = 'SELECT * FROM parqueaderos WHERE id = $1';
         const parqueaderoRes = await pool.query(parqueaderoQuery, [factura.parqueadero_id]);
         parqueadero = parqueaderoRes.rows[0] || null;
+        console.log('Parqueadero encontrado:', parqueadero);
     } catch (e) {
         parqueadero = null;
+        console.log('Error obteniendo parqueadero:', e);
     }
 
     // 4. Obtener datos del vehículo (si no hay, devuelve null)
@@ -196,8 +202,10 @@ async function getFacturaCompletaById(id) {
         const vehiculoQuery = 'SELECT * FROM vehiculos WHERE id = $1';
         const vehiculoRes = await pool.query(vehiculoQuery, [factura.vehiculo_id]);
         vehiculo = vehiculoRes.rows[0] || null;
+        console.log('Vehículo encontrado:', vehiculo);
     } catch (e) {
         vehiculo = null;
+        console.log('Error obteniendo vehículo:', e);
     }
 
     // 5. Contar ingresos y salidas del vehículo (si no hay, devuelve 0)
