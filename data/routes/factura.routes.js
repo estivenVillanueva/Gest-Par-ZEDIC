@@ -179,7 +179,10 @@ router.get('/completa/:id', async (req, res) => {
     const { id } = req.params;
     const data = await getFacturaCompletaById(id);
     if (!data) return res.status(404).json({ error: 'Factura no encontrada' });
-    res.json(data);
+    res.json({
+      success: true,
+      data
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

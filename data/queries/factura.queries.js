@@ -172,6 +172,7 @@ async function getFacturaCompletaById(id) {
     const facturaRes = await pool.query(facturaQuery, [id]);
     const factura = facturaRes.rows[0];
     console.log('Factura encontrada:', factura);
+    console.log('parqueadero_id:', factura?.parqueadero_id, 'vehiculo_id:', factura?.vehiculo_id);
     if (!factura) return null;
 
     // 2. Obtener detalles de la factura (si no hay, devuelve [])
