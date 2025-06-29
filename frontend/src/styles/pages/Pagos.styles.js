@@ -14,15 +14,17 @@ export const ElegantPaper = styled(Paper)`
 `;
 
 export const ElegantCard = styled(Card)`
-  margin-bottom: 18px;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px 0 rgba(43, 108, 163, 0.08);
-  border: 1.5px solid #f0f4fa;
-  transition: box-shadow 0.2s, border 0.2s;
-  background: #fff;
+  margin-bottom: 24px;
+  border-radius: 22px;
+  box-shadow: 0 6px 24px 0 rgba(43, 108, 163, 0.13);
+  border: 2.5px solid #e3eaf6;
+  transition: box-shadow 0.22s, border 0.22s, background 0.22s;
+  background: linear-gradient(135deg, #fafdff 0%, #f5f7fa 100%);
+  padding: 18px 24px;
   &:hover {
-    box-shadow: 0 8px 28px 0 rgba(43, 108, 163, 0.13);
-    border: 1.5px solid #3498f3;
+    box-shadow: 0 12px 32px 0 rgba(43, 108, 163, 0.18);
+    border: 2.5px solid #3498f3;
+    background: linear-gradient(135deg, #e3eaf6 0%, #fafdff 100%);
   }
 `;
 
@@ -48,12 +50,11 @@ export const TabsContainer = styled(Box)`
 
 export const ElegantSearchBar = styled(TextField)`
   .MuiOutlinedInput-root {
-    border-radius: 12px;
+    border-radius: 16px;
     background-color: #fff;
-    box-shadow: 0 2px 8px rgba(52,152,243,0.05);
-    
+    box-shadow: 0 2px 12px rgba(52,152,243,0.07);
     & fieldset {
-      border: 1.5px solid #f0f4fa;
+      border: 2px solid #e3eaf6;
     }
     &:hover fieldset {
       border-color: #3498f3;
@@ -63,13 +64,17 @@ export const ElegantSearchBar = styled(TextField)`
     }
   }
   .MuiInputBase-input {
-    padding: 14px 16px;
+    padding: 18px 20px;
+    font-size: 1.1rem;
   }
 `;
 
 export const ElegantContent = styled(Box)`
-  padding: 32px 24px 24px 24px;
+  padding: 40px 32px 32px 32px;
   background-color: #f8fafc;
+  @media (max-width: 600px) {
+    padding: 18px 4px 12px 4px;
+  }
 `;
 
 export const ElegantFab = styled(Fab)(({ theme }) => ({
