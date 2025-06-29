@@ -47,6 +47,11 @@ const navigationItems = [
   },
   { 
     label: 'Solicitudes', 
+    path: '/dashboard/solicitudes',
+    icon: <AssessmentIcon />
+  },
+  { 
+    label: 'Reportes', 
     path: '/dashboard/reportes',
     icon: <AssessmentIcon />
   },
