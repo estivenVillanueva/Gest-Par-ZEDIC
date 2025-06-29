@@ -426,42 +426,54 @@ const Vehiculos = () => {
   };
 
   return (
-    <Box sx={{ width: '100%', minHeight: '100vh', py: 5, px: { xs: 1, md: 6 }, bgcolor: '#f6f7fa' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" fontWeight={800} color="primary.main">Vehículos</Typography>
-        <Button
-          variant="outlined"
-          color="error"
-          startIcon={<DeleteSweepIcon />}
-          onClick={() => setOpenDeleteAll(true)}
-          sx={{ borderRadius: 3, fontWeight: 600 }}
-        >
-          Eliminar todos los vehículos
-        </Button>
-      </Box>
-      <MinimalFilterBar>
-        <TextField variant="outlined" placeholder="Buscar por nombre o placa" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} InputProps={{ startAdornment: (<SearchIcon sx={{ mr: 1 }} />) }} />
-        <TextField type="date" variant="outlined" value={dateFrom} onChange={e => setDateFrom(e.target.value)} label="Desde" InputLabelProps={{ shrink: true }} />
-        <TextField type="date" variant="outlined" value={dateTo} onChange={e => setDateTo(e.target.value)} label="Hasta" InputLabelProps={{ shrink: true }} />
-      </MinimalFilterBar>
-      {loading ? (
-        <Typography variant="body1">Cargando vehículos...</Typography>
-      ) : error ? (
-        <Typography variant="body1" color="error">{error}</Typography>
-      ) : (
-        <MinimalGrid container spacing={4}>
-          {filteredVehiculos.map((vehiculo) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={vehiculo.id}>
-              <VehiculoCard
-                vehiculo={vehiculo}
-                onVerInfo={handleVerInfo}
-                seleccionado={seleccionados.includes(vehiculo.id)}
-                onSeleccionar={handleSeleccionar}
-              />
-            </Grid>
-          ))}
-        </MinimalGrid>
-      )}
+    <Box sx={{ width: '100%', minHeight: '100vh', py: 5, px: { xs: 1, md: 6 }, bgcolor: '#f6f7fa', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <Paper elevation={3} sx={{
+        width: '100%',
+        maxWidth: '98vw',
+        borderRadius: 2,
+        bgcolor: '#fff',
+        boxShadow: '0 6px 32px rgba(52,152,243,0.10)',
+        px: { xs: 2, sm: 4, md: 6 },
+        py: { xs: 3, md: 5 },
+        mt: { xs: 2, md: 4 },
+        mb: 4,
+      }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+          <Typography variant="h4" fontWeight={800} color="primary.main">Vehículos</Typography>
+          <Button
+            variant="outlined"
+            color="error"
+            startIcon={<DeleteSweepIcon />}
+            onClick={() => setOpenDeleteAll(true)}
+            sx={{ borderRadius: 3, fontWeight: 600 }}
+          >
+            Eliminar todos los vehículos
+          </Button>
+        </Box>
+        <MinimalFilterBar>
+          <TextField variant="outlined" placeholder="Buscar por nombre o placa" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} InputProps={{ startAdornment: (<SearchIcon sx={{ mr: 1 }} />) }} />
+          <TextField type="date" variant="outlined" value={dateFrom} onChange={e => setDateFrom(e.target.value)} label="Desde" InputLabelProps={{ shrink: true }} />
+          <TextField type="date" variant="outlined" value={dateTo} onChange={e => setDateTo(e.target.value)} label="Hasta" InputLabelProps={{ shrink: true }} />
+        </MinimalFilterBar>
+        {loading ? (
+          <Typography variant="body1">Cargando vehículos...</Typography>
+        ) : error ? (
+          <Typography variant="body1" color="error">{error}</Typography>
+        ) : (
+          <MinimalGrid container spacing={4}>
+            {filteredVehiculos.map((vehiculo) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={vehiculo.id}>
+                <VehiculoCard
+                  vehiculo={vehiculo}
+                  onVerInfo={handleVerInfo}
+                  seleccionado={seleccionados.includes(vehiculo.id)}
+                  onSeleccionar={handleSeleccionar}
+                />
+              </Grid>
+            ))}
+          </MinimalGrid>
+        )}
+      </Paper>
       {seleccionados.length > 0 && (
         <Fab
           color="error"

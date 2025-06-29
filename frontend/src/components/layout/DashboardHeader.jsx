@@ -271,8 +271,8 @@ const DashboardHeader = () => {
           >
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2 }}>
               <Typography sx={{ fontWeight: 600 }}>
-                Notificaciones
-              </Typography>
+              Notificaciones
+            </Typography>
               {notificaciones.length > 0 && unreadCount > 0 && (
                 <Tooltip title="Marcar todas como leídas">
                   <IconButton size="small" onClick={handleMarcarTodasLeidas}>

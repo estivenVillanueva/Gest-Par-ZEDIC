@@ -24,7 +24,8 @@ import {
   Chip,
   Checkbox,
   Tooltip,
-  Switch
+  Switch,
+  Paper
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
@@ -684,85 +685,34 @@ const Pagos = () => {
   };
   
   return (
-    <Box sx={{ width: '100%', minHeight: '100vh', py: 5, px: { xs: 1, md: 6 }, bgcolor: '#f6f7fa' }}>
-      <Typography variant="h4" fontWeight={800} color="primary.main" sx={{ mb: 4 }}>Gestión de Pagos</Typography>
-      <ElegantPaper sx={{ maxWidth: 1100, mx: 'auto', p: 0 }}>
-        <TabsContainer>
-          <Tabs value={tabValue} onChange={handleTabChange} variant="fullWidth">
-            <Tab label="Pendientes" />
-            <Tab label="Historial" />
-          </Tabs>
-        </TabsContainer>
-
-        <ElegantContent>
-          <ElegantPaper sx={{ mb: 2, p: 2 }}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} sm={3} md={3}>
-                <TextField
-                  fullWidth
-                  label="Buscar por servicio, placa o cliente..."
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                  InputProps={{ startAdornment: <SearchIcon sx={{ mr: 1 }} /> }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={3} md={3}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Tipo de servicio"
-                  value={tipoServicio}
-                  onChange={e => setTipoServicio(e.target.value)}
-                >
-                  <MenuItem value="">Todos</MenuItem>
-                  {serviciosDisponibles.map(s => (
-                    <MenuItem key={s.nombre} value={s.nombre}>{s.nombre}</MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={12} sm={2} md={2}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Estado"
-                  value={estado}
-                  onChange={e => setEstado(e.target.value)}
-                >
-                  {estados.map(e => (
-                    <MenuItem key={e.value} value={e.value}>{e.label}</MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={6} sm={2} md={2}>
-                <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
-                  <DatePicker
-                    label="Desde"
-                    value={fechaDesde}
-                    onChange={setFechaDesde}
-                    renderInput={(params) => <TextField {...params} fullWidth />}
-                  />
-                </LocalizationProvider>
-              </Grid>
-              <Grid item xs={6} sm={2} md={2}>
-                <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
-                  <DatePicker
-                    label="Hasta"
-                    value={fechaHasta}
-                    onChange={setFechaHasta}
-                    renderInput={(params) => <TextField {...params} fullWidth />}
-                  />
-                </LocalizationProvider>
-              </Grid>
-            </Grid>
-          </ElegantPaper>
+    <Box sx={{ width: '100%', minHeight: '100vh', py: 5, px: { xs: 1, md: 6 }, bgcolor: '#f6f7fa', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <Paper elevation={3} sx={{
+        width: '100%',
+        maxWidth: '98vw',
+        borderRadius: 2,
+        bgcolor: '#fff',
+        boxShadow: '0 6px 32px rgba(52,152,243,0.10)',
+        px: { xs: 2, sm: 4, md: 6 },
+        py: { xs: 3, md: 5 },
+        mt: { xs: 2, md: 4 },
+        mb: 4,
+      }}>
+        <Typography variant="h4" fontWeight={800} color="primary.main" sx={{ mb: 4 }}>Gestión de Pagos</Typography>
+        <ElegantPaper sx={{ maxWidth: 1100, mx: 'auto', p: 0 }}>
+          <TabsContainer>
+            <Tabs value={tabValue} onChange={handleTabChange} variant="fullWidth">
+              <Tab label="Pendientes" />
+              <Tab label="Historial" />
+            </Tabs>
+          </TabsContainer>
           <TabPanel value={tabValue} index={0}>
             {renderContent(filterItems(pagosPendientes), true)}
           </TabPanel>
           <TabPanel value={tabValue} index={1}>
             {renderContent(filterItems(pagosHistorial), false)}
           </TabPanel>
-        </ElegantContent>
-      </ElegantPaper>
+        </ElegantPaper>
+      </Paper>
       
       <PagarDialog 
         open={dialogOpen}
