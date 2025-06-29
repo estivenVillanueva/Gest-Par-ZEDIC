@@ -107,7 +107,7 @@ const VehiculoHeader = () => {
     if (!currentUser) return;
     try {
       await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${currentUser.id}/todas-leidas`, { method: 'PUT' });
-      setNotificaciones(prev => prev.map(n => ({ ...n, leida: true })));
+      await fetchNotificaciones();
     } catch {}
     handleClose();
   };
