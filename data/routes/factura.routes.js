@@ -1,6 +1,6 @@
 import express from 'express';
 import { facturaQueries, detalleFacturaQueries, getFacturaCompletaById } from '../queries/factura.queries.js';
-import { crearYEmitirNotificacion } from '../utils/notificacion.utils.js';
+import { crearYEmitirNotificacion } from '../queries/notificaciones.queries.js';
 
 const router = express.Router();
 
