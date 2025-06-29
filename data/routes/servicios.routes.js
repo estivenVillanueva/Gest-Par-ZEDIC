@@ -43,6 +43,23 @@ router.get('/parqueadero/:idParqueadero', async (req, res) => {
     }
 });
 
+// Obtener todos los servicios
+router.get('/', async (req, res) => {
+    try {
+        const servicios = await serviciosQueries.getAllServicios();
+        res.json({
+            success: true,
+            data: servicios
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener servicios',
+            error: error.message
+        });
+    }
+});
+
 // Crear un nuevo servicio
 router.post('/', async (req, res) => {
     try {

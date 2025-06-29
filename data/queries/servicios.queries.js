@@ -102,5 +102,12 @@ export const serviciosQueries = {
         const query = 'DELETE FROM servicios WHERE id = $1 RETURNING *';
         const result = await pool.query(query, [id]);
         return result.rows[0];
+    },
+
+    // Obtener todos los servicios
+    async getAllServicios() {
+        const query = 'SELECT * FROM servicios';
+        const result = await pool.query(query);
+        return result.rows;
     }
 }; 
