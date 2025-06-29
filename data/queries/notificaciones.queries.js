@@ -44,6 +44,15 @@ export const notificacionesQueries = {
     `;
     const result = await pool.query(query, [id]);
     return result.rows[0];
+  },
+
+  // Marcar todas las notificaciones como leídas para un usuario
+  async marcarTodasLeidas(usuario_id) {
+    const query = `
+      UPDATE notificaciones SET leida = TRUE WHERE usuario_id = $1 RETURNING *
+    `;
+    const result = await pool.query(query, [usuario_id]);
+    return result.rows;
   }
 };
 

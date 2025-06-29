@@ -394,4 +394,15 @@ router.get('/parqueadero/:parqueadero_id/notificaciones', async (req, res) => {
   }
 });
 
+// Marcar todas las notificaciones como leídas para un usuario
+router.put('/notificaciones/:usuario_id/todas-leidas', async (req, res) => {
+  try {
+    const { usuario_id } = req.params;
+    const result = await notificacionesQueries.marcarTodasLeidas(usuario_id);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al marcar todas como leídas', error: error.message });
+  }
+});
+
 export const usuarioRoutes = router; 

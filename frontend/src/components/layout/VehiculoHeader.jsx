@@ -20,6 +20,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import PersonIcon from '@mui/icons-material/Person';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
 import { useAuth } from '../../../logic/AuthContext';
 
 const navigationItems = [
@@ -100,6 +101,15 @@ const VehiculoHeader = () => {
       await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${id}/leida`, { method: 'PUT' });
       setNotificaciones(prev => prev.map(n => n.id === id ? { ...n, leida: true } : n));
     } catch {}
+  };
+
+  const handleMarcarTodasLeidas = async () => {
+    if (!currentUser) return;
+    try {
+      await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${currentUser.id}/todas-leidas`, { method: 'PUT' });
+      setNotificaciones(prev => prev.map(n => ({ ...n, leida: true })));
+    } catch {}
+    handleClose();
   };
 
   const handleLogout = async () => {
@@ -236,9 +246,18 @@ const VehiculoHeader = () => {
               }
             }}
           >
-            <Typography sx={{ p: 2, fontWeight: 600 }}>
-              Notificaciones
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2 }}>
+              <Typography sx={{ fontWeight: 600 }}>
+                Notificaciones
+              </Typography>
+              {notificaciones.length > 0 && unreadCount > 0 && (
+                <Tooltip title="Marcar todas como leídas">
+                  <IconButton size="small" onClick={handleMarcarTodasLeidas}>
+                    <DoneAllIcon color="success" />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Box>
             <Divider />
             {notificaciones.length === 0 && (
               <MenuItem disabled>No hay notificaciones</MenuItem>

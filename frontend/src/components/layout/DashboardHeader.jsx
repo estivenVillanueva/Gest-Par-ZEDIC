@@ -27,6 +27,7 @@ import { useAuth } from '../../../logic/AuthContext';
 import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import { format } from 'date-fns';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
 
 const navigationItems = [
   { 
@@ -113,6 +114,15 @@ const DashboardHeader = () => {
       await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${id}/leida`, { method: 'PUT' });
       setNotificaciones(prev => prev.map(n => n.id === id ? { ...n, leida: true } : n));
     } catch {}
+  };
+
+  const handleMarcarTodasLeidas = async () => {
+    if (!currentUser) return;
+    try {
+      await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${currentUser.id}/todas-leidas`, { method: 'PUT' });
+      setNotificaciones(prev => prev.map(n => ({ ...n, leida: true })));
+    } catch {}
+    handleClose();
   };
 
   const handleLogout = async () => {
@@ -250,9 +260,18 @@ const DashboardHeader = () => {
               }
             }}
           >
-            <Typography sx={{ p: 2, fontWeight: 600 }}>
-              Notificaciones
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2 }}>
+              <Typography sx={{ fontWeight: 600 }}>
+                Notificaciones
+              </Typography>
+              {notificaciones.length > 0 && unreadCount > 0 && (
+                <Tooltip title="Marcar todas como leídas">
+                  <IconButton size="small" onClick={handleMarcarTodasLeidas}>
+                    <DoneAllIcon color="success" />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Box>
             <Divider />
             {notificaciones.length === 0 && (
               <MenuItem disabled>No hay notificaciones</MenuItem>
