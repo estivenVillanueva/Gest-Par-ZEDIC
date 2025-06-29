@@ -393,6 +393,10 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
   const [vehiculo, setVehiculo] = useState(null);
   const [numIngresos, setNumIngresos] = useState(0);
   const [numSalidas, setNumSalidas] = useState(0);
+  const { currentUser } = useAuth();
+
+  // Validar si el perfil del parqueadero está cargado
+  const parqueaderoReady = parqueadero && parqueadero.nombre || (currentUser?.parqueadero && currentUser.parqueadero.nombre);
 
   useEffect(() => {
     const fetchParqueadero = async () => {
@@ -428,14 +432,20 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>Factura</DialogTitle>
       <DialogContent>
-        <FacturaPreview
-          factura={factura}
-          parqueadero={parqueadero}
-          vehiculo={vehiculo}
-          detalles={detalles}
-          numIngresos={numIngresos}
-          numSalidas={numSalidas}
-        />
+        {!parqueaderoReady ? (
+          <Box sx={{ p: 4, textAlign: 'center' }}>
+            <Typography variant="h6">Cargando datos del parqueadero...</Typography>
+          </Box>
+        ) : (
+          <FacturaPreview
+            factura={factura}
+            parqueadero={parqueadero}
+            vehiculo={vehiculo}
+            detalles={detalles}
+            numIngresos={numIngresos}
+            numSalidas={numSalidas}
+          />
+        )}
         <Button variant="outlined" color="primary" sx={{ mt: 2 }} onClick={handleImprimir}>
           Imprimir factura
         </Button>
