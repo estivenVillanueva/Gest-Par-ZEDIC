@@ -106,6 +106,21 @@ export const facturaQueries = {
                 fechaCiclo = new Date(fechaVencimiento);
             }
         }
+    },
+
+    // Listar todas las facturas de un usuario
+    async getFacturasByUsuarioId(usuario_id) {
+        const query = `
+            SELECT f.*, p.nombre as parqueadero_nombre, p.direccion as parqueadero_direccion, v.placa as vehiculo_placa, s.nombre as servicio_nombre
+            FROM facturas f
+            LEFT JOIN parqueaderos p ON f.parqueadero_id = p.id
+            LEFT JOIN vehiculos v ON f.vehiculo_id = v.id
+            LEFT JOIN servicios s ON f.servicio_id = s.id
+            WHERE f.usuario_id = $1
+            ORDER BY f.fecha_creacion DESC
+        `;
+        const result = await pool.query(query, [usuario_id]);
+        return result.rows;
     }
 };
 
