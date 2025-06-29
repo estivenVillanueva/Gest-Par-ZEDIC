@@ -1,17 +1,15 @@
 import React from 'react';
 import { Box, Typography, Divider, Avatar } from '@mui/material';
+import logoZedic from '../../assets/safeparking.png';
 
-const DEFAULT_LOGO_URL = 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Parking_icon.svg';
-
-const FacturaPreview = ({ factura, parqueadero, vehiculo, detalles, numIngresos, numSalidas }) => {
+const FacturaPreview = ({ factura, vehiculo, detalles, numIngresos, numSalidas }) => {
   // Log de depuración
-  console.log('FacturaPreview props:', { factura, parqueadero, vehiculo, detalles, numIngresos, numSalidas });
+  console.log('FacturaPreview props:', { factura, vehiculo, detalles, numIngresos, numSalidas });
 
-  // Datos del parqueadero
-  const logo = parqueadero?.logo_url || DEFAULT_LOGO_URL;
-  const nombreParqueadero = parqueadero?.nombre || 'Parqueadero';
-  const telefono = parqueadero?.telefono || 'No especificado';
-  const email = parqueadero?.email || 'No especificado';
+  // Branding ZEDIC
+  const logo = logoZedic;
+  const nombreApp = 'ZEDIC - Gestión de Parqueaderos Inteligente';
+  const web = 'www.zedic.com';
 
   // Datos del cliente y vehículo
   const clienteNombre = vehiculo?.dueno_nombre || factura?.usuario_nombre || 'No registrado';
@@ -29,12 +27,11 @@ const FacturaPreview = ({ factura, parqueadero, vehiculo, detalles, numIngresos,
     <Box className="factura-modal" sx={{
       p: 4, bgcolor: '#fff', borderRadius: 3, maxWidth: 500, mx: 'auto', boxShadow: 4, minWidth: 350
     }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        <Avatar src={logo} alt="Logo" sx={{ width: 70, height: 70, mr: 2, bgcolor: 'white', border: '2px solid #1976d2' }} />
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, justifyContent: 'center' }}>
+        <Avatar src={logo} alt="Logo ZEDIC" sx={{ width: 70, height: 70, mr: 2, bgcolor: 'white', border: '2px solid #1976d2' }} />
         <Box>
-          <Typography variant="h6" fontWeight={700}>{nombreParqueadero}</Typography>
-          <Typography variant="body2">Tel: {telefono}</Typography>
-          <Typography variant="body2">Email: {email}</Typography>
+          <Typography variant="h6" fontWeight={700}>{nombreApp}</Typography>
+          <Typography variant="body2" color="primary">{web}</Typography>
         </Box>
       </Box>
       <Typography variant="h4" color="primary" fontWeight={800} align="center" sx={{ mb: 2 }}>
@@ -68,8 +65,9 @@ const FacturaPreview = ({ factura, parqueadero, vehiculo, detalles, numIngresos,
       </Box>
       <Divider sx={{ my: 2 }} />
       <Typography variant="body2" align="center" color="text.secondary" sx={{ mt: 2 }}>
-        ¡Gracias por preferirnos!<br />
-        Esta factura es válida para efectos legales. Consulte términos y condiciones en www.zedic.com
+        ¡Gracias por preferir ZEDIC!<br />
+        Factura generada por ZEDIC - Gestión de Parqueaderos Inteligente.<br />
+        Consulte términos y condiciones en <a href="https://www.zedic.com" target="_blank" rel="noopener noreferrer">www.zedic.com</a>
       </Typography>
     </Box>
   );

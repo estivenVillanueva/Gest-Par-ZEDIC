@@ -57,8 +57,8 @@ const Acceder = () => {
       const tipo = usuario?.data?.tipo_usuario || usuario?.tipo_usuario;
       console.log('Tipo de usuario:', tipo);
       if (tipo === 'admin') {
-        console.log('Navegando a /dashboard/parqueadero');
-        navigate('/dashboard/parqueadero');
+        console.log('Navegando a /dashboard');
+        navigate('/dashboard');
       } else if (tipo === 'dueno') {
         console.log('Navegando a /vehiculo/inicio');
         navigate('/vehiculo/inicio');
@@ -80,7 +80,7 @@ const Acceder = () => {
       const result = await loginWithGoogle(credentialResponse);
       const tipo = result?.data?.tipo_usuario;
       if (tipo === 'admin') {
-        navigate('/dashboard/parqueadero');
+        navigate('/dashboard');
       } else if (tipo === 'dueno') {
         navigate('/vehiculo/inicio');
       } else {
@@ -99,7 +99,7 @@ const Acceder = () => {
       setLoading(true);
       const result = await loginWithFacebook();
       // Aquí podrías verificar el tipo de usuario en la base de datos
-      navigate('/dashboard/parqueadero');
+      navigate('/dashboard');
     } catch (error) {
       // El error ya se maneja en el contexto
     } finally {

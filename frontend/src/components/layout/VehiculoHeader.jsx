@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   AppBar,
@@ -40,12 +40,47 @@ const navigationItems = [
   }
 ];
 
+const iconByType = {
+  reserva: <CalendarMonthIcon color="primary" sx={{ mr: 1 }} />,
+  vehiculo: <DirectionsCarIcon color="info" sx={{ mr: 1 }} />,
+  factura: <PaymentIcon color="error" sx={{ mr: 1 }} />,
+};
+
 const VehiculoHeader = () => {
   const location = useLocation();
   const [anchorEl, setAnchorEl] = useState(null);
   const [notificationsAnchor, setNotificationsAnchor] = useState(null);
-  const { logout } = useAuth();
+  const [notificaciones, setNotificaciones] = useState([]);
+  const { logout, currentUser } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    let intervalId;
+    const fetchNotificaciones = async () => {
+      if (!currentUser) return;
+      try {
+        let url = '';
+        if (currentUser.id) {
+          url = `https://gest-par-zedic.onrender.com/api/usuarios/${currentUser.id}/notificaciones`;
+        } else {
+          setNotificaciones([]);
+          return;
+        }
+        const res = await fetch(url);
+        const data = await res.json();
+        setNotificaciones(data.data || []);
+      } catch (err) {
+        setNotificaciones([]);
+      }
+    };
+    fetchNotificaciones();
+    if (currentUser) {
+      intervalId = setInterval(fetchNotificaciones, 10000);
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [currentUser]);
 
   const handleProfileClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -60,6 +95,13 @@ const VehiculoHeader = () => {
     setNotificationsAnchor(null);
   };
 
+  const handleMarcarLeida = async (id) => {
+    try {
+      await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${id}/leida`, { method: 'PUT' });
+      setNotificaciones(prev => prev.map(n => n.id === id ? { ...n, leida: true } : n));
+    } catch {}
+  };
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -69,6 +111,8 @@ const VehiculoHeader = () => {
       // Puedes mostrar un mensaje de error si lo deseas
     }
   };
+
+  const unreadCount = notificaciones.filter(n => !n.leida).length;
 
   return (
     <AppBar 
@@ -147,7 +191,7 @@ const VehiculoHeader = () => {
                 onClick={handleNotificationsClick}
                 sx={{ color: '#64748B' }}
               >
-                <Badge badgeContent={2} color="error">
+                <Badge badgeContent={unreadCount} color="error">
                   <NotificationsIcon />
                 </Badge>
               </IconButton>
@@ -196,12 +240,29 @@ const VehiculoHeader = () => {
               Notificaciones
             </Typography>
             <Divider />
-            <MenuItem onClick={handleClose}>
-              Nuevo vehículo registrado
-            </MenuItem>
-            <MenuItem onClick={handleClose}>
-              Reserva confirmada
-            </MenuItem>
+            {notificaciones.length === 0 && (
+              <MenuItem disabled>No hay notificaciones</MenuItem>
+            )}
+            {notificaciones.map((n) => (
+              <MenuItem
+                key={n.id}
+                onClick={() => { handleMarcarLeida(n.id); handleClose(); }}
+                sx={{
+                  bgcolor: n.tipo === 'factura' && (n.estado === 'pendiente' || n.estado === 'Pendiente') ? 'rgba(255,0,0,0.08)' : undefined,
+                  fontWeight: !n.leida ? 700 : 400,
+                  color: !n.leida ? '#2B6CA3' : 'inherit',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 1
+                }}
+              >
+                {iconByType[n.tipo] || <NotificationsIcon color="action" sx={{ mr: 1 }} />}
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>{n.titulo}</Typography>
+                  <Typography variant="body2" sx={{ whiteSpace: 'normal' }}>{n.mensaje}</Typography>
+                </Box>
+              </MenuItem>
+            ))}
           </Menu>
 
           {/* Menú de Usuario */}

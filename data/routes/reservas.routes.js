@@ -38,6 +38,16 @@ router.put('/:id/estado', async (req, res) => {
   try {
     const { estado } = req.body;
     const reserva = await reservasQueries.cambiarEstadoReserva(req.params.id, estado);
+    // Notificar al dueño del vehículo si la reserva fue aprobada o rechazada
+    if (reserva && (estado === 'Aprobada' || estado === 'Rechazada')) {
+      await crearYEmitirNotificacion(req.io, {
+        usuario_id: reserva.usuario_id || null,
+        parqueadero_id: reserva.parqueadero_id || null,
+        titulo: `Reserva ${estado === 'Aprobada' ? 'aprobada' : 'rechazada'}`,
+        mensaje: `Tu reserva para el parqueadero ha sido ${estado === 'Aprobada' ? 'aprobada' : 'rechazada'}.`,
+        tipo: 'reserva'
+      });
+    }
     res.json(reserva);
   } catch (error) {
     res.status(500).json({ error: error.message });

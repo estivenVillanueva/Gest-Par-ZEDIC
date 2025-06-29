@@ -1,5 +1,6 @@
 import express from 'express';
 import { facturaQueries, detalleFacturaQueries, getFacturaCompletaById } from '../queries/factura.queries.js';
+import { crearYEmitirNotificacion } from '../utils/notificacion.utils.js';
 
 const router = express.Router();
 
@@ -38,6 +39,17 @@ router.post('/', async (req, res) => {
                 const det = await detalleFacturaQueries.createDetalleFactura(detalleData);
                 detallesInsertados.push(det);
             }
+        }
+        // Notificar al dueño si la factura es pendiente
+        if (nuevaFactura && (nuevaFactura.estado === 'pendiente' || nuevaFactura.estado === 'Pendiente')) {
+          const { usuario_id, parqueadero_id } = nuevaFactura;
+          await crearYEmitirNotificacion(req.io, {
+            usuario_id: usuario_id || null,
+            parqueadero_id: parqueadero_id || null,
+            titulo: 'Factura pendiente',
+            mensaje: 'Tienes una nueva factura pendiente de pago.',
+            tipo: 'factura'
+          });
         }
         res.status(201).json({
             success: true,
