@@ -398,6 +398,10 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
   // Validar si el perfil del parqueadero está cargado
   const parqueaderoReady = parqueadero && parqueadero.nombre || (currentUser?.parqueadero && currentUser.parqueadero.nombre);
 
+  // LOGS DE DEPURACIÓN
+  console.log('parqueadero (API):', parqueadero);
+  console.log('currentUser?.parqueadero (perfil):', currentUser?.parqueadero);
+
   useEffect(() => {
     const fetchParqueadero = async () => {
       if (factura && factura.parqueadero_id) {
