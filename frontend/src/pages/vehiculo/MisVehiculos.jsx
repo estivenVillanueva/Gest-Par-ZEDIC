@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Grid,
@@ -24,6 +24,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import { useAuth } from '../../../logic/AuthContext';
+const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
 
 const MOCK_VEHICULOS = [
   {
@@ -199,72 +200,84 @@ const InfoVehiculoDialog = ({ open, onClose, vehiculo }) => (
 );
 
 const MisVehiculos = () => {
-  const [vehiculos, setVehiculos] = useState(MOCK_VEHICULOS);
-  const [openForm, setOpenForm] = useState(false);
-  const [editData, setEditData] = useState(null);
-  const [infoVehiculo, setInfoVehiculo] = useState(null);
-  const [openDeleteAll, setOpenDeleteAll] = useState(false);
   const { currentUser } = useAuth();
+  const [vehiculos, setVehiculos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [openForm, setOpenForm] = useState(false);
+  const [editingVehiculo, setEditingVehiculo] = useState(null);
+  const [openInfo, setOpenInfo] = useState(false);
+  const [selectedVehiculo, setSelectedVehiculo] = useState(null);
+
+  // Fetch vehículos del usuario
+  useEffect(() => {
+    if (!currentUser) return;
+    const fetchVehiculos = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_URL}/api/vehiculos?usuario_id=${currentUser.id}`);
+        const data = await res.json();
+        setVehiculos(data.data || []);
+      } catch {
+        setVehiculos([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchVehiculos();
+  }, [currentUser]);
 
   const handleAgregar = () => {
-    setEditData(null);
+    setEditingVehiculo(null);
     setOpenForm(true);
   };
 
   const handleGuardar = async (data) => {
-    if (!data.placa || data.placa.length !== 6) {
-      alert('La placa debe tener exactamente 6 caracteres.');
-      return;
-    }
-    try {
-      // Construir el objeto para el backend
-      const vehiculoData = {
-        placa: data.placa,
-        tipo: data.tipoVehiculo,
-        color: data.color,
-        modelo: data.modelo,
-        usuario_id: currentUser.id,
-        parqueadero_id: currentUser.parqueadero_id || null
-      };
-      const response = await fetch('https://gest-par-zedic.onrender.com/api/vehiculos', {
+    // Si es edición
+    if (editingVehiculo) {
+      const res = await fetch(`${API_URL}/api/vehiculos/${editingVehiculo.placa}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...data, usuario_id: currentUser.id })
+      });
+      if (!res.ok) throw new Error('Error al editar vehículo');
+    } else {
+      // Nuevo vehículo
+      const res = await fetch(`${API_URL}/api/vehiculos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(vehiculoData)
+        body: JSON.stringify({ ...data, usuario_id: currentUser.id })
       });
-      if (!response.ok) throw new Error('Error al agregar el vehículo');
-      // Opcional: actualizar la lista de vehículos desde el backend
-      setOpenForm(false);
-    } catch (error) {
-      alert(error.message);
+      if (!res.ok) throw new Error('Error al agregar vehículo');
     }
+    // Refrescar lista
+    const res = await fetch(`${API_URL}/api/vehiculos?usuario_id=${currentUser.id}`);
+    const dataVehiculos = await res.json();
+    setVehiculos(dataVehiculos.data || []);
+    setOpenForm(false);
   };
 
   const handleEditar = (vehiculo) => {
-    setEditData(vehiculo);
+    setEditingVehiculo(vehiculo);
     setOpenForm(true);
   };
 
-  const handleEliminar = (vehiculo) => {
-    if (window.confirm('¿Seguro que deseas eliminar este vehículo?')) {
-      setVehiculos(vehiculos.filter(v => v.id !== vehiculo.id));
-    }
+  const handleEliminar = async (vehiculo) => {
+    await fetch(`${API_URL}/api/vehiculos/${vehiculo.placa}`, { method: 'DELETE' });
+    // Refrescar lista
+    const res = await fetch(`${API_URL}/api/vehiculos?usuario_id=${currentUser.id}`);
+    const dataVehiculos = await res.json();
+    setVehiculos(dataVehiculos.data || []);
   };
 
   const handleVer = (vehiculo) => {
-    setInfoVehiculo(vehiculo);
+    setSelectedVehiculo(vehiculo);
+    setOpenInfo(true);
   };
 
   const handleEliminarTodos = async () => {
-    try {
-      const response = await fetch(`https://gest-par-zedic.onrender.com/api/vehiculos/parqueadero/${currentUser.parqueadero_id}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) throw new Error('Error al eliminar los vehículos');
-      setVehiculos([]); // Limpiar la lista local
-      setOpenDeleteAll(false);
-    } catch (error) {
-      alert(error.message);
-    }
+    // Eliminar todos los vehículos del usuario
+    await Promise.all(vehiculos.map(v => fetch(`${API_URL}/api/vehiculos/${v.placa}`, { method: 'DELETE' })));
+    setVehiculos([]);
   };
 
   return (
@@ -276,22 +289,28 @@ const MisVehiculos = () => {
             <Button variant="contained" startIcon={<AddIcon />} onClick={handleAgregar} sx={{ borderRadius: 3, fontWeight: 600, bgcolor: '#3498f3', '&:hover': { bgcolor: '#2176bd' } }}>
               Agregar Vehículo
             </Button>
-            <Button variant="outlined" color="error" startIcon={<DeleteSweepIcon />} onClick={() => setOpenDeleteAll(true)} sx={{ borderRadius: 3, fontWeight: 600 }}>
+            <Button variant="outlined" color="error" startIcon={<DeleteSweepIcon />} onClick={handleEliminarTodos} sx={{ borderRadius: 3, fontWeight: 600 }}>
               Eliminar todos los vehículos
             </Button>
           </Box>
         </Box>
         <Grid container spacing={4}>
           <Grid item xs={12} md={7}>
-            {vehiculos.filter(v => v.placa && v.placa.length === 6).map((vehiculo) => (
-              <VehiculoCard
-                key={vehiculo.id}
-                vehiculo={vehiculo}
-                onVer={handleVer}
-                onEditar={handleEditar}
-                onEliminar={handleEliminar}
-              />
-            ))}
+            {loading ? (
+              <Typography>Cargando...</Typography>
+            ) : vehiculos.length === 0 ? (
+              <Typography>No tienes vehículos registrados.</Typography>
+            ) : (
+              vehiculos.map((vehiculo) => (
+                <VehiculoCard
+                  key={vehiculo.id || vehiculo.placa}
+                  vehiculo={vehiculo}
+                  onVer={handleVer}
+                  onEditar={handleEditar}
+                  onEliminar={handleEliminar}
+                />
+              ))
+            )}
           </Grid>
           <Grid item xs={12} md={5}>
             <Box sx={{ p: 3, bgcolor: 'white', borderRadius: 3, boxShadow: 1 }}>
@@ -304,22 +323,12 @@ const MisVehiculos = () => {
                 open={openForm}
                 onClose={() => setOpenForm(false)}
                 onGuardar={handleGuardar}
-                initialData={editData}
+                initialData={editingVehiculo}
               />
             </Box>
           </Grid>
         </Grid>
-        <InfoVehiculoDialog open={!!infoVehiculo} onClose={() => setInfoVehiculo(null)} vehiculo={infoVehiculo} />
-        <Dialog open={openDeleteAll} onClose={() => setOpenDeleteAll(false)}>
-          <DialogTitle>¿Estás seguro de que deseas eliminar todos los vehículos?</DialogTitle>
-          <DialogContent>
-            <Typography>Eliminarás todos los vehículos de tu parqueadero. Esta acción no se puede deshacer.</Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenDeleteAll(false)}>Cancelar</Button>
-            <Button onClick={handleEliminarTodos} color="error" variant="contained">Eliminar</Button>
-          </DialogActions>
-        </Dialog>
+        <InfoVehiculoDialog open={openInfo} onClose={() => setOpenInfo(false)} vehiculo={selectedVehiculo} />
       </Paper>
     </Box>
   );
