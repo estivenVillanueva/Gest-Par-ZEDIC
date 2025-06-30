@@ -28,6 +28,12 @@ import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import { format } from 'date-fns';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
+import MenuIcon from '@mui/icons-material/Menu';
+import Drawer from '@mui/material/Drawer';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
 
 const navigationItems = [
   { 
@@ -69,6 +75,7 @@ const DashboardHeader = () => {
   const [notificaciones, setNotificaciones] = useState([]);
   const { logout, currentUser } = useAuth();
   const navigate = useNavigate();
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     let intervalId;
@@ -155,7 +162,7 @@ const DashboardHeader = () => {
       }}
     >
       <Container maxWidth="xl">
-        <Toolbar sx={{ justifyContent: 'space-between', height: '70px' }}>
+        <Toolbar sx={{ justifyContent: 'space-between', height: { xs: '56px', sm: '64px', md: '70px' }, px: { xs: 1, sm: 2 } }}>
           {/* Logo y Título */}
           <Box 
             component={Link}
@@ -167,22 +174,30 @@ const DashboardHeader = () => {
               gap: 1
             }}
           >
-          
             <Typography 
               variant="h6" 
               sx={{ 
                 color: '#2B6CA3',
                 fontWeight: 600,
-                display: { xs: 'none', sm: 'block' }
+                display: { xs: 'none', sm: 'block' },
+                fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' }
               }}
             >
               Gest-Par ZEDIC
             </Typography>
+            <DirectionsCarIcon sx={{ color: '#2B6CA3', display: { xs: 'block', sm: 'none' }, fontSize: 28 }} />
           </Box>
 
-          {/* Navegación Principal */}
+          {/* Menú Hamburguesa en móvil */}
+          <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', gap: 1 }}>
+            <IconButton onClick={() => setDrawerOpen(true)} sx={{ color: '#2B6CA3', mr: 1 }}>
+              <MenuIcon fontSize="large" />
+            </IconButton>
+          </Box>
+
+          {/* Navegación Principal (oculta en móvil) */}
           <Box sx={{ 
-            display: 'flex', 
+            display: { xs: 'none', md: 'flex' }, 
             gap: 1,
             alignItems: 'center',
             '& a': {
@@ -254,6 +269,20 @@ const DashboardHeader = () => {
               </IconButton>
             </Tooltip>
           </Box>
+
+          {/* Drawer para navegación en móvil */}
+          <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+            <Box sx={{ width: 240, pt: 2 }} role="presentation" onClick={() => setDrawerOpen(false)}>
+              <List>
+                {navigationItems.map((item) => (
+                  <ListItem button key={item.path} component={Link} to={item.path} selected={location.pathname === item.path}>
+                    <ListItemIcon>{item.icon}</ListItemIcon>
+                    <ListItemText primary={item.label} />
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+          </Drawer>
 
           {/* Menú de Notificaciones */}
           <Menu

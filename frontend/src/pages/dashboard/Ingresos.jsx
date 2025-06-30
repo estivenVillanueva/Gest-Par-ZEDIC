@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import {
-  Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Snackbar, Alert, Box, Autocomplete, Card, CardContent, Divider, MenuItem
+  Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Snackbar, Alert, Box, Autocomplete, Card, CardContent, Divider, MenuItem, Chip
 } from '@mui/material';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -312,115 +312,160 @@ export default function Ingresos() {
   const esServicioPeriodo = servicioVehiculo && (servicioVehiculo.tipo_cobro === 'periodo');
 
   return (
-    <Box sx={{ p: { xs: 1, md: 4 }, bgcolor: '#f4f6fa', minHeight: '100vh' }}>
-      <Typography variant="h4" fontWeight={700} gutterBottom color="primary.main">
-        <DirectionsCarIcon sx={{ mr: 1, fontSize: 36, verticalAlign: 'middle' }} /> Gestión de Ingresos
-      </Typography>
-      <Button variant="contained" color="primary" sx={{ mb: 3, borderRadius: 3, fontWeight: 600, boxShadow: 2 }} onClick={() => setOpenIngreso(true)}>
-        Registrar Ingreso
-      </Button>
-      <Divider sx={{ mb: 3 }} />
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, mb: 4 }}>
-        {/* Tarjeta de vehículos dentro */}
-        <Card sx={{ flex: 1, borderRadius: 1, boxShadow: 4, p: 2, bgcolor: '#f8fafc' }}>
-          <CardContent>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 700, color: 'primary.main' }}>
-              🚗 Vehículos dentro del parqueadero
-            </Typography>
-            <TableContainer component={Paper} sx={{ borderRadius: 1, boxShadow: 2 }}>
-              <Table size="small">
-                <TableHead sx={{ bgcolor: '#e3f2fd' }}>
-                  <TableRow>
-                    <TableCell>ID</TableCell>
-                    <TableCell>Vehículo</TableCell>
-                    <TableCell>Hora de Entrada</TableCell>
-                    <TableCell>Observaciones</TableCell>
-                    <TableCell>Acciones</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
+    <Box sx={{ p: { xs: 0.5, md: 4 }, bgcolor: '#f4f6fa', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <Box sx={{ width: '100%', maxWidth: { xs: '100vw', md: 1500, lg: 1700 }, mx: 'auto' }}>
+        <Typography variant="h4" fontWeight={700} gutterBottom color="primary.main" sx={{ mb: { xs: 2, md: 3 } }}>
+          <DirectionsCarIcon sx={{ mr: 1, fontSize: 36, verticalAlign: 'middle' }} /> Gestión de Ingresos
+        </Typography>
+        <Button variant="contained" color="primary" sx={{ mb: { xs: 2, md: 3 }, borderRadius: 2, fontWeight: 600, boxShadow: 2, width: { xs: '100%', sm: 'auto' } }} onClick={() => setOpenIngreso(true)}>
+          Registrar Ingreso
+        </Button>
+        <Divider sx={{ mb: { xs: 2, md: 3 } }} />
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, mb: 4 }}>
+          {/* Tarjeta de vehículos dentro */}
+          <Card sx={{ flex: 1, borderRadius: 1, boxShadow: 4, p: { xs: 1, md: 2 }, bgcolor: '#f8fafc' }}>
+            <CardContent sx={{ p: 0 }}>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 700, color: 'primary.main' }}>
+                🚗 Vehículos dentro del parqueadero
+              </Typography>
+              {/* Tabla responsiva */}
+              <Box sx={{ width: '100%', overflowX: 'auto' }}>
+                <TableContainer component={Paper} sx={{ borderRadius: 1, boxShadow: 2, minWidth: 600 }}>
+                  <Table size="small" sx={{ minWidth: 600, tableLayout: 'auto' }}>
+                    <TableHead sx={{ bgcolor: '#e3f2fd' }}>
+                      <TableRow>
+                        <TableCell sx={{ fontSize: 14, whiteSpace: 'nowrap', px: 1 }}>ID</TableCell>
+                        <TableCell sx={{ fontSize: 14, whiteSpace: 'nowrap', px: 1 }}>Vehículo</TableCell>
+                        <TableCell sx={{ fontSize: 14, whiteSpace: 'nowrap', px: 1 }}>Hora de Entrada</TableCell>
+                        <TableCell sx={{ fontSize: 14, whiteSpace: 'nowrap', px: 1 }}>Observaciones</TableCell>
+                        <TableCell sx={{ fontSize: 14, whiteSpace: 'nowrap', px: 1 }}>Acciones</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {ingresos.length === 0 && (
+                        <TableRow><TableCell colSpan={5} align="center">No hay vehículos dentro del parqueadero.</TableCell></TableRow>
+                      )}
+                      {ingresos.map((ing, idx) => (
+                        <TableRow key={ing.id} sx={{ bgcolor: idx % 2 === 0 ? '#f5faff' : 'white', transition: 'background 0.2s', '&:hover': { bgcolor: '#e3f2fd' } }}>
+                          <TableCell sx={{ fontSize: 13, whiteSpace: 'nowrap', px: 1 }}>{ing.id}</TableCell>
+                          <TableCell sx={{ fontSize: 13, whiteSpace: 'nowrap', px: 1 }}><strong>{ing.placa || ing.vehiculo_id}</strong> <span style={{ marginLeft: 8, color: '#388e3c', fontWeight: 600, fontSize: 12, background: '#e8f5e9', borderRadius: 8, padding: '2px 8px' }}>Dentro</span></TableCell>
+                          <TableCell sx={{ fontSize: 13, whiteSpace: 'nowrap', px: 1 }}>{new Date(ing.hora_entrada).toLocaleString()}</TableCell>
+                          <TableCell sx={{ fontSize: 13, px: 1 }}>{ing.observaciones}</TableCell>
+                          <TableCell sx={{ fontSize: 13, whiteSpace: 'nowrap', px: 1 }}>
+                            <Button variant="outlined" color="success" startIcon={<CheckCircleOutlineIcon />} sx={{ borderRadius: 2, fontWeight: 600, minWidth: 120, px: 1 }} onClick={() => handleOpenSalidaDialog(ing)}>
+                              Registrar Salida
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                {/* Móvil: tarjetas apiladas */}
+                <Box sx={{ display: { xs: 'flex', md: 'none' }, flexDirection: 'column', gap: 2, mt: 2 }}>
                   {ingresos.map((ing, idx) => (
-                    <TableRow key={ing.id} sx={{ bgcolor: idx % 2 === 0 ? '#f5faff' : 'white', transition: 'background 0.2s', '&:hover': { bgcolor: '#e3f2fd' } }}>
-                      <TableCell>{ing.id}</TableCell>
-                      <TableCell><strong>{ing.placa || ing.vehiculo_id}</strong> <span style={{ marginLeft: 8, color: '#388e3c', fontWeight: 600, fontSize: 12, background: '#e8f5e9', borderRadius: 8, padding: '2px 8px' }}>Dentro</span></TableCell>
-                      <TableCell>{new Date(ing.hora_entrada).toLocaleString()}</TableCell>
-                      <TableCell>{ing.observaciones}</TableCell>
-                      <TableCell>
-                        <Button variant="outlined" color="success" startIcon={<CheckCircleOutlineIcon />} sx={{ borderRadius: 2, fontWeight: 600 }} onClick={() => handleOpenSalidaDialog(ing)}>
-                          Registrar Salida
-                        </Button>
-                      </TableCell>
-                    </TableRow>
+                    <Card key={ing.id} sx={{ borderRadius: 1, boxShadow: 1, p: 1, bgcolor: '#fff' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <DirectionsCarIcon color="primary" sx={{ mr: 1 }} />
+                        <Typography fontWeight={700}>{ing.placa || ing.vehiculo_id}</Typography>
+                        <Chip label="Dentro" color="success" size="small" sx={{ ml: 1 }} />
+                      </Box>
+                      <Typography variant="body2"><b>ID:</b> {ing.id}</Typography>
+                      <Typography variant="body2"><b>Hora de Entrada:</b> {new Date(ing.hora_entrada).toLocaleString()}</Typography>
+                      <Typography variant="body2"><b>Observaciones:</b> {ing.observaciones}</Typography>
+                      <Button variant="outlined" color="success" startIcon={<CheckCircleOutlineIcon />} sx={{ borderRadius: 2, fontWeight: 600, mt: 1 }} onClick={() => handleOpenSalidaDialog(ing)}>
+                        Registrar Salida
+                      </Button>
+                    </Card>
                   ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Box>
+        {/* Historial moderno */}
+        <Card sx={{ borderRadius: 1, boxShadow: 4, p: { xs: 1, md: 2 }, bgcolor: '#f8fafc', mb: 4 }}>
+          <CardContent sx={{ p: 0 }}>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: 700, color: 'primary.main' }}>
+              📋 Historial de ingresos y salidas
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, gap: 2, mb: 2 }}>
+              <TextField
+                label="Filtrar por placa"
+                value={filtroPlaca}
+                onChange={e => setFiltroPlaca(e.target.value)}
+                size="small"
+                sx={{ width: { xs: '100%', sm: 200 }, mr: { sm: 2, xs: 0 } }}
+              />
+            </Box>
+            {/* Tabla responsiva */}
+            <Box sx={{ width: '100%', overflowX: 'auto', display: { xs: 'none', md: 'block' } }}>
+              <TableContainer component={Paper} sx={{ borderRadius: 1, boxShadow: 2, minWidth: 900 }}>
+                <Table size="small" sx={{ minWidth: 900 }}>
+                  <TableHead sx={{ bgcolor: '#e3f2fd' }}>
+                    <TableRow>
+                      <TableCell>ID</TableCell>
+                      <TableCell>Vehículo</TableCell>
+                      <TableCell>Hora de Entrada</TableCell>
+                      <TableCell>Hora de Salida</TableCell>
+                      <TableCell>Valor Pagado</TableCell>
+                      <TableCell>Observaciones</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {historial
+                      .filter(ing =>
+                        !filtroPlaca ||
+                        (ing.placa && ing.placa.toLowerCase().includes(filtroPlaca.toLowerCase()))
+                      )
+                      .slice(0, historialLimit)
+                      .map((ing, idx) => (
+                        <TableRow key={ing.id} sx={{ bgcolor: idx % 2 === 0 ? '#f5faff' : 'white', transition: 'background 0.2s', '&:hover': { bgcolor: '#e3f2fd' } }}>
+                          <TableCell>{ing.id}</TableCell>
+                          <TableCell><strong>{ing.placa || ing.vehiculo_id}</strong> {ing.hora_salida ? <span style={{ marginLeft: 8, color: '#1976d2', fontWeight: 600, fontSize: 12, background: '#e3f2fd', borderRadius: 8, padding: '2px 8px' }}>Fuera</span> : <span style={{ marginLeft: 8, color: '#388e3c', fontWeight: 600, fontSize: 12, background: '#e8f5e9', borderRadius: 8, padding: '2px 8px' }}>Dentro</span>}</TableCell>
+                          <TableCell>{new Date(ing.hora_entrada).toLocaleString()}</TableCell>
+                          <TableCell>{ing.hora_salida ? new Date(ing.hora_salida).toLocaleString() : '-'}</TableCell>
+                          <TableCell>{(ing.valor_pagado !== null && ing.valor_pagado !== undefined && ing.valor_pagado !== '') ? Number(ing.valor_pagado).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 }) : '-'}</TableCell>
+                          <TableCell>{ing.observaciones}</TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+            {/* Móvil: tarjetas apiladas */}
+            <Box sx={{ display: { xs: 'flex', md: 'none' }, flexDirection: 'column', gap: 2, mt: 2 }}>
+              {historial
+                .filter(ing =>
+                  !filtroPlaca ||
+                  (ing.placa && ing.placa.toLowerCase().includes(filtroPlaca.toLowerCase()))
+                )
+                .slice(0, historialLimit)
+                .map((ing, idx) => (
+                  <Card key={ing.id} sx={{ borderRadius: 1, boxShadow: 1, p: 1, bgcolor: '#fff' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <DirectionsCarIcon color="primary" sx={{ mr: 1 }} />
+                      <Typography fontWeight={700}>{ing.placa || ing.vehiculo_id}</Typography>
+                      <Chip label={ing.hora_salida ? 'Fuera' : 'Dentro'} color={ing.hora_salida ? 'info' : 'success'} size="small" sx={{ ml: 1 }} />
+                    </Box>
+                    <Typography variant="body2"><b>ID:</b> {ing.id}</Typography>
+                    <Typography variant="body2"><b>Hora de Entrada:</b> {new Date(ing.hora_entrada).toLocaleString()}</Typography>
+                    <Typography variant="body2"><b>Hora de Salida:</b> {ing.hora_salida ? new Date(ing.hora_salida).toLocaleString() : '-'}</Typography>
+                    <Typography variant="body2"><b>Valor Pagado:</b> {(ing.valor_pagado !== null && ing.valor_pagado !== undefined && ing.valor_pagado !== '') ? Number(ing.valor_pagado).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 }) : '-'}</Typography>
+                    <Typography variant="body2"><b>Observaciones:</b> {ing.observaciones}</Typography>
+                  </Card>
+                ))}
+            </Box>
+            {historial.length > historialLimit && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+                <Button variant="outlined" onClick={() => setHistorialLimit(historialLimit + 10)}>
+                  Ver más
+                </Button>
+              </Box>
+            )}
           </CardContent>
         </Card>
       </Box>
-
-      {/* Historial moderno */}
-      <Card sx={{ borderRadius: 1, boxShadow: 4, p: 2, bgcolor: '#f8fafc', mb: 4 }}>
-        <CardContent>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 700, color: 'primary.main' }}>
-            📋 Historial de ingresos y salidas
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <TextField
-              label="Filtrar por placa"
-              value={filtroPlaca}
-              onChange={e => setFiltroPlaca(e.target.value)}
-              size="small"
-              sx={{ width: 200, mr: 2 }}
-            />
-          </Box>
-          <TableContainer component={Paper} sx={{ borderRadius: 1, boxShadow: 2 }}>
-            <Table size="small">
-              <TableHead sx={{ bgcolor: '#e3f2fd' }}>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell>Vehículo</TableCell>
-                  <TableCell>Hora de Entrada</TableCell>
-                  <TableCell>Hora de Salida</TableCell>
-                  <TableCell>Valor Pagado</TableCell>
-                  <TableCell>Observaciones</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {historial
-                  .filter(ing =>
-                    !filtroPlaca ||
-                    (ing.placa && ing.placa.toLowerCase().includes(filtroPlaca.toLowerCase()))
-                  )
-                  .slice(0, historialLimit)
-                  .map((ing, idx) => (
-                    <TableRow key={ing.id} sx={{ bgcolor: idx % 2 === 0 ? '#f5faff' : 'white', transition: 'background 0.2s', '&:hover': { bgcolor: '#e3f2fd' } }}>
-                      <TableCell>{ing.id}</TableCell>
-                      <TableCell><strong>{ing.placa || ing.vehiculo_id}</strong> {ing.hora_salida ? <span style={{ marginLeft: 8, color: '#1976d2', fontWeight: 600, fontSize: 12, background: '#e3f2fd', borderRadius: 8, padding: '2px 8px' }}>Fuera</span> : <span style={{ marginLeft: 8, color: '#388e3c', fontWeight: 600, fontSize: 12, background: '#e8f5e9', borderRadius: 8, padding: '2px 8px' }}>Dentro</span>}</TableCell>
-                      <TableCell>{new Date(ing.hora_entrada).toLocaleString()}</TableCell>
-                      <TableCell>{ing.hora_salida ? new Date(ing.hora_salida).toLocaleString() : '-'}</TableCell>
-                      <TableCell>
-                        {
-                          (ing.valor_pagado !== null && ing.valor_pagado !== undefined && ing.valor_pagado !== '')
-                            ? Number(ing.valor_pagado).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 })
-                            : '-'
-                        }
-                      </TableCell>
-                      <TableCell>{ing.observaciones}</TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          {historial.length > historialLimit && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
-              <Button variant="outlined" onClick={() => setHistorialLimit(historialLimit + 10)}>
-                Ver más
-              </Button>
-            </Box>
-          )}
-        </CardContent>
-      </Card>
 
       {/* Dialogo para registrar ingreso */}
       <Dialog open={openIngreso} onClose={() => setOpenIngreso(false)} maxWidth="sm" fullWidth>

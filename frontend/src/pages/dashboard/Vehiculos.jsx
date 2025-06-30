@@ -426,66 +426,133 @@ const Vehiculos = () => {
   };
 
   return (
-    <Box sx={{ width: '100%', minHeight: '100vh', py: 5, px: { xs: 1, md: 6 }, bgcolor: '#f6f7fa', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <Box sx={{ width: '100%', minHeight: '100vh', py: { xs: 2, md: 5 }, px: { xs: 0.5, sm: 2, md: 6 }, bgcolor: '#f6f7fa', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {/* Búsqueda de usuario: ahora al inicio */}
+      <Paper elevation={3} sx={{
+        position: { xs: 'static', md: 'sticky' },
+        top: { md: 90 },
+        zIndex: 20,
+        mb: 4,
+        p: { xs: 1.5, sm: 2.5 },
+        borderRadius: 2,
+        bgcolor: '#fafdff',
+        maxWidth: { xs: '100%', sm: 500 },
+        mx: 'auto',
+        boxShadow: '0 4px 24px 0 rgba(31, 38, 135, 0.10)',
+        width: { xs: '100%', sm: 500 },
+      }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, gap: 2 }}>
+          <TextField
+            label="Buscar usuario por correo o ID"
+            value={searchUser}
+            onChange={e => setSearchUser(e.target.value)}
+            size="small"
+            fullWidth
+          />
+          <Button variant="contained" size="large" sx={{ minWidth: 120, fontWeight: 700 }} onClick={handleBuscarUsuario}>Buscar</Button>
+        </Box>
+        {searchError && <Typography color="error" sx={{ mt: 1, textAlign: 'center', fontSize: 13 }}>{searchError}</Typography>}
+      </Paper>
       <Paper elevation={3} sx={{
         width: '100%',
-        maxWidth: '98vw',
-        borderRadius: 2,
+        maxWidth: { xs: '100vw', md: 1500, lg: 1700 },
+        borderRadius: { xs: 1, md: 2 },
         bgcolor: '#fff',
-        boxShadow: '0 6px 32px rgba(52,152,243,0.10)',
-        px: { xs: 2, sm: 4, md: 6 },
-        py: { xs: 3, md: 5 },
-        mt: { xs: 2, md: 4 },
-        mb: 4,
+        boxShadow: { xs: '0 2px 8px rgba(52,152,243,0.08)', md: '0 6px 32px rgba(52,152,243,0.10)' },
+        px: { xs: 1, sm: 2, md: 6, lg: 10 },
+        py: { xs: 2, md: 5 },
+        mt: { xs: 1, md: 4 },
+        mb: { xs: 2, md: 4 },
       }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Typography variant="h4" fontWeight={800} color="primary.main">Vehículos</Typography>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, mb: { xs: 2, md: 4 }, gap: 2 }}>
+          <Typography variant="h5" fontWeight={800} color="primary.main" sx={{ mb: { xs: 1, sm: 0 } }}>Vehículos</Typography>
           <Button
             variant="outlined"
             color="error"
             startIcon={<DeleteSweepIcon />}
             onClick={() => setOpenDeleteAll(true)}
-            sx={{ borderRadius: 3, fontWeight: 600 }}
+            sx={{ borderRadius: 3, fontWeight: 600, display: { xs: 'none', md: 'flex' } }}
           >
             Eliminar todos los vehículos
           </Button>
         </Box>
-        <MinimalFilterBar>
-          <TextField variant="outlined" placeholder="Buscar por nombre o placa" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} InputProps={{ startAdornment: (<SearchIcon sx={{ mr: 1 }} />) }} />
-          <TextField type="date" variant="outlined" value={dateFrom} onChange={e => setDateFrom(e.target.value)} label="Desde" InputLabelProps={{ shrink: true }} />
-          <TextField type="date" variant="outlined" value={dateTo} onChange={e => setDateTo(e.target.value)} label="Hasta" InputLabelProps={{ shrink: true }} />
+        <MinimalFilterBar sx={{ flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 2, sm: 2 }, mb: { xs: 2, md: 3 } }}>
+          <TextField variant="outlined" placeholder="Buscar por nombre o placa" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} InputProps={{ startAdornment: (<SearchIcon sx={{ mr: 1 }} />) }} size="small" sx={{ flex: 1 }} />
+          <TextField type="date" variant="outlined" value={dateFrom} onChange={e => setDateFrom(e.target.value)} label="Desde" InputLabelProps={{ shrink: true }} size="small" sx={{ minWidth: 120 }} />
+          <TextField type="date" variant="outlined" value={dateTo} onChange={e => setDateTo(e.target.value)} label="Hasta" InputLabelProps={{ shrink: true }} size="small" sx={{ minWidth: 120 }} />
         </MinimalFilterBar>
         {loading ? (
           <Typography variant="body1">Cargando vehículos...</Typography>
         ) : error ? (
           <Typography variant="body1" color="error">{error}</Typography>
         ) : (
-          <MinimalGrid container spacing={4}>
+          <Grid container spacing={{ xs: 2, sm: 3, md: 4 }}>
             {filteredVehiculos.map((vehiculo) => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={vehiculo.id}>
-                <VehiculoCard
-                  vehiculo={vehiculo}
-                  onVerInfo={handleVerInfo}
-                  seleccionado={seleccionados.includes(vehiculo.id)}
-                  onSeleccionar={handleSeleccionar}
-                />
+                <MinimalCard
+                  onClick={() => handleVerInfo(vehiculo)}
+                  sx={{
+                    position: 'relative',
+                    borderRadius: { xs: 1, md: 2 },
+                    boxShadow: { xs: '0 1px 4px rgba(52,152,243,0.08)', md: '0 4px 16px rgba(52,152,243,0.10)' },
+                    p: { xs: 1.5, sm: 2 },
+                    minHeight: { xs: 180, sm: 200 },
+                    display: 'flex', flexDirection: 'column', alignItems: 'center',
+                    transition: 'box-shadow 0.2s',
+                    '&:hover': { boxShadow: '0 8px 32px rgba(52,152,243,0.13)' }
+                  }}
+                >
+                  <Checkbox
+                    checked={seleccionados.includes(vehiculo.id)}
+                    onClick={e => { e.stopPropagation(); handleSeleccionar(vehiculo.id); }}
+                    sx={{ position: 'absolute', top: 10, left: 10, zIndex: 2, p: 0.5 }}
+                    color="primary"
+                  />
+                  <MinimalIcon sx={{ mb: 1, mt: 0.5, fontSize: { xs: 32, sm: 36 } }}>
+                    {getVehiculoIcon(vehiculo.tipoVehiculo)}
+                  </MinimalIcon>
+                  <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#2B6CA3', mb: 0.5, fontSize: { xs: 15, sm: 16 } }}>{vehiculo.placa}</Typography>
+                  <Typography variant="body2" sx={{ color: '#64748B', mb: 0.5, fontSize: { xs: 13, sm: 14 } }}>{vehiculo.propietario}</Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 1, minHeight: 36, justifyContent: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#2B6CA3', fontWeight: 600, mb: 0.5, minHeight: 20, fontSize: { xs: 13, sm: 14 } }}>
+                      Lugar: {vehiculo.puesto ? vehiculo.puesto : 'No asignado'}
+                    </Typography>
+                    <MinimalBadge label={vehiculo.tipoServicio} color="secondary" />
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center', mb: 1 }}>
+                    <Chip label={vehiculo.color} size="small" sx={{ bgcolor: '#f8fafc', color: '#2B6CA3', fontSize: { xs: 11, sm: 12 } }} />
+                  </Box>
+                  <Typography variant="caption" sx={{ color: '#90a4ae', textAlign: 'center', width: '100%', fontSize: { xs: 11, sm: 12 } }}>Entradas: {vehiculo.entradas}</Typography>
+                  <Fab size="small" color="info" sx={{ position: 'absolute', bottom: 14, right: 14, boxShadow: 2, minHeight: 32, minWidth: 32, width: 32, height: 32 }} onClick={e => { e.stopPropagation(); handleVerInfo(vehiculo); }}>
+                    <LocalParkingIcon sx={{ fontSize: 18 }} />
+                  </Fab>
+                </MinimalCard>
               </Grid>
             ))}
-          </MinimalGrid>
+          </Grid>
         )}
+        <Button
+          variant="outlined"
+          color="error"
+          startIcon={<DeleteSweepIcon />}
+          onClick={() => setOpenDeleteAll(true)}
+          sx={{ borderRadius: 3, fontWeight: 600, display: { xs: 'flex', md: 'none' }, mt: 2, width: '100%' }}
+        >
+          Eliminar todos los vehículos
+        </Button>
       </Paper>
       {seleccionados.length > 0 && (
         <Fab
           color="error"
           variant="extended"
-          sx={{ position: 'fixed', bottom: 100, right: 32, zIndex: 200 }}
+          sx={{ position: 'fixed', bottom: { xs: 80, md: 100 }, right: 24, zIndex: 200, minWidth: 180 }}
           onClick={() => setOpenConfirmarEliminar(true)}
         >
           <DeleteSweepIcon sx={{ mr: 1 }} />
           Eliminar seleccionados ({seleccionados.length})
         </Fab>
       )}
-      <MinimalFab color="primary" aria-label="add" onClick={() => { setSelectedVehiculo(null); setOpenForm(true); }}>
+      <MinimalFab color="primary" aria-label="add" onClick={() => { setSelectedVehiculo(null); setOpenForm(true); }} sx={{ position: 'fixed', bottom: 16, right: 16, zIndex: 150 }}>
         <AddIcon />
       </MinimalFab>
       <FormVehiculo
@@ -505,32 +572,6 @@ const Vehiculos = () => {
           <Button onClick={handleEliminarTodos} color="error" variant="contained">Eliminar</Button>
         </DialogActions>
       </Dialog>
-      {/* Búsqueda de usuario */}
-      <Paper elevation={3} sx={{
-        position: { xs: 'static', md: 'sticky' },
-        top: { md: 90 },
-        zIndex: 20,
-        mb: 4,
-        p: { xs: 2, sm: 3 },
-        borderRadius: 3,
-        bgcolor: '#fafdff',
-        maxWidth: 500,
-        mx: 'auto',
-        boxShadow: '0 4px 24px 0 rgba(31, 38, 135, 0.10)',
-        width: { xs: '100%', sm: 500 },
-      }}>
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, gap: 2 }}>
-          <TextField
-            label="Buscar usuario por correo o ID"
-            value={searchUser}
-            onChange={e => setSearchUser(e.target.value)}
-            size="medium"
-            fullWidth
-          />
-          <Button variant="contained" size="large" sx={{ minWidth: 120, fontWeight: 700 }} onClick={handleBuscarUsuario}>Buscar</Button>
-        </Box>
-        {searchError && <Typography color="error" sx={{ mt: 1, textAlign: 'center' }}>{searchError}</Typography>}
-      </Paper>
       {usuarioBuscado && (
         <Box sx={{ mb: 2, p: 2, bgcolor: '#e3f2fd', borderRadius: 2 }}>
           <Typography variant="subtitle1" fontWeight={700}>Usuario encontrado:</Typography>

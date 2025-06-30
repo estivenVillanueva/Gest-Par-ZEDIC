@@ -336,10 +336,10 @@ const MisVehiculos = () => {
               {vehiculos.map((vehiculo) => {
                 const historial = reservas.filter(r => r.vehiculo_placa === vehiculo.placa);
                 return (
-                  <Card key={vehiculo.id || vehiculo.placa} sx={{ borderRadius: 3, boxShadow: '0 8px 32px rgba(52,152,243,0.15)', border: '1.5px solid #e3eaf6', p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: { xs: 'stretch', md: 'flex-start' }, transition: 'box-shadow 0.18s', width: '100%', maxWidth: 600, mx: 'auto', '&:hover': { boxShadow: '0 16px 48px rgba(52,152,243,0.22)' } }}>
+                  <Card key={vehiculo.id || vehiculo.placa} sx={{ borderRadius: 2, boxShadow: '0 8px 32px rgba(52,152,243,0.15)', border: '1.5px solid #e3eaf6', p: 2, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: { xs: 'stretch', md: 'flex-start' }, transition: 'box-shadow 0.18s', width: '100%', maxWidth: 600, mx: 'auto', '&:hover': { boxShadow: '0 16px 48px rgba(52,152,243,0.22)' }, gap: { xs: 2, md: 0 } }}>
                     {/* Columna 1: Datos del vehículo y acciones */}
-                    <Box sx={{ flex: 1, minWidth: 220, display: 'flex', alignItems: 'center', gap: 2, mb: { xs: 2, md: 0 } }}>
-                      <Avatar sx={{ background: 'linear-gradient(135deg, #3498f3 0%, #6ec1ff 100%)', width: 54, height: 54, color: '#fff', fontSize: 32, boxShadow: '0 2px 8px rgba(52,152,243,0.10)' }}>
+                    <Box sx={{ flex: 1, minWidth: 220, display: 'flex', alignItems: 'center', gap: 2, mb: { xs: 1.5, md: 0 } }}>
+                      <Avatar sx={{ background: 'linear-gradient(135deg, #3498f3 0%, #6ec1ff 100%)', width: 54, height: 54, color: '#fff', fontSize: 32, boxShadow: '0 2px 8px rgba(52,152,243,0.10)', borderRadius: 2 }}>
                         <DirectionsCarIcon sx={{ fontSize: 32 }} />
                       </Avatar>
                       <Box sx={{ flexGrow: 1 }}>
@@ -365,7 +365,7 @@ const MisVehiculos = () => {
                       </Box>
                     </Box>
                     {/* Columna 2: Historial de parqueaderos */}
-                    <Box sx={{ flex: 2, minWidth: 220, px: { xs: 0, md: 2 }, borderLeft: { md: '1px solid #f0f4fa' }, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <Box sx={{ flex: 2, minWidth: 220, px: { xs: 0, md: 2 }, borderLeft: { md: '1px solid #f0f4fa' }, display: 'flex', flexDirection: 'column', justifyContent: 'center', borderRadius: 2 }}>
                       <Typography variant="subtitle2" sx={{ color: '#2B6CA3', fontWeight: 600, mb: 0.5 }}>
                         Historial en parqueaderos:
                       </Typography>

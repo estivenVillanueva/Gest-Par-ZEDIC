@@ -94,23 +94,25 @@ const Reservas = () => {
   const reservasMostradas = reservasFiltradas.slice(0, limit);
 
   return (
-    <Box sx={{ bgcolor: '#f0f4fa', minHeight: '100vh', py: 6, display: 'flex', justifyContent: 'center' }}>
-      <Paper elevation={3} sx={{ width: '100%', maxWidth: 1100, borderRadius: 4, p: { xs: 2, sm: 4, md: 6 }, boxShadow: '0 8px 32px rgba(43,108,163,0.10)', bgcolor: '#fff' }}>
-        <Typography variant="h4" sx={{ fontWeight: 800, color: '#3498f3', mb: 2 }}>
+    <Box sx={{ bgcolor: '#f0f4fa', minHeight: '100vh', py: { xs: 2, sm: 4, md: 6 }, display: 'flex', justifyContent: 'center' }}>
+      <Paper elevation={3} sx={{ width: '95vw', maxWidth: 1400, borderRadius: 2, p: { xs: 1, sm: 2, md: 4 }, boxShadow: '0 8px 32px rgba(43,108,163,0.10)', bgcolor: '#fff' }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, color: '#3498f3', mb: 2, fontSize: { xs: '1.3rem', sm: '1.7rem' } }}>
           Mis Reservas
         </Typography>
         <Tabs
           value={tab}
           onChange={(_, v) => { setTab(v); setLimit(8); }}
-          sx={{ mb: 4 }}
+          sx={{ mb: 3, flexWrap: 'wrap' }}
           textColor="primary"
           indicatorColor="primary"
+          variant="scrollable"
+          scrollButtons="auto"
         >
           {estados.map((e) => (
-            <Tab key={e.value} label={e.label} value={e.value} />
+            <Tab key={e.value} label={e.label} value={e.value} sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }} />
           ))}
         </Tabs>
-        <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 3, flexWrap: 'wrap', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
           <TextField
             size="small"
             placeholder="Buscar por parqueadero"
@@ -123,7 +125,7 @@ const Reservas = () => {
                 </InputAdornment>
               ),
             }}
-            sx={{ minWidth: 220 }}
+            sx={{ minWidth: { xs: 120, sm: 180, md: 220 }, width: { xs: '100%', sm: 'auto' } }}
           />
           <TextField
             size="small"
@@ -132,10 +134,10 @@ const Reservas = () => {
             value={filtroFecha}
             onChange={e => { setFiltroFecha(e.target.value); setLimit(8); }}
             InputLabelProps={{ shrink: true }}
-            sx={{ minWidth: 180 }}
+            sx={{ minWidth: { xs: 120, sm: 150, md: 180 }, width: { xs: '100%', sm: 'auto' } }}
           />
         </Box>
-        <Grid container spacing={4}>
+        <Grid container spacing={{ xs: 2, md: 4 }} alignItems="stretch">
           {reservasMostradas.length === 0 ? (
             <Grid item xs={12}>
               <Typography color="text.secondary" align="center">
@@ -144,13 +146,13 @@ const Reservas = () => {
             </Grid>
           ) : (
             reservasMostradas.map((reserva) => (
-              <Grid item xs={12} md={6} key={reserva.id}>
-                <Card sx={{ borderRadius: 3, boxShadow: '0 2px 12px rgba(52,152,243,0.10)', p: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Avatar sx={{ background: 'linear-gradient(135deg, #3498f3 0%, #6ec1ff 100%)', width: 54, height: 54, color: '#fff', fontSize: 32, boxShadow: '0 2px 8px rgba(52,152,243,0.10)' }}>
+              <Grid item xs={12} sm={12} md={6} key={reserva.id} sx={{ height: '100%' }}>
+                <Card sx={{ borderRadius: 2, boxShadow: '0 2px 12px rgba(52,152,243,0.10)', p: { xs: 1, sm: 2 }, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2, height: '100%' }}>
+                  <Avatar sx={{ background: 'linear-gradient(135deg, #3498f3 0%, #6ec1ff 100%)', width: 48, height: 48, color: '#fff', fontSize: 28, boxShadow: '0 2px 8px rgba(52,152,243,0.10)' }}>
                     <LocalParkingIcon />
                   </Avatar>
                   <CardContent sx={{ flex: 1, p: 0 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 700 }}>{reserva.parqueadero_nombre || reserva.nombre || 'Parqueadero'}</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 700, fontSize: { xs: '1rem', sm: '1.1rem' } }}>{reserva.parqueadero_nombre || reserva.nombre || 'Parqueadero'}</Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
                       <EventAvailableIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} /> {reserva.fecha_inicio ? new Date(reserva.fecha_inicio).toLocaleString() : ''}
                     </Typography>
@@ -170,45 +172,47 @@ const Reservas = () => {
                       </Typography>
                     )}
                   </CardContent>
-                  <Chip
-                    label={
-                      reserva.estado === 'Aprobada'
-                        ? 'Aprobada'
-                        : reserva.estado === 'Pendiente'
-                        ? 'Pendiente'
-                        : 'No aprobada'
-                    }
-                    color={
-                      reserva.estado === 'Aprobada'
-                        ? 'success'
-                        : reserva.estado === 'Pendiente'
-                        ? 'warning'
-                        : 'error'
-                    }
-                    icon={
-                      reserva.estado === 'Aprobada'
-                        ? <CheckCircleIcon />
-                        : reserva.estado === 'Pendiente'
-                        ? <EventAvailableIcon />
-                        : <CancelIcon />
-                    }
-                    sx={{ fontWeight: 700, fontSize: '1rem', px: 1.5, borderRadius: 2 }}
-                  />
-                  <Button variant="outlined" sx={{ ml: 2, borderRadius: 2 }} onClick={() => setDetalleReserva(reserva)}>
-                    Ver detalles
-                  </Button>
-                  {reserva.estado === 'Pendiente' && (
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      sx={{ ml: 2, borderRadius: 2, minWidth: 40 }}
-                      startIcon={<DeleteIcon />}
-                      onClick={() => handleCancelarReserva(reserva)}
-                      disabled={cancelingId === reserva.id}
-                    >
-                      {cancelingId === reserva.id ? 'Cancelando...' : 'Cancelar'}
+                  <Box sx={{ display: 'flex', flexDirection: { xs: 'row', sm: 'column' }, alignItems: { xs: 'center', sm: 'flex-end' }, gap: 1, width: { xs: '100%', sm: 'auto' }, mt: { xs: 1, sm: 0 } }}>
+                    <Chip
+                      label={
+                        reserva.estado === 'Aprobada'
+                          ? 'Aprobada'
+                          : reserva.estado === 'Pendiente'
+                          ? 'Pendiente'
+                          : 'No aprobada'
+                      }
+                      color={
+                        reserva.estado === 'Aprobada'
+                          ? 'success'
+                          : reserva.estado === 'Pendiente'
+                          ? 'warning'
+                          : 'error'
+                      }
+                      icon={
+                        reserva.estado === 'Aprobada'
+                          ? <CheckCircleIcon />
+                          : reserva.estado === 'Pendiente'
+                          ? <EventAvailableIcon />
+                          : <CancelIcon />
+                      }
+                      sx={{ fontWeight: 700, fontSize: { xs: '0.9rem', sm: '1rem' }, px: 1.5, borderRadius: 2 }}
+                    />
+                    <Button variant="outlined" sx={{ borderRadius: 2, minWidth: 90, fontSize: { xs: '0.8rem', sm: '1rem' } }} onClick={() => setDetalleReserva(reserva)}>
+                      Ver detalles
                     </Button>
-                  )}
+                    {reserva.estado === 'Pendiente' && (
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        sx={{ borderRadius: 2, minWidth: 90, fontSize: { xs: '0.8rem', sm: '1rem' } }}
+                        startIcon={<DeleteIcon />}
+                        onClick={() => handleCancelarReserva(reserva)}
+                        disabled={cancelingId === reserva.id}
+                      >
+                        {cancelingId === reserva.id ? 'Cancelando...' : 'Cancelar'}
+                      </Button>
+                    )}
+                  </Box>
                 </Card>
               </Grid>
             ))
