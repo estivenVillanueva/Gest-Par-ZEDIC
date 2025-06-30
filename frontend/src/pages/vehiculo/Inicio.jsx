@@ -37,6 +37,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
+import Divider from '@mui/material/Divider';
 
 const StatCard = ({ title, value, icon, button, onButtonClick }) => (
   <DashboardCard>
@@ -176,32 +177,34 @@ const Inicio = () => {
   return (
     <Box sx={{
       minHeight: '100vh',
-      bgcolor: '#f0f4fa',
+      bgcolor: '#eaf1fb',
       py: { xs: 2, md: 6 },
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      gap: { xs: 4, md: 7 },
+      justifyContent: 'center',
     }}>
-      {/* Cabecera Dashboard */}
-      <Paper elevation={3} sx={{
-        width: '100%',
-        maxWidth: 1200,
-        borderRadius: 4,
-        p: { xs: 2, sm: 4, md: 7 },
-        boxShadow: '0 8px 32px rgba(43,108,163,0.10)',
+      <Paper elevation={6} sx={{
+        width: '90vw',
+        maxWidth: '90%',
+        borderRadius: 1,
+        p: { xs: 0.5, sm: 2, md: 3 },
+        boxShadow: '0 12px 48px rgba(43,108,163,0.13)',
         bgcolor: '#fff',
-        mb: 0,
-        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 5,
+        mb: 4,
       }}>
-        <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+        {/* Cabecera Dashboard */}
+        <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
           <Typography variant="h4" component="h1" sx={{ fontWeight: 800, color: '#3498f3', mb: 1 }}>
             ¡Hola, Usuario! Bienvenido a tu Dashboard
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
             Gestiona tus vehículos y reservas de parqueadero
           </Typography>
-          <Box sx={{ width: '100%', borderBottom: '2px solid #e3eaf6', mb: 2 }} />
+          <Divider sx={{ width: '100%', mb: 2, borderColor: '#e3eaf6' }} />
         </Box>
         <Grid container spacing={2} sx={{ mb: 0, justifyContent: 'center' }}>
           <Grid item xs={12} sm={6} md={4}>
@@ -219,22 +222,9 @@ const Inicio = () => {
             />
           </Grid>
         </Grid>
-      </Paper>
-
-      {/* Próximas Reservas */}
-      <Paper elevation={2} sx={{
-        width: '100%',
-        maxWidth: 1200,
-        borderRadius: 3,
-        p: { xs: 2, sm: 4, md: 5 },
-        boxShadow: '0 4px 16px rgba(52,152,243,0.08)',
-        bgcolor: '#fff',
-        display: 'flex',
-        flexDirection: { xs: 'column', md: 'row' },
-        gap: 3,
-        alignItems: 'stretch',
-      }}>
-        <Box flex={1}>
+        <Divider sx={{ my: 2, borderColor: '#e3eaf6' }} />
+        {/* Próximas Reservas */}
+        <Box>
           <Card sx={{ borderRadius: 4, boxShadow: '0 2px 12px rgba(52,152,243,0.06)' }}>
             <CardHeader
               title={<Typography variant="h6">Próximas Reservas</Typography>}
@@ -251,18 +241,9 @@ const Inicio = () => {
             </CardContent>
           </Card>
         </Box>
-      </Paper>
-
-      {/* Parqueaderos Disponibles */}
-      <Paper elevation={2} sx={{
-        width: '100%',
-        maxWidth: 1200,
-        borderRadius: 3,
-        p: { xs: 2, sm: 4, md: 5 },
-        boxShadow: '0 4px 16px rgba(52,152,243,0.08)',
-        bgcolor: '#fff',
-      }}>
-        <Box sx={{ mb: 2 }}>
+        <Divider sx={{ my: 2, borderColor: '#e3eaf6' }} />
+        {/* Parqueaderos Disponibles */}
+        <Box>
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, color: '#2B6CA3', textAlign: 'center', mb: 4 }}>
             Parqueaderos Disponibles para Reservar
           </Typography>
@@ -357,18 +338,9 @@ const Inicio = () => {
             </Grid>
           )}
         </Box>
-      </Paper>
-
-      {/* Parqueaderos Reservados */}
-      <Paper elevation={2} sx={{
-        width: '100%',
-        maxWidth: 1200,
-        borderRadius: 3,
-        p: { xs: 2, sm: 4, md: 5 },
-        boxShadow: '0 4px 16px rgba(52,152,243,0.08)',
-        bgcolor: '#fff',
-      }}>
-        <Box sx={{ mb: 2 }}>
+        <Divider sx={{ my: 2, borderColor: '#e3eaf6' }} />
+        {/* Parqueaderos Reservados */}
+        <Box>
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, color: '#2B6CA3', textAlign: 'center', mb: 4 }}>
             Mis Reservas
           </Typography>
@@ -419,7 +391,6 @@ const Inicio = () => {
           </Grid>
         </Box>
       </Paper>
-
       {/* Modal de formulario de reserva */}
       <Dialog open={openReservaModal} onClose={() => { setOpenReservaModal(false); setSuccessMessage(''); }} maxWidth="xs" fullWidth>
         <DialogTitle>Reservar Parqueadero</DialogTitle>
