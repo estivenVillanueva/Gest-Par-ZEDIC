@@ -60,7 +60,7 @@ const VehiculoCard = ({ vehiculo, onVerInfo, seleccionado, onSeleccionar }) => (
       color="primary"
     />
     <MinimalIcon>
-      {getVehiculoIcon(vehiculo.tipoVehiculo)}
+      {getVehiculoIcon(vehiculo.tipo || vehiculo.tipoVehiculo)}
     </MinimalIcon>
     <Typography variant="h6" fontWeight={700} sx={{ mb: 0.5, color: '#2B6CA3', mt: 1 }}>{vehiculo.placa}</Typography>
     <Typography variant="body2" sx={{ color: '#64748B', mb: 1 }}>{vehiculo.propietario}</Typography>
@@ -205,7 +205,10 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{initialData ? 'Editar Vehículo' : 'Registrar Vehículo'}</DialogTitle>
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        {getVehiculoIcon(form.tipo)}
+        {initialData ? 'Editar Vehículo' : 'Registrar Vehículo'}
+      </DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
           <TextField margin="normal" fullWidth label="Placa" name="placa" value={form.placa} onChange={handleChange} required disabled={!!initialData}
@@ -213,9 +216,23 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
             error={!!placaError}
             helperText={placaError || 'Máximo 6 caracteres. Solo mayúsculas.'}
           />
-          <TextField margin="normal" fullWidth select label="Tipo" name="tipo" value={form.tipo} onChange={handleChange} required>
+          <TextField margin="normal" fullWidth select label="Tipo *" name="tipo" value={form.tipo} onChange={handleChange} required>
+            <MenuItem value="">Selecciona un tipo</MenuItem>
             {tiposVehiculo.map(tipo => <MenuItem key={tipo} value={tipo}>{tipo}</MenuItem>)}
           </TextField>
+          {/* Campos adicionales según el tipo de vehículo */}
+          {form.tipo === 'carro' && (
+            <TextField margin="normal" fullWidth label="Número de puertas" name="puertas" value={form.puertas || ''} onChange={e => setForm({ ...form, puertas: e.target.value })} />
+          )}
+          {form.tipo === 'moto' && (
+            <TextField margin="normal" fullWidth label="Cilindraje (cc)" name="cilindraje" value={form.cilindraje || ''} onChange={e => setForm({ ...form, cilindraje: e.target.value })} />
+          )}
+          {form.tipo === 'bicicleta' && (
+            <TextField margin="normal" fullWidth label="Tipo de bicicleta" name="tipo_bicicleta" value={form.tipo_bicicleta || ''} onChange={e => setForm({ ...form, tipo_bicicleta: e.target.value })} />
+          )}
+          {form.tipo === 'camion' && (
+            <TextField margin="normal" fullWidth label="Capacidad de carga (kg)" name="capacidad_carga" value={form.capacidad_carga || ''} onChange={e => setForm({ ...form, capacidad_carga: e.target.value })} />
+          )}
           <TextField margin="normal" fullWidth select label="Servicio" name="servicio_id" value={form.servicio_id} onChange={handleChange} required>
             {servicios.map(servicio => (
               <MenuItem key={servicio.id} value={servicio.id}>{servicio.nombre}</MenuItem>
@@ -509,7 +526,7 @@ const Vehiculos = () => {
                     color="primary"
                   />
                   <MinimalIcon sx={{ mb: 1, mt: 0.5, fontSize: { xs: 32, sm: 36 } }}>
-                    {getVehiculoIcon(vehiculo.tipoVehiculo)}
+                    {getVehiculoIcon(vehiculo.tipo || vehiculo.tipoVehiculo)}
                   </MinimalIcon>
                   <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#2B6CA3', mb: 0.5, fontSize: { xs: 15, sm: 16 } }}>{vehiculo.placa}</Typography>
                   <Typography variant="body2" sx={{ color: '#64748B', mb: 0.5, fontSize: { xs: 13, sm: 14 } }}>{vehiculo.propietario}</Typography>

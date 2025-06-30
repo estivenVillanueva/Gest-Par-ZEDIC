@@ -410,19 +410,7 @@ const Inicio = () => {
               disabled
               style={{ padding: '10px', borderRadius: '8px', border: '1.5px solid #1976d2', background: '#f4f8fd', fontWeight: 600, color: '#1976d2', marginBottom: 8 }}
             />
-            <Typography variant="subtitle2">Selecciona tu vehículo:</Typography>
-            <select
-              value={vehiculoSeleccionado}
-              onChange={e => setVehiculoSeleccionado(e.target.value)}
-              style={{ padding: '10px', borderRadius: '8px', border: '1.5px solid #1976d2', width: '100%', maxWidth: 350, marginBottom: 8, background: '#fafdff' }}
-              disabled={!!successMessage}
-            >
-              <option value="">Selecciona un vehículo</option>
-              {vehiculos.map(v => (
-                <option key={v.id} value={v.id}>{v.placa} - {v.tipo}</option>
-              ))}
-            </select>
-            <Typography variant="subtitle2">O selecciona tipo de vehículo:</Typography>
+            <Typography variant="subtitle2">Selecciona tipo de vehículo:</Typography>
             <select
               value={tipoVehiculo}
               onChange={e => setTipoVehiculo(e.target.value)}

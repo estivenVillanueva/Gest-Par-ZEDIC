@@ -46,9 +46,11 @@ const InfoItem = ({ icon, title, value, onEdit }) => (
           {title}
         </Typography>
       </Box>
-      <IconButton onClick={onEdit} size="small">
-        <EditIcon fontSize="small" />
-      </IconButton>
+      {onEdit && (
+        <IconButton onClick={onEdit} size="small">
+          <EditIcon fontSize="small" />
+        </IconButton>
+      )}
     </Box>
     <Typography variant="body1" color="text.secondary">
       {value || 'No especificado'}
@@ -488,7 +490,6 @@ const ParqueaderoProfile = () => {
               icon={<EmailIcon color="primary" />}
               title="Email"
               value={parqueaderoInfo.email}
-              onEdit={() => handleEdit('parqueadero.email', parqueaderoInfo.email)}
             />
           </Grid>
 
@@ -630,9 +631,21 @@ const ParqueaderoProfile = () => {
         </Button>
       </Paper>
 
-      <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
-        <DialogTitle>Editar {editField === 'servicio' ? 'servicio' : editField}</DialogTitle>
-        <DialogContent>
+      <Dialog open={openEdit} onClose={() => setOpenEdit(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: '0 8px 32px rgba(43,108,163,0.15)',
+            p: 2,
+            minWidth: { xs: 280, sm: 400 },
+            maxWidth: 480
+          }
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 700, fontSize: 22, textTransform: 'capitalize', pb: 1 }}>
+          {editField === 'servicio' ? 'Editar servicio' : `Editar ${editField.replace('parqueadero.', '').replace('usuario.', '').replace('_', ' ')}`}
+        </DialogTitle>
+        <DialogContent sx={{ pt: 1, pb: 2 }}>
           {editField === 'servicio' ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
               <TextField
@@ -724,11 +737,23 @@ const ParqueaderoProfile = () => {
               value={editValue}
               onChange={(e) => setEditValue(e.target.value)}
               sx={{ mt: 2 }}
+              variant="outlined"
+              label={
+                editField === 'descripcion' ? 'Descripción' :
+                editField.replace('parqueadero.', '').replace('usuario.', '').replace('_', ' ').charAt(0).toUpperCase() +
+                editField.replace('parqueadero.', '').replace('usuario.', '').replace('_', ' ').slice(1)
+              }
+              InputLabelProps={{ shrink: true }}
+              helperText={
+                editField === 'nombre' ? 'El nombre debe ser claro y representativo.' :
+                editField === 'telefono' ? 'Incluye solo números, sin espacios.' :
+                ''
+              }
             />
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenEdit(false)}>Cancelar</Button>
+        <DialogActions sx={{ px: 3, pb: 2, pt: 0, justifyContent: 'flex-end' }}>
+          <Button onClick={() => setOpenEdit(false)} sx={{ color: 'text.secondary', fontWeight: 600, borderRadius: 2 }}>Cancelar</Button>
           <Button onClick={() => {
             if (editField === 'servicio') {
               if (!parqueaderoInfo.id) {
@@ -800,7 +825,11 @@ const ParqueaderoProfile = () => {
             } else {
               handleSave();
             }
-          }} variant="contained">
+          }}
+            variant="contained"
+            color="primary"
+            sx={{ fontWeight: 700, borderRadius: 2, boxShadow: '0 2px 8px rgba(43,108,163,0.10)' }}
+          >
             Guardar
           </Button>
         </DialogActions>
@@ -836,7 +865,7 @@ const ParqueaderoProfile = () => {
                 icon={<EmailIcon color="primary" />}
                 title="Email"
                 value={currentUser?.correo || 'No especificado'}
-                onEdit={() => handleEdit('usuario.correo', currentUser?.correo)}
+                // No pasar onEdit para deshabilitar edición
               />
             </Grid>
           </Grid>
