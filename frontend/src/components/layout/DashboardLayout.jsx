@@ -35,8 +35,7 @@ const DashboardLayout = () => {
     }}>
       <DashboardHeader />
       <Box sx={{ 
-        p: { xs: 2, sm: 3 },
-        pt: { xs: 3, sm: 4 }
+        p: { xs: 2, sm: 3 }
       }}>
         <Outlet />
       </Box>

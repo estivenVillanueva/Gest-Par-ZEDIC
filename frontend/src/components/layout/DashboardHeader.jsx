@@ -164,276 +164,275 @@ const DashboardHeader = () => {
       sx={{
         backgroundColor: 'white',
         boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+        borderRadius: 0
       }}
     >
-      <Container maxWidth="xl">
-        <Toolbar sx={{ justifyContent: 'space-between', height: { xs: '56px', sm: '64px', md: '70px' }, px: { xs: 1, sm: 2 } }}>
-          {/* Logo y Título */}
-          <Box 
-            component={Link}
-            to="/dashboard"
+      <Toolbar sx={{ justifyContent: 'space-between', height: { xs: '66px', sm: '74px', md: '80px' }, px: { xs: 1, sm: 2 } }}>
+        {/* Logo y Título */}
+        <Box 
+          component={Link}
+          to="/dashboard"
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center',
+            textDecoration: 'none',
+            gap: 1
+          }}
+        >
+          <Typography 
+            variant="h6" 
             sx={{ 
-              display: 'flex', 
-              alignItems: 'center',
-              textDecoration: 'none',
-              gap: 1
+              color: '#2B6CA3',
+              fontWeight: 600,
+              display: { xs: 'none', sm: 'block' },
+              fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' }
             }}
           >
-            <Typography 
-              variant="h6" 
-              sx={{ 
-                color: '#2B6CA3',
-                fontWeight: 600,
-                display: { xs: 'none', sm: 'block' },
-                fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' }
+            Gest-Par ZEDIC
+          </Typography>
+          <DirectionsCarIcon sx={{ color: '#2B6CA3', display: { xs: 'block', sm: 'none' }, fontSize: 28 }} />
+        </Box>
+
+        {/* Menú Hamburguesa en móvil */}
+        <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', gap: 1 }}>
+          <IconButton onClick={() => setDrawerOpen(true)} sx={{ color: '#2B6CA3', mr: 1 }}>
+            <MenuIcon fontSize="large" />
+          </IconButton>
+        </Box>
+
+        {/* Navegación Principal (oculta en móvil) */}
+        <Box sx={{ 
+          display: { xs: 'none', md: 'flex' }, 
+          gap: 1,
+          alignItems: 'center',
+          '& a': {
+            textDecoration: 'none'
+          }
+        }}>
+          {navigationItems.map((item) => (
+            <Box
+              key={item.path}
+              component={Link}
+              to={item.path}
+              sx={{
+                color: location.pathname === item.path ? '#2B6CA3' : '#64748B',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                transition: 'all 0.2s',
+                '&:hover': {
+                  backgroundColor: 'rgba(43, 108, 163, 0.08)',
+                  color: '#2B6CA3'
+                }
               }}
             >
-              Gest-Par ZEDIC
-            </Typography>
-            <DirectionsCarIcon sx={{ color: '#2B6CA3', display: { xs: 'block', sm: 'none' }, fontSize: 28 }} />
-          </Box>
-
-          {/* Menú Hamburguesa en móvil */}
-          <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', gap: 1 }}>
-            <IconButton onClick={() => setDrawerOpen(true)} sx={{ color: '#2B6CA3', mr: 1 }}>
-              <MenuIcon fontSize="large" />
-            </IconButton>
-          </Box>
-
-          {/* Navegación Principal (oculta en móvil) */}
-          <Box sx={{ 
-            display: { xs: 'none', md: 'flex' }, 
-            gap: 1,
-            alignItems: 'center',
-            '& a': {
-              textDecoration: 'none'
-            }
-          }}>
-            {navigationItems.map((item) => (
-              <Box
-                key={item.path}
-                component={Link}
-                to={item.path}
-                sx={{
-                  color: location.pathname === item.path ? '#2B6CA3' : '#64748B',
-                  padding: '8px 16px',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1,
-                  transition: 'all 0.2s',
-                  '&:hover': {
-                    backgroundColor: 'rgba(43, 108, 163, 0.08)',
-                    color: '#2B6CA3'
-                  }
-                }}
-              >
-                {item.icon}
-                <Typography sx={{ fontWeight: 500 }}>
-                  {item.label}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
-
-          {/* Acciones Rápidas */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {/* Notificaciones */}
-            <Tooltip title="Notificaciones">
-              <IconButton 
-                onClick={handleNotificationsClick}
-                sx={{ color: '#64748B' }}
-              >
-                <Badge badgeContent={unreadCount} color="error">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
-            </Tooltip>
-
-            {/* Menú de Usuario */}
-            <Tooltip title="Configuración">
-              <IconButton
-                onClick={handleProfileClick}
-                sx={{ 
-                  padding: 0.5,
-                  border: '2px solid rgba(43, 108, 163, 0.1)',
-                  '&:hover': {
-                    border: '2px solid rgba(43, 108, 163, 0.2)',
-                  }
-                }}
-              >
-                <Avatar 
-                  sx={{ 
-                    width: 35, 
-                    height: 35,
-                    backgroundColor: '#2B6CA3'
-                  }}
-                >
-                  <PersonIcon />
-                </Avatar>
-              </IconButton>
-            </Tooltip>
-          </Box>
-
-          {/* Drawer para navegación en móvil */}
-          <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-            <Box sx={{ width: 240, pt: 2 }} role="presentation" onClick={() => setDrawerOpen(false)}>
-              <List>
-                {navigationItems.map((item) => (
-                  <ListItem button key={item.path} component={Link} to={item.path} selected={location.pathname === item.path}>
-                    <ListItemIcon>{item.icon}</ListItemIcon>
-                    <ListItemText primary={item.label} />
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
-          </Drawer>
-
-          {/* Menú de Notificaciones */}
-          <Menu
-            anchorEl={notificationsAnchor}
-            open={Boolean(notificationsAnchor)}
-            onClose={handleClose}
-            PaperProps={{
-              sx: {
-                width: '300px',
-                mt: 1.5,
-                borderRadius: '12px',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-              }
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2 }}>
-              <Typography sx={{ fontWeight: 600 }}>
-                Notificaciones
+              {item.icon}
+              <Typography sx={{ fontWeight: 500 }}>
+                {item.label}
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Tooltip title={seleccionando ? "Cancelar selección" : "Seleccionar notificaciones"}>
-                  <IconButton size="small" onClick={() => {
-                    setSeleccionando(s => !s);
-                    setSeleccionadas([]);
-                  }}>
-                    <EditIcon color={seleccionando ? 'primary' : 'action'} />
-                  </IconButton>
-                </Tooltip>
-                {seleccionando && seleccionadas.length > 0 && (
-                  <Tooltip title="Eliminar seleccionadas">
-                    <IconButton size="small" color="error" onClick={async () => {
-                      if (window.confirm('¿Seguro que deseas eliminar las notificaciones seleccionadas?')) {
-                        await Promise.all(seleccionadas.map(id => fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${id}`, { method: 'DELETE' })));
-                        await fetchNotificaciones();
-                        setSeleccionadas([]);
-                        setSeleccionando(false);
-                      }
-                    }}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
-                )}
-                {!seleccionando && notificaciones.length > 0 && unreadCount > 0 && (
-                  <Tooltip title="Marcar todas como leídas">
-                    <IconButton size="small" onClick={handleMarcarTodasLeidas}>
-                      <DoneAllIcon color="success" />
-                    </IconButton>
-                  </Tooltip>
-                )}
-              </Box>
             </Box>
-            <Divider />
-            {notificaciones.length === 0 && (
-              <MenuItem disabled>No hay notificaciones</MenuItem>
-            )}
-            {notificaciones.map((n) => {
-              let icon = null;
-              let color = '#1976d2';
-              let link = null;
-              if (n.tipo === 'pago') {
-                icon = <PaymentIcon sx={{ color: '#43a047', mr: 1 }} />;
-                color = '#e8f5e9';
-                link = `/dashboard/pagos`;
-              } else if (n.tipo === 'vehiculo') {
-                icon = <DirectionsCarIcon sx={{ color: '#1976d2', mr: 1 }} />;
-                color = '#e3f2fd';
-                link = `/dashboard/vehiculos`;
-              } else if (n.tipo === 'pago_pendiente') {
-                icon = <AssignmentLateIcon sx={{ color: '#fbc02d', mr: 1 }} />;
-                color = '#fffde7';
-                link = `/dashboard/pagos`;
-              } else if (n.tipo === 'reserva') {
-                icon = <EventNoteIcon sx={{ color: '#8e24aa', mr: 1 }} />;
-                color = '#f3e5f5';
-                link = `/dashboard/solicitudes`;
-              }
-              return (
-                <MenuItem
-                  key={n.id}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: 1,
-                    position: 'relative',
-                    pl: seleccionando ? 0 : 2
-                  }}
-                  onClick={() => {
-                    if (seleccionando) {
-                      setSeleccionadas(prev => prev.includes(n.id) ? prev.filter(x => x !== n.id) : [...prev, n.id]);
-                    }
-                  }}
-                  selected={seleccionando && seleccionadas.includes(n.id)}
-                >
-                  {seleccionando && (
-                    <Checkbox
-                      checked={seleccionadas.includes(n.id)}
-                      onChange={() => setSeleccionadas(prev => prev.includes(n.id) ? prev.filter(x => x !== n.id) : [...prev, n.id])}
-                      sx={{ p: 0.5, mr: 1 }}
-                    />
-                  )}
-                  {icon}
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>{n.titulo}</Typography>
-                    <Typography variant="body2" sx={{ whiteSpace: 'normal' }}>{n.mensaje}</Typography>
-                  </Box>
-                  {!seleccionando && (
-                    <IconButton size="small" onClick={async (e) => {
-                      e.stopPropagation();
-                      await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${n.id}`, { method: 'DELETE' });
-                      await fetchNotificaciones();
-                    }}>
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  )}
-                </MenuItem>
-              );
-            })}
-          </Menu>
+          ))}
+        </Box>
+
+        {/* Acciones Rápidas */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {/* Notificaciones */}
+          <Tooltip title="Notificaciones">
+            <IconButton 
+              onClick={handleNotificationsClick}
+              sx={{ color: '#64748B' }}
+            >
+              <Badge badgeContent={unreadCount} color="error">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+          </Tooltip>
 
           {/* Menú de Usuario */}
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-            PaperProps={{
-              sx: {
-                width: '200px',
-                mt: 1.5,
-                borderRadius: '12px',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-              }
-            }}
-          >
-            <MenuItem component={Link} to="/dashboard/perfil" onClick={handleClose}>
-              <PersonIcon sx={{ mr: 1 }} /> Perfil
-            </MenuItem>
-            <Divider />
-            <MenuItem 
-              onClick={handleLogout}
-              sx={{ color: 'error.main' }}
+          <Tooltip title="Configuración">
+            <IconButton
+              onClick={handleProfileClick}
+              sx={{ 
+                padding: 0.5,
+                border: '2px solid rgba(43, 108, 163, 0.1)',
+                '&:hover': {
+                  border: '2px solid rgba(43, 108, 163, 0.2)',
+                }
+              }}
             >
-              <ExitToAppIcon sx={{ mr: 1 }} /> Cerrar Sesión
-            </MenuItem>
-          </Menu>
-        </Toolbar>
-      </Container>
+              <Avatar 
+                sx={{ 
+                  width: 35, 
+                  height: 35,
+                  backgroundColor: '#2B6CA3'
+                }}
+              >
+                <PersonIcon />
+              </Avatar>
+            </IconButton>
+          </Tooltip>
+        </Box>
+
+        {/* Drawer para navegación en móvil */}
+        <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+          <Box sx={{ width: 240, pt: 2 }} role="presentation" onClick={() => setDrawerOpen(false)}>
+            <List>
+              {navigationItems.map((item) => (
+                <ListItem button key={item.path} component={Link} to={item.path} selected={location.pathname === item.path}>
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.label} />
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+        </Drawer>
+
+        {/* Menú de Notificaciones */}
+        <Menu
+          anchorEl={notificationsAnchor}
+          open={Boolean(notificationsAnchor)}
+          onClose={handleClose}
+          PaperProps={{
+            sx: {
+              width: '300px',
+              mt: 1.5,
+              borderRadius: '12px',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+            }
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2 }}>
+            <Typography sx={{ fontWeight: 600 }}>
+              Notificaciones
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Tooltip title={seleccionando ? "Cancelar selección" : "Seleccionar notificaciones"}>
+                <IconButton size="small" onClick={() => {
+                  setSeleccionando(s => !s);
+                  setSeleccionadas([]);
+                }}>
+                  <EditIcon color={seleccionando ? 'primary' : 'action'} />
+                </IconButton>
+              </Tooltip>
+              {seleccionando && seleccionadas.length > 0 && (
+                <Tooltip title="Eliminar seleccionadas">
+                  <IconButton size="small" color="error" onClick={async () => {
+                    if (window.confirm('¿Seguro que deseas eliminar las notificaciones seleccionadas?')) {
+                      await Promise.all(seleccionadas.map(id => fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${id}`, { method: 'DELETE' })));
+                      await fetchNotificaciones();
+                      setSeleccionadas([]);
+                      setSeleccionando(false);
+                    }
+                  }}>
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+              {!seleccionando && notificaciones.length > 0 && unreadCount > 0 && (
+                <Tooltip title="Marcar todas como leídas">
+                  <IconButton size="small" onClick={handleMarcarTodasLeidas}>
+                    <DoneAllIcon color="success" />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Box>
+          </Box>
+          <Divider />
+          {notificaciones.length === 0 && (
+            <MenuItem disabled>No hay notificaciones</MenuItem>
+          )}
+          {notificaciones.map((n) => {
+            let icon = null;
+            let color = '#1976d2';
+            let link = null;
+            if (n.tipo === 'pago') {
+              icon = <PaymentIcon sx={{ color: '#43a047', mr: 1 }} />;
+              color = '#e8f5e9';
+              link = `/dashboard/pagos`;
+            } else if (n.tipo === 'vehiculo') {
+              icon = <DirectionsCarIcon sx={{ color: '#1976d2', mr: 1 }} />;
+              color = '#e3f2fd';
+              link = `/dashboard/vehiculos`;
+            } else if (n.tipo === 'pago_pendiente') {
+              icon = <AssignmentLateIcon sx={{ color: '#fbc02d', mr: 1 }} />;
+              color = '#fffde7';
+              link = `/dashboard/pagos`;
+            } else if (n.tipo === 'reserva') {
+              icon = <EventNoteIcon sx={{ color: '#8e24aa', mr: 1 }} />;
+              color = '#f3e5f5';
+              link = `/dashboard/solicitudes`;
+            }
+            return (
+              <MenuItem
+                key={n.id}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 1,
+                  position: 'relative',
+                  pl: seleccionando ? 0 : 2
+                }}
+                onClick={() => {
+                  if (seleccionando) {
+                    setSeleccionadas(prev => prev.includes(n.id) ? prev.filter(x => x !== n.id) : [...prev, n.id]);
+                  }
+                }}
+                selected={seleccionando && seleccionadas.includes(n.id)}
+              >
+                {seleccionando && (
+                  <Checkbox
+                    checked={seleccionadas.includes(n.id)}
+                    onChange={() => setSeleccionadas(prev => prev.includes(n.id) ? prev.filter(x => x !== n.id) : [...prev, n.id])}
+                    sx={{ p: 0.5, mr: 1 }}
+                  />
+                )}
+                {icon}
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>{n.titulo}</Typography>
+                  <Typography variant="body2" sx={{ whiteSpace: 'normal' }}>{n.mensaje}</Typography>
+                </Box>
+                {!seleccionando && (
+                  <IconButton size="small" onClick={async (e) => {
+                    e.stopPropagation();
+                    await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${n.id}`, { method: 'DELETE' });
+                    await fetchNotificaciones();
+                  }}>
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                )}
+              </MenuItem>
+            );
+          })}
+        </Menu>
+
+        {/* Menú de Usuario */}
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleClose}
+          PaperProps={{
+            sx: {
+              width: '200px',
+              mt: 1.5,
+              borderRadius: '12px',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+            }
+          }}
+        >
+          <MenuItem component={Link} to="/dashboard/perfil" onClick={handleClose}>
+            <PersonIcon sx={{ mr: 1 }} /> Perfil
+          </MenuItem>
+          <Divider />
+          <MenuItem 
+            onClick={handleLogout}
+            sx={{ color: 'error.main' }}
+          >
+            <ExitToAppIcon sx={{ mr: 1 }} /> Cerrar Sesión
+          </MenuItem>
+        </Menu>
+      </Toolbar>
     </AppBar>
   );
 };
