@@ -171,11 +171,11 @@ export const ParqueaderoCard = styled(Card)(({ theme }) => ({
 
 export const StyledContainer = styled(Container)(({ theme }) => ({
   width: '100%',
-  maxWidth: '1200px',
+  maxWidth: '100%',
   margin: '0 auto',
-  padding: theme.spacing(0, 3),
+  padding: theme.spacing(0),
   [theme.breakpoints.down('sm')]: {
-    padding: theme.spacing(0, 2),
+    padding: theme.spacing(0, 1),
   },
 }));
 
