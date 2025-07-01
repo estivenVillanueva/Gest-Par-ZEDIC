@@ -203,11 +203,19 @@ const Home = () => {
         <StyledContainer>
           <Grid container spacing={3}>
             <Grid item xs={12}>
-              <Box sx={{ width: '100%', maxWidth: 900, mx: 'auto', mb: 4 }}>
-                <Typography variant="h3" fontWeight={800} align="center" sx={{ mb: 4 }}>
+              <Box sx={{ width: '250%', maxWidth: 1200, mx: 'auto', mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <Typography variant="h3" fontWeight={800} align="center" sx={{ mb: 3 }}>
                   Encuentra tu parqueadero en el mapa
                 </Typography>
-                <Box sx={{ width: '100%', height: 400 }}>
+                <Box sx={{
+                  width: '200%',
+                  height: 500,
+                  minHeight: 500,
+                  maxWidth: 1200,
+                  overflow: 'hidden',
+                  boxShadow: '0 4px 24px rgba(33, 150, 243, 0.10)',
+                  mb: 2
+                }}>
                   <MapaParqueaderos parqueaderos={visibleParqueaderos} />
                 </Box>
               </Box>
