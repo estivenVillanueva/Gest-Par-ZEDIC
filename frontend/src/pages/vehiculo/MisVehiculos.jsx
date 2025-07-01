@@ -146,15 +146,22 @@ const FormularioVehiculo = ({ open, onClose, onGuardar, initialData }) => {
             error={!!placaError}
             helperText={placaError}
           />
-          <TextField
-            margin="dense"
-            label="Tipo de Vehículo"
-            name="tipoVehiculo"
-            value={formData.tipoVehiculo}
-            onChange={handleChange}
-            fullWidth
-            required
-          />
+          <Box sx={{ mt: 1, mb: 1 }}>
+            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>Tipo de Vehículo *</Typography>
+            <select
+              name="tipoVehiculo"
+              value={formData.tipoVehiculo}
+              onChange={handleChange}
+              required
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1.5px solid #1976d2', fontSize: '1rem', background: '#fafdff', marginBottom: 8 }}
+            >
+              <option value="">Selecciona tipo de vehículo</option>
+              <option value="Carro">Carro</option>
+              <option value="Moto">Moto</option>
+              <option value="Bicicleta">Bicicleta</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </Box>
           <TextField
             margin="dense"
             label="Color"
@@ -366,29 +373,26 @@ const MisVehiculos = () => {
                     </Box>
                     {/* Columna 2: Historial de parqueaderos */}
                     <Box sx={{ flex: 2, minWidth: 220, px: { xs: 0, md: 2 }, borderLeft: { md: '1px solid #f0f4fa' }, display: 'flex', flexDirection: 'column', justifyContent: 'center', borderRadius: 2 }}>
-                      <Typography variant="subtitle2" sx={{ color: '#2B6CA3', fontWeight: 600, mb: 0.5 }}>
-                        Historial en parqueaderos:
-                      </Typography>
                       {loadingReservas ? (
                         <Typography variant="body2" color="text.secondary">Cargando historial...</Typography>
                       ) : (
-                        historial.length === 0 ? (
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-                            <InfoOutlinedIcon sx={{ color: '#b0bec5', fontSize: 22 }} />
-                            <Typography variant="body2" color="text.secondary">Este vehículo no tiene reservas en parqueaderos.</Typography>
-                          </Box>
-                        ) : (
-                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                            {historial.map((r, idx) => (
-                              <Box key={r.id || idx} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 0.5, borderBottom: '1px solid #f0f4fa' }}>
-                                <LocalParkingIcon sx={{ fontSize: 18, color: '#3498f3' }} />
-                                <Typography variant="body2" sx={{ fontWeight: 500 }}>{r.parqueadero_nombre || r.nombre || 'Parqueadero'}</Typography>
-                                <EventAvailableIcon sx={{ fontSize: 16, color: '#1976d2', ml: 1 }} />
-                                <Typography variant="body2" color="text.secondary">{r.fecha_inicio ? new Date(r.fecha_inicio).toLocaleDateString() : ''}</Typography>
-                                <Chip label={r.estado} size="small" color={r.estado === 'Aprobada' ? 'success' : r.estado === 'Pendiente' ? 'warning' : 'error'} sx={{ ml: 1, fontWeight: 600 }} />
-                              </Box>
-                            ))}
-                          </Box>
+                        historial.length > 0 && (
+                          <>
+                            <Typography variant="subtitle2" sx={{ color: '#2B6CA3', fontWeight: 600, mb: 0.5 }}>
+                              Historial en parqueaderos:
+                            </Typography>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                              {historial.map((r, idx) => (
+                                <Box key={r.id || idx} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 0.5, borderBottom: '1px solid #f0f4fa' }}>
+                                  <LocalParkingIcon sx={{ fontSize: 18, color: '#3498f3' }} />
+                                  <Typography variant="body2" sx={{ fontWeight: 500 }}>{r.parqueadero_nombre || r.nombre || 'Parqueadero'}</Typography>
+                                  <EventAvailableIcon sx={{ fontSize: 16, color: '#1976d2', ml: 1 }} />
+                                  <Typography variant="body2" color="text.secondary">{r.fecha_inicio ? new Date(r.fecha_inicio).toLocaleDateString() : ''}</Typography>
+                                  <Chip label={r.estado} size="small" color={r.estado === 'Aprobada' ? 'success' : r.estado === 'Pendiente' ? 'warning' : 'error'} sx={{ ml: 1, fontWeight: 600 }} />
+                                </Box>
+                              ))}
+                            </Box>
+                          </>
                         )
                       )}
                     </Box>

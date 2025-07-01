@@ -24,6 +24,9 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PeopleIcon from '@mui/icons-material/People';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
 import {
   DashboardCard,
   DashboardCardIcon,
@@ -72,6 +75,7 @@ const Inicio = () => {
   const [openReservaModal, setOpenReservaModal] = useState(false);
   const [parqueaderoSeleccionado, setParqueaderoSeleccionado] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const [facturas, setFacturas] = useState([]);
 
   useEffect(() => {
     const fetchParqueaderos = async () => {
@@ -113,6 +117,20 @@ const Inicio = () => {
       setFechaError('');
     }
   }, [fechaInicio, fechaFin]);
+
+  useEffect(() => {
+    const fetchFacturas = async () => {
+      if (!currentUser?.id) return;
+      try {
+        const response = await fetch(`https://gest-par-zedic.onrender.com/api/facturas/usuario/${currentUser.id}`);
+        const data = await response.json();
+        setFacturas(data.data || []);
+      } catch (error) {
+        setFacturas([]);
+      }
+    };
+    fetchFacturas();
+  }, [currentUser]);
 
   const handleReservar = (parqueadero) => {
     setParqueaderoSeleccionado(parqueadero);
@@ -174,6 +192,9 @@ const Inicio = () => {
     return texto.includes(search.toLowerCase());
   }).slice(0, 5);
 
+  const pagosPendientes = facturas.filter(f => f.estado && f.estado.toLowerCase() === 'pendiente').length;
+  const pagosHechos = facturas.filter(f => f.estado && f.estado.toLowerCase() === 'pagada').length;
+
   return (
     <Box sx={{
       minHeight: '100vh',
@@ -207,19 +228,37 @@ const Inicio = () => {
           <Divider sx={{ width: '100%', mb: 2, borderColor: '#e3eaf6' }} />
         </Box>
         <Grid container spacing={2} sx={{ mb: 0, justifyContent: 'center' }}>
-          <Grid item xs={12} sm={6} md={4} display="flex" justifyContent="center">
+          <Grid item xs={12} sm={6} md={3} display="flex" justifyContent="center">
             <StatCard
               title="Mis Vehículos"
               value={vehiculos?.length || 0}
               icon={<CarIcon />}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={4} display="flex" justifyContent="center">
+          <Grid item xs={12} sm={6} md={3} display="flex" justifyContent="center">
             <StatCard
               title="Reservas Activas"
               value={parqueaderosReservados?.filter(r => r.estado === 'Pendiente' || r.estado === 'Aprobada').length || 0}
               icon={<CalendarIcon />}
             />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3} display="flex" justifyContent="center">
+            <Box sx={{ width: '100%' }} onClick={() => navigate('/vehiculo/pagos')} style={{ cursor: 'pointer' }}>
+              <StatCard
+                title="Pagos Pendientes"
+                value={pagosPendientes}
+                icon={<ErrorIcon sx={{ color: '#fff' }} />}
+              />
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3} display="flex" justifyContent="center">
+            <Box sx={{ width: '100%' }} onClick={() => navigate('/vehiculo/pagos')} style={{ cursor: 'pointer' }}>
+              <StatCard
+                title="Pagos Hechos"
+                value={pagosHechos}
+                icon={<CheckCircleIcon sx={{ color: '#fff' }} />}
+              />
+            </Box>
           </Grid>
         </Grid>
         <Divider sx={{ my: 2, borderColor: '#e3eaf6' }} />

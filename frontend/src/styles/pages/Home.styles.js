@@ -53,7 +53,7 @@ export const HeroSection = styled(Box)`
   position: relative;
   left: 0;
   width: 100vw;
-  background-image: linear-gradient(135deg, rgba(37, 112, 204, 0.85), rgba(39, 130, 209, 0.85)), 
+  background-image: linear-gradient(135deg, rgba(52,152,243,0.65) 0%, rgba(52,152,243,0.35) 100%), 
     url('https://images.unsplash.com/photo-1590674899484-d5640e854abe?ixlib=rb-4.0.3');
   background-size: cover;
   background-position: center;

@@ -23,12 +23,17 @@ export const VehiculoProvider = ({ children }) => {
     setError('');
     setLoading(true);
     try {
-      if (!currentUser?.parqueadero_id) {
+      let url = '';
+      if (currentUser?.parqueadero_id) {
+        url = `${API_URL}/api/vehiculos?parqueadero_id=${currentUser.parqueadero_id}`;
+      } else if (currentUser?.id) {
+        url = `${API_URL}/api/vehiculos?usuario_id=${currentUser.id}`;
+      } else {
         setVehiculos([]);
         setLoading(false);
         return;
       }
-      const response = await fetch(`${API_URL}/api/vehiculos?parqueadero_id=${currentUser.parqueadero_id}`);
+      const response = await fetch(url);
       if (!response.ok) throw new Error('Error al cargar los vehículos');
       const data = await response.json();
       setVehiculos(data.data || []);

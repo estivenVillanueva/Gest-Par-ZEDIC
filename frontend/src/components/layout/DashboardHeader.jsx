@@ -82,29 +82,29 @@ const DashboardHeader = () => {
   const [seleccionando, setSeleccionando] = useState(false);
   const [seleccionadas, setSeleccionadas] = useState([]);
 
+  const fetchNotificaciones = async () => {
+    if (!currentUser) return;
+    try {
+      let url = '';
+      if (currentUser.tipo_usuario === 'admin' && currentUser.parqueadero_id) {
+        url = `https://gest-par-zedic.onrender.com/api/usuarios/parqueadero/${currentUser.parqueadero_id}/notificaciones`;
+      } else if (currentUser.id) {
+        url = `https://gest-par-zedic.onrender.com/api/usuarios/${currentUser.id}/notificaciones`;
+      } else {
+        setNotificaciones([]);
+        return;
+      }
+      const res = await fetch(url);
+      const data = await res.json();
+      setNotificaciones(data.data || []);
+    } catch (err) {
+      setNotificaciones([]);
+    }
+  };
+
   useEffect(() => {
     let intervalId;
-    const fetchNotificaciones = async () => {
-      if (!currentUser) return;
-      try {
-        let url = '';
-        if (currentUser.tipo_usuario === 'admin' && currentUser.parqueadero_id) {
-          url = `https://gest-par-zedic.onrender.com/api/usuarios/parqueadero/${currentUser.parqueadero_id}/notificaciones`;
-        } else if (currentUser.id) {
-          url = `https://gest-par-zedic.onrender.com/api/usuarios/${currentUser.id}/notificaciones`;
-        } else {
-          setNotificaciones([]);
-          return;
-        }
-        const res = await fetch(url);
-        const data = await res.json();
-        setNotificaciones(data.data || []);
-      } catch (err) {
-        setNotificaciones([]);
-      }
-    };
     fetchNotificaciones();
-    // Polling cada 10 segundos
     if (currentUser) {
       intervalId = setInterval(fetchNotificaciones, 10000);
     }
@@ -321,7 +321,7 @@ const DashboardHeader = () => {
                     <IconButton size="small" color="error" onClick={async () => {
                       if (window.confirm('¿Seguro que deseas eliminar las notificaciones seleccionadas?')) {
                         await Promise.all(seleccionadas.map(id => fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${id}`, { method: 'DELETE' })));
-                        setNotificaciones(prev => prev.filter(n => !seleccionadas.includes(n.id)));
+                        await fetchNotificaciones();
                         setSeleccionadas([]);
                         setSeleccionando(false);
                       }
@@ -397,7 +397,7 @@ const DashboardHeader = () => {
                     <IconButton size="small" onClick={async (e) => {
                       e.stopPropagation();
                       await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${n.id}`, { method: 'DELETE' });
-                      setNotificaciones(prev => prev.filter(x => x.id !== n.id));
+                      await fetchNotificaciones();
                     }}>
                       <DeleteIcon fontSize="small" />
                     </IconButton>
