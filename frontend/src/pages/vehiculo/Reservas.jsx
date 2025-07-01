@@ -95,7 +95,7 @@ const Reservas = () => {
 
   return (
     <Box sx={{ bgcolor: '#f0f4fa', minHeight: '100vh', py: { xs: 2, sm: 4, md: 6 }, display: 'flex', justifyContent: 'center' }}>
-      <Paper elevation={3} sx={{ width: '95vw', maxWidth: 1400, borderRadius: 2, p: { xs: 1, sm: 2, md: 4 }, boxShadow: '0 8px 32px rgba(43,108,163,0.10)', bgcolor: '#fff' }}>
+      <Paper elevation={3} sx={{ width: '95vw', maxWidth: 1400, borderRadius: 0, p: { xs: 1, sm: 2, md: 4 }, boxShadow: '0 8px 32px rgba(43,108,163,0.10)', bgcolor: '#fff' }}>
         <Typography variant="h4" sx={{ fontWeight: 800, color: '#3498f3', mb: 2, fontSize: { xs: '1.3rem', sm: '1.7rem' } }}>
           Mis Reservas
         </Typography>
@@ -146,8 +146,8 @@ const Reservas = () => {
             </Grid>
           ) : (
             reservasMostradas.map((reserva) => (
-              <Grid item xs={12} sm={12} md={6} key={reserva.id} sx={{ height: '100%' }}>
-                <Card sx={{ borderRadius: 2, boxShadow: '0 2px 12px rgba(52,152,243,0.10)', p: { xs: 1, sm: 2 }, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2, height: '100%' }}>
+              <Grid item xs={12} sm={12} md={6} key={reserva.id} sx={{ height: '100%', display: 'flex', alignItems: 'flex-start' }}>
+                <Card sx={{ borderRadius: 3, boxShadow: '0 2px 12px rgba(52,152,243,0.10)', p: { xs: 1, sm: 2 }, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'flex-start', gap: 2, height: '100%' }}>
                   <Avatar sx={{ background: 'linear-gradient(135deg, #3498f3 0%, #6ec1ff 100%)', width: 48, height: 48, color: '#fff', fontSize: 28, boxShadow: '0 2px 8px rgba(52,152,243,0.10)' }}>
                     <LocalParkingIcon />
                   </Avatar>
