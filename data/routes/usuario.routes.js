@@ -412,4 +412,72 @@ router.put('/notificaciones/parqueadero/:parqueadero_id/todas-leidas', async (re
   res.json({ success: true, data: result });
 });
 
+// Recuperar contraseña - enviar email con token
+router.post('/reset-password', async (req, res) => {
+    try {
+        const { correo } = req.body;
+        if (!correo) {
+            return res.status(400).json({ success: false, message: 'Correo requerido' });
+        }
+        const usuario = await usuarioQueries.getUsuarioByCorreo(correo);
+        if (!usuario) {
+            return res.status(404).json({ success: false, message: 'No existe una cuenta con este correo electrónico' });
+        }
+        // Generar token y guardar en la base de datos
+        const token = crypto.randomBytes(32).toString('hex');
+        await usuarioQueries.setResetToken(usuario.id, token);
+        // Configurar Nodemailer
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'gestparzedic@gmail.com',
+                pass: 'bakmbvndonibatee'
+            }
+        });
+        const urlRecuperar = `https://gest-par-zedic.vercel.app/recuperar-contrasena/${token}`;
+        const htmlContent = `
+            <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px; padding: 24px; background: #fafbfc;">
+                <h2 style="color: #2563EB;">Recupera tu contraseña</h2>
+                <p>Hola <b>${usuario.nombre}</b>,</p>
+                <p>Hemos recibido una solicitud para restablecer tu contraseña. Haz clic en el siguiente botón o enlace para crear una nueva contraseña:</p>
+                <div style="text-align: center; margin: 24px 0;">
+                    <a href="${urlRecuperar}" style="background: #2563EB; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Restablecer contraseña</a>
+                </div>
+                <p>Si el botón no funciona, copia y pega este enlace en tu navegador:</p>
+                <p style="word-break: break-all;">${urlRecuperar}</p>
+                <hr style="margin: 24px 0;">
+                <p style="color: #6b7280; font-size: 0.95em;">Si no solicitaste este cambio, puedes ignorar este mensaje.</p>
+                <p style="color: #6b7280; font-size: 0.95em;">Equipo Gest-Par-ZEDIC</p>
+            </div>
+        `;
+        await transporter.sendMail({
+            from: 'Gest-Par-ZEDIC <gestparzedic@gmail.com>',
+            to: usuario.correo,
+            subject: 'Recupera tu contraseña en Gest-Par-ZEDIC',
+            html: htmlContent
+        });
+        res.json({ success: true, message: 'Te hemos enviado un correo con instrucciones para restablecer tu contraseña.' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al enviar el correo de recuperación', error: error.message });
+    }
+});
+
+// Cambiar contraseña usando el token
+router.post('/reset-password/:token', async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { nuevaContrasena } = req.body;
+        if (!nuevaContrasena || nuevaContrasena.length < 6) {
+            return res.status(400).json({ success: false, message: 'La nueva contraseña debe tener al menos 6 caracteres.' });
+        }
+        const usuario = await usuarioQueries.resetPasswordWithToken(token, nuevaContrasena);
+        if (!usuario) {
+            return res.status(400).json({ success: false, message: 'Token inválido o expirado.' });
+        }
+        res.json({ success: true, message: 'Contraseña actualizada correctamente.' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message || 'Error al actualizar la contraseña.' });
+    }
+});
+
 export const usuarioRoutes = router; 

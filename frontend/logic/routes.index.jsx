@@ -23,6 +23,7 @@ import { useAuth } from './AuthContext';
 import OwnerProfile from '../src/components/profile/OwnerProfile';
 import Ingresos from '../src/pages/dashboard/Ingresos';
 import PagosVehiculo from '../src/pages/vehiculo/Pagos';
+import RecuperarContrasena from '../src/pages/RecuperarContrasena';
 
 const VehiculoNoDisponible = () => (
   <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -51,6 +52,8 @@ const AppRoutes = () => {
         <Route path="servicios" element={<Servicios />} />
         <Route path="seleccion-tipo-usuario" element={<UserTypeSelection />} />
         <Route path="vehiculo/no-disponible" element={<VehiculoNoDisponible />} />
+        <Route path="recuperar-contrasena" element={<RecuperarContrasena />} />
+        <Route path="recuperar-contrasena/:token" element={<RecuperarContrasena />} />
       </Route>
 
       {/* Rutas del dashboard del administrador */}

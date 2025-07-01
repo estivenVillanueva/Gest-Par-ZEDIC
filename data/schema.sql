@@ -9,7 +9,9 @@ CREATE TABLE IF NOT EXISTS usuarios (
     rol_id INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    telefono VARCHAR(20)
+    telefono VARCHAR(20),
+    reset_token VARCHAR(255),
+    reset_token_expiry TIMESTAMP
 );
 
 -- Crear un trigger para actualizar el campo updated_at

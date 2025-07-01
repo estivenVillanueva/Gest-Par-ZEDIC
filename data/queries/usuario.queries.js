@@ -159,5 +159,41 @@ export const usuarioQueries = {
         `;
         const result = await pool.query(query, [id]);
         return result.rows[0];
+    },
+
+    // Guardar token de recuperación de contraseña
+    async setResetToken(id, token) {
+        const expiry = new Date(Date.now() + 1000 * 60 * 60); // 1 hora
+        const query = `
+            UPDATE usuarios
+            SET reset_token = $1, reset_token_expiry = $2
+            WHERE id = $3
+            RETURNING *
+        `;
+        const result = await pool.query(query, [token, expiry, id]);
+        return result.rows[0];
+    },
+
+    // Buscar usuario por token de recuperación
+    async getUsuarioByResetToken(token) {
+        const query = 'SELECT * FROM usuarios WHERE reset_token = $1 AND reset_token_expiry > NOW()';
+        const result = await pool.query(query, [token]);
+        return result.rows[0];
+    },
+
+    // Cambiar contraseña usando el token
+    async resetPasswordWithToken(token, nuevaContrasena) {
+        const usuario = await this.getUsuarioByResetToken(token);
+        if (!usuario) throw new Error('Token inválido o expirado');
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(nuevaContrasena, salt);
+        const query = `
+            UPDATE usuarios
+            SET password = $1, reset_token = NULL, reset_token_expiry = NULL
+            WHERE id = $2
+            RETURNING *
+        `;
+        const result = await pool.query(query, [hashedPassword, usuario.id]);
+        return result.rows[0];
     }
 }; 
