@@ -120,7 +120,7 @@ const Header = () => {
                 PaperProps={{
                   sx: {
                     mt: 1.5,
-                    borderRadius: 2,
+                    borderRadius: 0,
                     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
                   },
                 }}
