@@ -480,4 +480,17 @@ router.post('/reset-password/:token', async (req, res) => {
     }
 });
 
+// Eliminar notificación por id
+router.delete('/notificaciones/:id', async (req, res) => {
+  try {
+    const notificacion = await notificacionesQueries.eliminarNotificacion(req.params.id);
+    if (!notificacion) {
+      return res.status(404).json({ success: false, message: 'Notificación no encontrada' });
+    }
+    res.json({ success: true, data: notificacion });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 export const usuarioRoutes = router; 

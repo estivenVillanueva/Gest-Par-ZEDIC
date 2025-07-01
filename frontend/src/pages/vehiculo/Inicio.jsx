@@ -207,40 +207,48 @@ const Inicio = () => {
           <Divider sx={{ width: '100%', mb: 2, borderColor: '#e3eaf6' }} />
         </Box>
         <Grid container spacing={2} sx={{ mb: 0, justifyContent: 'center' }}>
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={6} md={4} display="flex" justifyContent="center">
             <StatCard
               title="Mis Vehículos"
-              value="2"
+              value={vehiculos?.length || 0}
               icon={<CarIcon />}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={6} md={4} display="flex" justifyContent="center">
             <StatCard
               title="Reservas Activas"
-              value="1"
+              value={parqueaderosReservados?.filter(r => r.estado === 'Pendiente' || r.estado === 'Aprobada').length || 0}
               icon={<CalendarIcon />}
             />
           </Grid>
         </Grid>
         <Divider sx={{ my: 2, borderColor: '#e3eaf6' }} />
         {/* Próximas Reservas */}
-        <Box>
-          <Card sx={{ borderRadius: 4, boxShadow: '0 2px 12px rgba(52,152,243,0.06)' }}>
-            <CardHeader
-              title={<Typography variant="h6">Próximas Reservas</Typography>}
-              action={
-                <IconButton onClick={() => navigate('/vehiculo/reservas')}>
-                  <CalendarIcon />
-                </IconButton>
-              }
-            />
-            <CardContent>
-              <Typography variant="body2" color="text.secondary">
-                No tienes reservas programadas
-              </Typography>
-            </CardContent>
-          </Card>
-        </Box>
+        {parqueaderosReservados && parqueaderosReservados.length > 0 && (
+          <Box>
+            <Card sx={{ borderRadius: 3, boxShadow: '0 2px 12px rgba(52,152,243,0.06)' }}>
+              <CardHeader
+                title={<Typography variant="h6">Próximas Reservas</Typography>}
+                action={
+                  <IconButton onClick={() => navigate('/vehiculo/reservas')}>
+                    <CalendarIcon />
+                  </IconButton>
+                }
+              />
+              <CardContent>
+                {parqueaderosReservados.slice(0, 2).map((r, idx) => (
+                  <Box key={r.id || idx} sx={{ mb: 1 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{r.parqueadero_nombre || r.nombre || 'Parqueadero'}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      <EventAvailableIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} /> {r.fecha_inicio ? new Date(r.fecha_inicio).toLocaleString() : ''}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">Estado: {r.estado}</Typography>
+                  </Box>
+                ))}
+              </CardContent>
+            </Card>
+          </Box>
+        )}
         <Divider sx={{ my: 2, borderColor: '#e3eaf6' }} />
         {/* Parqueaderos Disponibles */}
         <Box>

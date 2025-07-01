@@ -34,6 +34,9 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import Checkbox from '@mui/material/Checkbox';
 
 const navigationItems = [
   { 
@@ -76,6 +79,8 @@ const DashboardHeader = () => {
   const { logout, currentUser } = useAuth();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [seleccionando, setSeleccionando] = useState(false);
+  const [seleccionadas, setSeleccionadas] = useState([]);
 
   useEffect(() => {
     let intervalId;
@@ -300,15 +305,39 @@ const DashboardHeader = () => {
           >
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2 }}>
               <Typography sx={{ fontWeight: 600 }}>
-              Notificaciones
-            </Typography>
-              {notificaciones.length > 0 && unreadCount > 0 && (
-                <Tooltip title="Marcar todas como leídas">
-                  <IconButton size="small" onClick={handleMarcarTodasLeidas}>
-                    <DoneAllIcon color="success" />
+                Notificaciones
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Tooltip title={seleccionando ? "Cancelar selección" : "Seleccionar notificaciones"}>
+                  <IconButton size="small" onClick={() => {
+                    setSeleccionando(s => !s);
+                    setSeleccionadas([]);
+                  }}>
+                    <EditIcon color={seleccionando ? 'primary' : 'action'} />
                   </IconButton>
                 </Tooltip>
-              )}
+                {seleccionando && seleccionadas.length > 0 && (
+                  <Tooltip title="Eliminar seleccionadas">
+                    <IconButton size="small" color="error" onClick={async () => {
+                      if (window.confirm('¿Seguro que deseas eliminar las notificaciones seleccionadas?')) {
+                        await Promise.all(seleccionadas.map(id => fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${id}`, { method: 'DELETE' })));
+                        setNotificaciones(prev => prev.filter(n => !seleccionadas.includes(n.id)));
+                        setSeleccionadas([]);
+                        setSeleccionando(false);
+                      }
+                    }}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
+                )}
+                {!seleccionando && notificaciones.length > 0 && unreadCount > 0 && (
+                  <Tooltip title="Marcar todas como leídas">
+                    <IconButton size="small" onClick={handleMarcarTodasLeidas}>
+                      <DoneAllIcon color="success" />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Box>
             </Box>
             <Divider />
             {notificaciones.length === 0 && (
@@ -336,32 +365,44 @@ const DashboardHeader = () => {
                 link = `/dashboard/solicitudes`;
               }
               return (
-              <MenuItem
-                key={n.id}
-                  onClick={() => {
-                    handleMarcarLeida(n.id);
-                    handleClose();
-                    if (link) navigate(link);
-                  }}
+                <MenuItem
+                  key={n.id}
                   sx={{
-                    fontWeight: n.leida ? 400 : 700,
-                    bgcolor: n.leida ? 'inherit' : color,
                     display: 'flex',
                     alignItems: 'flex-start',
                     gap: 1,
-                    borderBottom: '1px solid #f0f0f0',
-                    py: 1.5
+                    position: 'relative',
+                    pl: seleccionando ? 0 : 2
                   }}
-              >
+                  onClick={() => {
+                    if (seleccionando) {
+                      setSeleccionadas(prev => prev.includes(n.id) ? prev.filter(x => x !== n.id) : [...prev, n.id]);
+                    }
+                  }}
+                  selected={seleccionando && seleccionadas.includes(n.id)}
+                >
+                  {seleccionando && (
+                    <Checkbox
+                      checked={seleccionadas.includes(n.id)}
+                      onChange={() => setSeleccionadas(prev => prev.includes(n.id) ? prev.filter(x => x !== n.id) : [...prev, n.id])}
+                      sx={{ p: 0.5, mr: 1 }}
+                    />
+                  )}
                   {icon}
                   <Box sx={{ flex: 1 }}>
-                    <Typography variant="subtitle2" sx={{ mb: 0.2 }}>{n.titulo}</Typography>
-                    <Typography variant="body2" sx={{ whiteSpace: 'normal', color: '#555' }}>{n.mensaje}</Typography>
-                    <Typography variant="caption" sx={{ color: '#888', mt: 0.5, display: 'block' }}>
-                      {n.created_at ? format(new Date(n.created_at), 'dd/MM/yyyy HH:mm') : ''}
-                    </Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>{n.titulo}</Typography>
+                    <Typography variant="body2" sx={{ whiteSpace: 'normal' }}>{n.mensaje}</Typography>
                   </Box>
-              </MenuItem>
+                  {!seleccionando && (
+                    <IconButton size="small" onClick={async (e) => {
+                      e.stopPropagation();
+                      await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${n.id}`, { method: 'DELETE' });
+                      setNotificaciones(prev => prev.filter(x => x.id !== n.id));
+                    }}>
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                </MenuItem>
               );
             })}
           </Menu>

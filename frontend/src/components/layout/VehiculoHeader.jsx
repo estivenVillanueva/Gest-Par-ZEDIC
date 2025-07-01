@@ -27,6 +27,9 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import Checkbox from '@mui/material/Checkbox';
 import { useAuth } from '../../../logic/AuthContext';
 
 const navigationItems = [
@@ -66,6 +69,8 @@ const VehiculoHeader = () => {
   const { logout, currentUser } = useAuth();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [seleccionando, setSeleccionando] = useState(false);
+  const [seleccionadas, setSeleccionadas] = useState([]);
 
   useEffect(() => {
     let intervalId;
@@ -285,13 +290,37 @@ const VehiculoHeader = () => {
               <Typography sx={{ fontWeight: 600 }}>
                 Notificaciones
               </Typography>
-              {notificaciones.length > 0 && unreadCount > 0 && (
-                <Tooltip title="Marcar todas como leídas">
-                  <IconButton size="small" onClick={handleMarcarTodasLeidas}>
-                    <DoneAllIcon color="success" />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                {seleccionando && seleccionadas.length > 0 && (
+                  <Tooltip title="Eliminar seleccionadas">
+                    <IconButton size="small" color="error" onClick={async () => {
+                      if (window.confirm('¿Seguro que deseas eliminar las notificaciones seleccionadas?')) {
+                        await Promise.all(seleccionadas.map(id => fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${id}`, { method: 'DELETE' })));
+                        setNotificaciones(prev => prev.filter(n => !seleccionadas.includes(n.id)));
+                        setSeleccionadas([]);
+                        setSeleccionando(false);
+                      }
+                    }}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
+                )}
+                <Tooltip title={seleccionando ? "Cancelar selección" : "Seleccionar notificaciones"}>
+                  <IconButton size="small" onClick={() => {
+                    setSeleccionando(s => !s);
+                    setSeleccionadas([]);
+                  }}>
+                    <EditIcon color={seleccionando ? 'primary' : 'action'} />
                   </IconButton>
                 </Tooltip>
-              )}
+                {!seleccionando && notificaciones.length > 0 && unreadCount > 0 && (
+                  <Tooltip title="Marcar todas como leídas">
+                    <IconButton size="small" onClick={handleMarcarTodasLeidas}>
+                      <DoneAllIcon color="success" />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Box>
             </Box>
             <Divider />
             {notificaciones.length === 0 && (
@@ -300,21 +329,41 @@ const VehiculoHeader = () => {
             {notificaciones.map((n) => (
               <MenuItem
                 key={n.id}
-                onClick={() => { handleMarcarLeida(n.id); handleClose(); }}
                 sx={{
-                  bgcolor: n.tipo === 'factura' && (n.estado === 'pendiente' || n.estado === 'Pendiente') ? 'rgba(255,0,0,0.08)' : undefined,
-                  fontWeight: !n.leida ? 700 : 400,
-                  color: !n.leida ? '#2B6CA3' : 'inherit',
                   display: 'flex',
                   alignItems: 'flex-start',
-                  gap: 1
+                  gap: 1,
+                  position: 'relative',
+                  pl: seleccionando ? 0 : 2
                 }}
+                onClick={() => {
+                  if (seleccionando) {
+                    setSeleccionadas(prev => prev.includes(n.id) ? prev.filter(x => x !== n.id) : [...prev, n.id]);
+                  }
+                }}
+                selected={seleccionando && seleccionadas.includes(n.id)}
               >
-                {iconByType[n.tipo] || <NotificationsIcon color="action" sx={{ mr: 1 }} />}
-                <Box>
+                {seleccionando && (
+                  <Checkbox
+                    checked={seleccionadas.includes(n.id)}
+                    onChange={() => setSeleccionadas(prev => prev.includes(n.id) ? prev.filter(x => x !== n.id) : [...prev, n.id])}
+                    sx={{ p: 0.5, mr: 1 }}
+                  />
+                )}
+                {(iconByType[n.tipo] || <NotificationsIcon color="action" sx={{ mr: 1 }} />)}
+                <Box sx={{ flex: 1 }}>
                   <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>{n.titulo}</Typography>
                   <Typography variant="body2" sx={{ whiteSpace: 'normal' }}>{n.mensaje}</Typography>
                 </Box>
+                {!seleccionando && (
+                  <IconButton size="small" onClick={async (e) => {
+                    e.stopPropagation();
+                    await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${n.id}`, { method: 'DELETE' });
+                    setNotificaciones(prev => prev.filter(x => x.id !== n.id));
+                  }}>
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                )}
               </MenuItem>
             ))}
           </Menu>

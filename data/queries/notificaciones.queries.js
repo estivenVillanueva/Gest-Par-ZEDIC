@@ -60,6 +60,13 @@ export const notificacionesQueries = {
     const query = 'UPDATE notificaciones SET leida = TRUE WHERE parqueadero_id = $1 RETURNING *';
     const result = await pool.query(query, [parqueadero_id]);
     return result.rows;
+  },
+
+  // Eliminar notificación por id
+  async eliminarNotificacion(id) {
+    const query = `DELETE FROM notificaciones WHERE id = $1 RETURNING *`;
+    const result = await pool.query(query, [id]);
+    return result.rows[0];
   }
 };
 
