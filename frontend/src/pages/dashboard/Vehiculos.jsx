@@ -52,7 +52,7 @@ const getVehiculoIcon = (tipo) => {
 };
 
 const VehiculoCard = ({ vehiculo, onVerInfo, seleccionado, onSeleccionar }) => (
-  <MinimalCard onClick={() => onVerInfo(vehiculo)} sx={{ position: 'relative' }}>
+  <MinimalCard onClick={() => onVerInfo(vehiculo)} sx={{ position: 'relative', borderRadius: 3, maxWidth: 220, minWidth: 180, width: '100%' }}>
     <Checkbox
       checked={seleccionado}
       onClick={e => { e.stopPropagation(); onSeleccionar(vehiculo.id); }}
@@ -451,7 +451,7 @@ const Vehiculos = () => {
         zIndex: 20,
         mb: 4,
         p: { xs: 1.5, sm: 2.5 },
-        borderRadius: 2,
+        borderRadius: 0,
         bgcolor: '#fafdff',
         maxWidth: { xs: '100%', sm: 500 },
         mx: 'auto',
@@ -473,7 +473,7 @@ const Vehiculos = () => {
       <Paper elevation={3} sx={{
         width: '100%',
         maxWidth: { xs: '100vw', md: 1500, lg: 1700 },
-        borderRadius: { xs: 1, md: 2 },
+        borderRadius: 0,
         bgcolor: '#fff',
         boxShadow: { xs: '0 2px 8px rgba(52,152,243,0.08)', md: '0 6px 32px rgba(52,152,243,0.10)' },
         px: { xs: 1, sm: 2, md: 6, lg: 10 },
@@ -510,7 +510,7 @@ const Vehiculos = () => {
                   onClick={() => handleVerInfo(vehiculo)}
                   sx={{
                     position: 'relative',
-                    borderRadius: { xs: 1, md: 2 },
+                    borderRadius: 3,
                     boxShadow: { xs: '0 1px 4px rgba(52,152,243,0.08)', md: '0 4px 16px rgba(52,152,243,0.10)' },
                     p: { xs: 1.5, sm: 2 },
                     minHeight: { xs: 180, sm: 200 },
@@ -590,7 +590,7 @@ const Vehiculos = () => {
         </DialogActions>
       </Dialog>
       {usuarioBuscado && (
-        <Box sx={{ mb: 2, p: 2, bgcolor: '#e3f2fd', borderRadius: 2 }}>
+        <Box sx={{ mb: 2, p: 2, bgcolor: '#e3f2fd', borderRadius: 0 }}>
           <Typography variant="subtitle1" fontWeight={700}>Usuario encontrado:</Typography>
           <Typography>Nombre: {usuarioBuscado.nombre}</Typography>
           <Typography>Correo: {usuarioBuscado.correo}</Typography>
@@ -606,7 +606,7 @@ const Vehiculos = () => {
             <Typography>No tiene vehículos registrados.</Typography>
           ) : (
             vehiculosUsuario.map(v => (
-              <Box key={v.id || v.placa} sx={{ display: 'flex', alignItems: 'center', gap: 2, my: 1, p: 1, bgcolor: '#fff', borderRadius: 1 }}>
+              <Box key={v.id || v.placa} sx={{ display: 'flex', alignItems: 'center', gap: 2, my: 1, p: 1, bgcolor: '#fff', borderRadius: 0 }}>
                 <DirectionsCarIcon color="primary" />
                 <Typography>{v.placa} - {v.tipo} - {v.marca} - {v.modelo}</Typography>
                 <Button size="small" variant="outlined" startIcon={<LinkIcon />} onClick={() => { setVehiculoParaAsociar(v); setOpenAsociar(true); }}>

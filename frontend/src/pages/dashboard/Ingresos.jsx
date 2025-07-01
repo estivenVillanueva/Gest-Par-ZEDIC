@@ -166,6 +166,14 @@ export default function Ingresos() {
     setLoadingPlaca(false);
   };
 
+  // Determinar si se requiere seleccionar puesto
+  const requierePuesto = (
+    (!vehiculo?.puesto || vehiculo.puesto === null || vehiculo.puesto === undefined || vehiculo.puesto === '') &&
+    (!servicioVehiculo || ['minuto', 'hora', 'día', 'dia'].includes((servicioVehiculo.duracion || '').toLowerCase()))
+  ) || (
+    servicioVehiculo && ['minuto', 'hora', 'día', 'dia'].includes((servicioVehiculo.duracion || '').toLowerCase())
+  );
+
   const handleRegistrarIngreso = async () => {
     if (!vehiculo && placa) {
       try {
@@ -222,26 +230,29 @@ export default function Ingresos() {
       setSnackbar({ open: true, message: 'Debes seleccionar un vehículo válido', severity: 'error' });
       return;
     }
-    if (!puestoSeleccionado) {
+    // Solo exigir puesto si realmente se requiere
+    if (requierePuesto && !puestoSeleccionado) {
       setSnackbar({ open: true, message: 'Debes seleccionar un puesto disponible.', severity: 'error' });
       return;
     }
     try {
-      // Actualizar el puesto del vehículo antes de registrar el ingreso
-      await axios.put(`${API_URL}/api/vehiculos/${vehiculo.placa.toUpperCase()}`, {
-        marca: vehiculo.marca || '',
-        modelo: vehiculo.modelo || '',
-        color: vehiculo.color || '',
-        tipo: vehiculo.tipo || 'ocasional',
-        usuario_id: vehiculo.usuario_id || null,
-        parqueadero_id: currentUser?.parqueadero_id,
-        servicio_id: vehiculo.servicio_id || (servicioVehiculo && servicioVehiculo.id) || undefined,
-        dueno_nombre: vehiculo.dueno_nombre || '',
-        dueno_telefono: vehiculo.dueno_telefono || '',
-        dueno_email: vehiculo.dueno_email || '',
-        dueno_documento: vehiculo.dueno_documento || '',
-        puesto: Number(puestoSeleccionado)
-      });
+      // Si se requiere puesto, actualizarlo, si no, dejar el que ya tiene
+      if (requierePuesto) {
+        await axios.put(`${API_URL}/api/vehiculos/${vehiculo.placa.toUpperCase()}`, {
+          marca: vehiculo.marca || '',
+          modelo: vehiculo.modelo || '',
+          color: vehiculo.color || '',
+          tipo: vehiculo.tipo || 'ocasional',
+          usuario_id: vehiculo.usuario_id || null,
+          parqueadero_id: currentUser?.parqueadero_id,
+          servicio_id: vehiculo.servicio_id || (servicioVehiculo && servicioVehiculo.id) || undefined,
+          dueno_nombre: vehiculo.dueno_nombre || '',
+          dueno_telefono: vehiculo.dueno_telefono || '',
+          dueno_email: vehiculo.dueno_email || '',
+          dueno_documento: vehiculo.dueno_documento || '',
+          puesto: Number(puestoSeleccionado)
+        });
+      }
       await axios.post(`${API_URL}/api/ingresos`, { vehiculo_id: vehiculo.id, observaciones });
       setSnackbar({ open: true, message: 'Ingreso registrado', severity: 'success' });
       setOpenIngreso(false);
@@ -321,7 +332,7 @@ export default function Ingresos() {
       <Paper elevation={3} sx={{
         maxWidth: 1100,
         margin: '40px auto',
-        borderRadius: 4,
+        borderRadius: 0,
         p: 4,
         boxShadow: '0 8px 32px rgba(33, 150, 243, 0.08)'
       }}>
@@ -392,7 +403,7 @@ export default function Ingresos() {
           </Box>
           {/* Tabla responsiva */}
           <Box sx={{ width: '100%', overflowX: 'auto', display: { xs: 'none', md: 'block' } }}>
-            <TableContainer component={Paper} sx={{ borderRadius: 1, boxShadow: 2, minWidth: 900 }}>
+            <TableContainer component={Paper} sx={{ borderRadius: 0, boxShadow: 2, minWidth: 900 }}>
               <Table size="small" sx={{ minWidth: 900 }}>
                 <TableHead sx={{ bgcolor: '#e3f2fd' }}>
                   <TableRow>
@@ -434,7 +445,7 @@ export default function Ingresos() {
               )
               .slice(0, historialLimit)
               .map((ing, idx) => (
-                <Card key={ing.id} sx={{ borderRadius: 1, boxShadow: 1, p: 1, bgcolor: '#fff' }}>
+                <Card key={ing.id} sx={{ borderRadius: 0, boxShadow: 1, p: 1, bgcolor: '#fff' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                     <DirectionsCarIcon color="primary" sx={{ mr: 1 }} />
                     <Typography fontWeight={700}>{ing.placa || ing.vehiculo_id}</Typography>
@@ -492,7 +503,7 @@ export default function Ingresos() {
           />
           {loadingPlaca && <Typography color="info.main">Buscando vehículo...</Typography>}
           {vehiculo && (
-            <Card sx={{ mt: 2, mb: 2, bgcolor: '#f5faff', borderRadius: 1, boxShadow: 1 }}>
+            <Card sx={{ mt: 2, mb: 2, bgcolor: '#f5faff', borderRadius: 0, boxShadow: 1 }}>
               <CardContent>
                 <Typography variant="subtitle1" fontWeight={600}>Vehículo seleccionado:</Typography>
                 <Typography variant="body2">Placa: <b>{vehiculo.placa}</b></Typography>
@@ -570,7 +581,7 @@ export default function Ingresos() {
               </Button>
             </Box>
           )}
-          {!esServicioPeriodo && (
+          {requierePuesto && (
             <TextField
               margin="normal"
               fullWidth

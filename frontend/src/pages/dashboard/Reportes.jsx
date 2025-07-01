@@ -113,7 +113,7 @@ function Reportes() {
         width: '100%',
         maxWidth: '98vw',
         minHeight: '90vh',
-        borderRadius: 2,
+        borderRadius: 0,
         bgcolor: '#fff',
         boxShadow: '0 6px 32px rgba(52,152,243,0.10)',
         px: { xs: 2, sm: 4, md: 6 },
@@ -130,7 +130,7 @@ function Reportes() {
             {/* KPIs rápidos */}
             <Grid container spacing={2} sx={{ mb: 4 }}>
               <Grid item xs={6} md={3} lg={3}>
-                <Paper sx={{ p: 1.5, borderRadius: 2, boxShadow: 1, display: 'flex', alignItems: 'center', gap: 2, minHeight: 80, height: '100%' }}>
+                <Paper sx={{ p: 1.5, borderRadius: 0, boxShadow: 1, display: 'flex', alignItems: 'center', gap: 2, minHeight: 80, height: '100%' }}>
                   <DirectionsCarIcon sx={{ fontSize: 28, color: '#2B6CA3' }} />
                   <Box>
                     <Typography variant="subtitle2" color="text.secondary">Total vehículos</Typography>
@@ -139,7 +139,7 @@ function Reportes() {
                 </Paper>
               </Grid>
               <Grid item xs={6} md={3} lg={3}>
-                <Paper sx={{ p: 1.5, borderRadius: 2, boxShadow: 1, display: 'flex', alignItems: 'center', gap: 2, minHeight: 80, height: '100%' }}>
+                <Paper sx={{ p: 1.5, borderRadius: 0, boxShadow: 1, display: 'flex', alignItems: 'center', gap: 2, minHeight: 80, height: '100%' }}>
                   <EventAvailableIcon sx={{ fontSize: 28, color: '#43a047' }} />
                   <Box>
                     <Typography variant="subtitle2" color="text.secondary">Total servicios</Typography>
@@ -148,7 +148,7 @@ function Reportes() {
                 </Paper>
               </Grid>
               <Grid item xs={6} md={3} lg={3}>
-                <Paper sx={{ p: 1.5, borderRadius: 2, boxShadow: 1, display: 'flex', alignItems: 'center', gap: 2, minHeight: 80, height: '100%' }}>
+                <Paper sx={{ p: 1.5, borderRadius: 0, boxShadow: 1, display: 'flex', alignItems: 'center', gap: 2, minHeight: 80, height: '100%' }}>
                   <LocalAtmIcon sx={{ fontSize: 28, color: '#fbc02d' }} />
                   <Box>
                     <Typography variant="subtitle2" color="text.secondary">Ingresos acumulados</Typography>
@@ -157,7 +157,7 @@ function Reportes() {
                 </Paper>
               </Grid>
               <Grid item xs={6} md={3} lg={3}>
-                <Paper sx={{ p: 1.5, borderRadius: 2, boxShadow: 1, display: 'flex', alignItems: 'center', gap: 2, minHeight: 80, height: '100%' }}>
+                <Paper sx={{ p: 1.5, borderRadius: 0, boxShadow: 1, display: 'flex', alignItems: 'center', gap: 2, minHeight: 80, height: '100%' }}>
                   <GroupIcon sx={{ fontSize: 28, color: '#8e24aa' }} />
                   <Box>
                     <Typography variant="subtitle2" color="text.secondary">Ocupación promedio</Typography>
@@ -171,7 +171,7 @@ function Reportes() {
             <Grid container spacing={3} sx={{ mb: 2 }}>
               {/* Ingresos por mes (gráfica ancha) */}
               <Grid item xs={12} md={8} lg={8}>
-                <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 1, minHeight: 400, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: '#e3f2fd' }}>
+                <Paper sx={{ p: 3, borderRadius: 0, boxShadow: 1, minHeight: 400, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: '#e3f2fd' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', mb: 1 }}>
                     <MonetizationOnIcon sx={{ fontSize: 24, color: '#2B6CA3', mr: 1 }} />
                     <Typography variant="subtitle1" fontWeight={700}>Ingresos por mes</Typography>
@@ -194,7 +194,7 @@ function Reportes() {
               </Grid>
               {/* Servicios activos por tipo (pie) */}
               <Grid item xs={12} md={4} lg={4}>
-                <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 1, minHeight: 400, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: '#e8f5e9' }}>
+                <Paper sx={{ p: 3, borderRadius: 0, boxShadow: 1, minHeight: 400, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: '#e8f5e9' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', mb: 1 }}>
                     <EventAvailableIcon sx={{ fontSize: 24, color: '#43a047', mr: 1 }} />
                     <Typography variant="subtitle1" fontWeight={700}>Servicios activos por tipo</Typography>
@@ -212,7 +212,7 @@ function Reportes() {
               </Grid>
               {/* Ingresos de vehículos (últimos 7 días) */}
               <Grid item xs={12} md={6} lg={6}>
-                <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 1, minHeight: 400, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: '#fffde7' }}>
+                <Paper sx={{ p: 3, borderRadius: 0, boxShadow: 1, minHeight: 400, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: '#fffde7' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', mb: 1 }}>
                     <DirectionsCarIcon sx={{ fontSize: 24, color: '#fbc02d', mr: 1 }} />
                     <Typography variant="subtitle1" fontWeight={700}>Ingresos de vehículos (últimos 7 días)</Typography>
@@ -229,7 +229,7 @@ function Reportes() {
               </Grid>
               {/* Pagos pendientes vs pagados */}
               <Grid item xs={12} md={3} lg={3}>
-                <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 1, minHeight: 400, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <Paper sx={{ p: 3, borderRadius: 0, boxShadow: 1, minHeight: 400, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                   <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Pagos pendientes vs pagados</Typography>
                   <ResponsiveContainer width="100%" height={320}>
                     <PieChart>
@@ -244,7 +244,7 @@ function Reportes() {
               </Grid>
               {/* Ocupación actual */}
               <Grid item xs={12} md={3} lg={3}>
-                <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 1, minHeight: 400, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <Paper sx={{ p: 3, borderRadius: 0, boxShadow: 1, minHeight: 400, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                   <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Ocupación actual</Typography>
                   <Box sx={{ width: '100%', mb: 2 }}>
                     <LinearProgress variant="determinate" value={ocupacionPorcentaje} sx={{ height: 16, borderRadius: 8 }} />
@@ -254,7 +254,7 @@ function Reportes() {
               </Grid>
               {/* Vehículos por tipo (gráfica ancha) */}
               <Grid item xs={12} md={6} lg={6}>
-                <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 1, minHeight: 400, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <Paper sx={{ p: 3, borderRadius: 0, boxShadow: 1, minHeight: 400, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                   <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Vehículos por tipo</Typography>
                   <ResponsiveContainer width="100%" height={320}>
                     <BarChart data={vehiculosTipoData} barCategoryGap={40}>

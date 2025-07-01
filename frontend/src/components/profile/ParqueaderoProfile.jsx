@@ -17,6 +17,7 @@ import {
   Divider,
   Alert,
   Snackbar,
+  Tooltip,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import InfoIcon from '@mui/icons-material/Info';
@@ -31,6 +32,8 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import PersonIcon from '@mui/icons-material/Person';
 import BadgeIcon from '@mui/icons-material/Badge';
 import WorkIcon from '@mui/icons-material/Work';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../logic/AuthContext';
 
@@ -360,6 +363,32 @@ const ParqueaderoProfile = () => {
             style={{ width: '100%', maxHeight: 220, objectFit: 'cover', borderRadius: 12 }}
             onError={e => { e.target.onerror = null; e.target.src = DEFAULT_PORTADA_URL; }}
           />
+          {/* Iconos para portada */}
+          <Tooltip title="Cambiar o quitar portada">
+            <IconButton
+              size="small"
+              sx={{ position: 'absolute', top: 12, right: 16, zIndex: 3, bgcolor: 'rgba(255,255,255,0.85)' }}
+              onClick={() => portadaInputRef && portadaInputRef.click()}
+            >
+              <PhotoCameraIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <input
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            ref={ref => setPortadaInputRef(ref)}
+            onChange={async (e) => {
+              const file = e.target.files[0];
+              if (!file) {
+                if (window.confirm('¿Deseas quitar la portada y dejarla en blanco?')) {
+                  await handleSavePortada('');
+                }
+                return;
+              }
+              await handlePortadaChange(e);
+            }}
+          />
           {/* Logo superpuesto */}
           <Avatar
             src={`${parqueaderoInfo.logo_url || DEFAULT_LOGO_URL}?t=${logoTimestamp}`}
@@ -376,51 +405,31 @@ const ParqueaderoProfile = () => {
             }}
             onError={e => { e.target.onerror = null; e.target.src = DEFAULT_LOGO_URL; }}
           />
-          <Button
-            size="small"
-            color="error"
-            sx={{ position: 'absolute', left: 150, bottom: -30, zIndex: 2 }}
-            onClick={() => handleSaveLogo('')}
-          >
-            Quitar logo
-          </Button>
-          <Button
-            size="small"
-            color="error"
-            sx={{ position: 'absolute', left: 40, top: 10, zIndex: 2, background: 'rgba(255,255,255,0.7)' }}
-            onClick={() => handleSavePortada('')}
-          >
-            Quitar portada
-          </Button>
-          <Button
-            size="small"
-            color="primary"
-            sx={{ position: 'absolute', left: 150, bottom: 0, zIndex: 2 }}
-            onClick={() => logoInputRef && logoInputRef.click()}
-          >
-            Cambiar logo
-          </Button>
+          {/* Iconos para logo */}
+          <Tooltip title="Cambiar o quitar logo">
+            <IconButton
+              size="small"
+              sx={{ position: 'absolute', left: 120, bottom: -40, zIndex: 3, bgcolor: 'rgba(255,255,255,0.85)' }}
+              onClick={() => logoInputRef && logoInputRef.click()}
+            >
+              <PhotoCameraIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
           <input
             type="file"
             accept="image/*"
             style={{ display: 'none' }}
             ref={ref => setLogoInputRef(ref)}
-            onChange={handleLogoChange}
-          />
-          <Button
-            size="small"
-            color="primary"
-            sx={{ position: 'absolute', left: 160, top: 10, zIndex: 2, background: 'rgba(255,255,255,0.7)' }}
-            onClick={() => portadaInputRef && portadaInputRef.click()}
-          >
-            Cambiar portada
-          </Button>
-          <input
-            type="file"
-            accept="image/*"
-            style={{ display: 'none' }}
-            ref={ref => setPortadaInputRef(ref)}
-            onChange={handlePortadaChange}
+            onChange={async (e) => {
+              const file = e.target.files[0];
+              if (!file) {
+                if (window.confirm('¿Deseas quitar el logo y dejarlo en blanco?')) {
+                  await handleSaveLogo('');
+                }
+                return;
+              }
+              await handleLogoChange(e);
+            }}
           />
         </Box>
         {/* Espacio para que el logo no tape el contenido */}

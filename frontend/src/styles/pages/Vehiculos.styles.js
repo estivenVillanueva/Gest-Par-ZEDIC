@@ -7,7 +7,7 @@ export const MinimalCard = styled(Card)(({ theme }) => ({
   maxWidth: 340,
   width: 320,
   margin: '24px auto',
-  borderRadius: 16,
+  borderRadius: 3,
   background: 'linear-gradient(135deg, #fafdff 0%, #e3eaf6 100%)',
   boxShadow: '0 4px 24px 0 rgba(31, 38, 135, 0.10)',
   border: '1.5px solid #e0e7ef',
@@ -54,7 +54,7 @@ export const MinimalIcon = styled(Box)(({ theme }) => ({
 export const MinimalBadge = styled(Chip)(({ theme }) => ({
   fontWeight: 700,
   fontSize: '0.95rem',
-  borderRadius: 8,
+  borderRadius: 50,
   background: '#e3eaf6',
   color: theme.palette.primary.dark,
   marginRight: theme.spacing(0.5),

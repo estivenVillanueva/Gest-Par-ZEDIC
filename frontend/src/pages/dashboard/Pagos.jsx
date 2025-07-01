@@ -104,7 +104,7 @@ const PagoCard = ({ pago, onCardClick, isPending, selectable, checked, onSelectC
       position: 'relative',
       mb: 2,
       boxShadow: 2,
-      borderRadius: 1,
+      borderRadius: 0,
       '@media (max-width:600px)': { px: 1, py: 1 }
     }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: { xs: 1, sm: 2 }, py: { xs: 1, sm: 2 } }}>
@@ -684,12 +684,18 @@ const Pagos = () => {
     }
   };
   
+  // Obtener tipos de servicio únicos realmente usados en el parqueadero
+  const tiposServicioUnicos = Array.from(new Set([
+    ...pagosPendientes.map(p => p.servicio_nombre),
+    ...pagosHistorial.map(p => p.servicio_nombre)
+  ].filter(Boolean))).sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+
   return (
     <Box sx={{ width: '100%', minHeight: '100vh', py: 5, px: { xs: 1, md: 6 }, bgcolor: '#f6f7fa', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <Paper elevation={3} sx={{
         width: '100%',
         maxWidth: '98vw',
-        borderRadius: 2,
+        borderRadius: 0,
         bgcolor: '#fff',
         boxShadow: '0 6px 32px rgba(52,152,243,0.10)',
         px: { xs: 2, sm: 4, md: 6 },
@@ -698,6 +704,57 @@ const Pagos = () => {
         mb: 4,
       }}>
         <Typography variant="h4" fontWeight={800} color="primary.main" sx={{ mb: 4 }}>Gestión de Pagos</Typography>
+        {/* Filtros visuales */}
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 3, alignItems: 'center', justifyContent: 'flex-start' }}>
+            <ElegantSearchBar
+              placeholder="Buscar por servicio, placa o usuario"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              size="small"
+              sx={{ minWidth: 120, maxWidth: 120 }}
+              InputProps={{ startAdornment: (<SearchIcon sx={{ mr: 1 }} />) }}
+            />
+            <FormControl size="small" sx={{ minWidth: 120, maxWidth: 120 }}>
+              <InputLabel>Tipo de Servicio</InputLabel>
+              <Select
+                value={tipoServicio}
+                label="Tipo de Servicio"
+                onChange={e => setTipoServicio(e.target.value)}
+              >
+                <MenuItem value="">Todos</MenuItem>
+                {tiposServicioUnicos.map(nombre => (
+                  <MenuItem key={nombre} value={nombre}>{nombre}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl size="small" sx={{ minWidth: 140, maxWidth: 140 }}>
+              <InputLabel>Estado</InputLabel>
+              <Select
+                value={estado}
+                label="Estado"
+                onChange={e => setEstado(e.target.value)}
+              >
+                <MenuItem value="">Todos</MenuItem>
+                <MenuItem value="pendiente">Pendiente</MenuItem>
+                <MenuItem value="vencida">Vencida</MenuItem>
+                <MenuItem value="pagada">Pagada</MenuItem>
+              </Select>
+            </FormControl>
+            <DatePicker
+              label="Desde"
+              value={fechaDesde}
+              onChange={newValue => setFechaDesde(newValue)}
+              renderInput={(params) => <TextField {...params} size="small" sx={{ minWidth: 140, maxWidth: 140 }} />}
+            />
+            <DatePicker
+              label="Hasta"
+              value={fechaHasta}
+              onChange={newValue => setFechaHasta(newValue)}
+              renderInput={(params) => <TextField {...params} size="small" sx={{ minWidth: 140, maxWidth: 140 }} />}
+            />
+          </Box>
+        </LocalizationProvider>
         <ElegantPaper sx={{ maxWidth: 1100, mx: 'auto', p: 0 }}>
           <TabsContainer>
             <Tabs value={tabValue} onChange={handleTabChange} variant="fullWidth">

@@ -8,7 +8,7 @@ const Solicitudes = () => {
       <Paper elevation={3} sx={{
         width: '100%',
         maxWidth: '98vw',
-        borderRadius: 2,
+        borderRadius: 0,
         bgcolor: '#fff',
         boxShadow: '0 6px 32px rgba(52,152,243,0.10)',
         px: { xs: 2, sm: 4, md: 6 },
