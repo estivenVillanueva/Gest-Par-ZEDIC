@@ -40,12 +40,14 @@ export const StyledAppBar = styled(AppBar)(({ theme, scrolled, visible }) => ({
   transform: visible ? 'translateY(0)' : 'translateY(-100%)',
   transition: 'transform 0.2s ease-in-out, background 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
   willChange: 'transform',
+  borderRadius: 0,
 }));
 
 export const HeaderContainer = styled(Container)(({ theme }) => ({
   padding: theme.spacing(0, 3),
   width: '100%',
   maxWidth: '100%',
+  borderRadius: 0,
   [theme.breakpoints.down('sm')]: {
     padding: theme.spacing(0, 2),
   },
@@ -58,6 +60,7 @@ export const HeaderToolbar = styled(Box)(({ theme }) => ({
   width: '100%',
   padding: theme.spacing(1.5, 0),
   minHeight: '70px',
+  borderRadius: 0,
 }));
 
 export const LogoContainer = styled(Box)(({ theme }) => ({

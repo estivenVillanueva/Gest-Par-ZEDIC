@@ -341,8 +341,18 @@ const Home = () => {
         anchor="right"
         open={showFilters}
         onClose={() => setShowFilters(false)}
+        sx={{ zIndex: '3000 !important' }}
+        PaperProps={{
+          sx: {
+            background: 'rgba(30, 41, 59, 0.92)',
+            color: '#fff',
+            boxShadow: '0 8px 32px rgba(30,41,59,0.25)',
+            zIndex: '3000 !important',
+            backdropFilter: 'blur(4px)',
+          }
+        }}
       >
-        <Box sx={{ width: 300, p: 3 }}>
+        <Box sx={{ width: 320, p: 3 }}>
           <Typography variant="h6" gutterBottom>
             Filtros
           </Typography>

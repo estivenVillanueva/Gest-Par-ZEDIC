@@ -11,6 +11,7 @@ export const MapContainer = styled(Box)`
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   position: relative;
+  z-index: 1;
 
   .gm-style {
     border-radius: 0 !important;
