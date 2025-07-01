@@ -50,6 +50,9 @@ export const IconWrapper = styled(Box)`
 `;
 
 export const HeroSection = styled(Box)`
+  position: relative;
+  left: 0;
+  width: 100vw;
   background-image: linear-gradient(135deg, rgba(37, 112, 204, 0.85), rgba(39, 130, 209, 0.85)), 
     url('https://images.unsplash.com/photo-1590674899484-d5640e854abe?ixlib=rb-4.0.3');
   background-size: cover;
@@ -60,10 +63,8 @@ export const HeroSection = styled(Box)`
   justify-content: center;
   color: white;
   text-align: center;
-  width: 100%;
   margin: 0;
   padding: 0;
-  position: relative;
   overflow: hidden;
 
   &::before {
@@ -103,7 +104,8 @@ export const HeroSection = styled(Box)`
 `;
 
 export const SearchSection = styled(Box)`
-  max-width: 800px;
+  width: 90%;
+  max-width: none;
   margin: 2rem auto;
   padding: 0 1rem;
 
@@ -171,9 +173,9 @@ export const ParqueaderoCard = styled(Card)(({ theme }) => ({
 
 export const StyledContainer = styled(Container)(({ theme }) => ({
   width: '100%',
-  maxWidth: '100%',
+  maxWidth: '1200px',
   margin: '0 auto',
-  padding: theme.spacing(0),
+  padding: theme.spacing(0, 2),
   [theme.breakpoints.down('sm')]: {
     padding: theme.spacing(0, 1),
   },
@@ -234,18 +236,12 @@ export const CTASection = styled(Box)`
   background: linear-gradient(135deg,rgb(54, 96, 187) 0%,rgb(53, 96, 216) 100%);
   color: white;
   padding: 80px 0;
-  width: 100%;
+  width: 100vw;
   position: relative;
   overflow: hidden;
 
   &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    display: none;
   }
 
   h3 {
