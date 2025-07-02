@@ -140,6 +140,8 @@ router.put('/:id', async (req, res) => {
             } catch (geoError) {
                 console.error('Error al geocodificar dirección al actualizar:', geoError);
             }
+            // Sincronizar ubicacion con la nueva dirección
+            updateData.ubicacion = req.body.direccion;
         }
         const parqueaderoActualizado = await parqueaderoQueries.updateParqueadero(req.params.id, updateData);
         if (!parqueaderoActualizado) {
