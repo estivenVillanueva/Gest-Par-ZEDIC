@@ -6,35 +6,55 @@ import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import GroupIcon from '@mui/icons-material/Group';
+import { useAuth } from '../../../logic/AuthContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
 const COLORS = ['#2B6CA3', '#43a047', '#fbc02d', '#e53935', '#8e24aa'];
 
 function Reportes() {
+  const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [ingresos, setIngresos] = useState([]);
   const [facturas, setFacturas] = useState([]);
   const [vehiculos, setVehiculos] = useState([]);
   const [servicios, setServicios] = useState([]);
   const [ocupacion, setOcupacion] = useState({ total: 0, ocupados: 0 });
+  const [parqueaderoId, setParqueaderoId] = useState(null);
+
+  useEffect(() => {
+    // Determinar el parqueadero_id del usuario logueado
+    if (currentUser) {
+      if (currentUser.parqueadero_id) {
+        setParqueaderoId(currentUser.parqueadero_id);
+      } else if (currentUser.id && currentUser.tipo_usuario === 'admin') {
+        // Si es admin y no tiene parqueadero_id directo, intentar obtenerlo desde el backend
+        fetch(`${API_URL}/api/parqueaderos/usuario/${currentUser.id}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.data && data.data.id) setParqueaderoId(data.data.id);
+          });
+      }
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     async function fetchData() {
+      if (!parqueaderoId) return;
       setLoading(true);
       // Ingresos históricos
-      const ingresosRes = await fetch(`${API_URL}/api/ingresos/historial`);
+      const ingresosRes = await fetch(`${API_URL}/api/ingresos/historial?parqueadero_id=${parqueaderoId}`);
       const ingresosData = await ingresosRes.json();
       setIngresos(ingresosData || []);
       // Facturas
-      const facturasRes = await fetch(`${API_URL}/api/facturas`);
+      const facturasRes = await fetch(`${API_URL}/api/facturas?parqueadero_id=${parqueaderoId}`);
       const facturasData = await facturasRes.json();
       setFacturas(facturasData.data || []);
       // Vehículos
-      const vehiculosRes = await fetch(`${API_URL}/api/vehiculos`);
+      const vehiculosRes = await fetch(`${API_URL}/api/vehiculos?parqueadero_id=${parqueaderoId}`);
       const vehiculosData = await vehiculosRes.json();
       setVehiculos(vehiculosData.data || []);
       // Servicios
-      const serviciosRes = await fetch(`${API_URL}/api/servicios`);
+      const serviciosRes = await fetch(`${API_URL}/api/servicios?parqueadero_id=${parqueaderoId}`);
       const serviciosData = await serviciosRes.json();
       setServicios(serviciosData.data || []);
       // Ocupación
@@ -44,7 +64,7 @@ function Reportes() {
       setLoading(false);
     }
     fetchData();
-  }, []);
+  }, [parqueaderoId]);
 
   // Ingresos por mes
   const ingresosPorMes = {};
