@@ -52,30 +52,28 @@ const getVehiculoIcon = (tipo) => {
 };
 
 const VehiculoCard = ({ vehiculo, onVerInfo, seleccionado, onSeleccionar }) => (
-  <MinimalCard onClick={() => onVerInfo(vehiculo)} sx={{ position: 'relative', borderRadius: 3, maxWidth: 220, minWidth: 180, width: '100%' }}>
+  <MinimalCard onClick={() => onVerInfo(vehiculo)}>
     <Checkbox
       checked={seleccionado}
       onClick={e => { e.stopPropagation(); onSeleccionar(vehiculo.id); }}
-      sx={{ position: 'absolute', top: 10, left: 10, zIndex: 2 }}
+      sx={{ position: 'absolute', top: 10, left: 10, zIndex: 2, p: 0.5 }}
       color="primary"
     />
     <MinimalIcon>
       {getVehiculoIcon(vehiculo.tipo || vehiculo.tipoVehiculo)}
     </MinimalIcon>
-    <Typography variant="h6" fontWeight={700} sx={{ mb: 0.5, color: '#2B6CA3', mt: 1 }}>{vehiculo.placa}</Typography>
-    <Typography variant="body2" sx={{ color: '#64748B', mb: 1 }}>{vehiculo.propietario}</Typography>
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 1, minHeight: 40, justifyContent: 'center' }}>
-      <Typography variant="body2" sx={{ color: '#2B6CA3', fontWeight: 600, mb: 0.5, minHeight: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        Lugar: {vehiculo.puesto ? vehiculo.puesto : 'No asignado'}
-      </Typography>
-      <MinimalBadge label={vehiculo.tipoServicio} color="secondary" />
+    <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#2B6CA3', mb: 0.2, fontSize: 16, textAlign: 'center', width: '100%' }}>{vehiculo.placa}</Typography>
+    <Typography variant="body2" sx={{ color: '#64748B', mb: 0.2, fontSize: 13, textAlign: 'center', width: '100%' }}>{vehiculo.propietario}</Typography>
+    <Typography variant="body2" sx={{ color: '#2B6CA3', fontWeight: 600, mb: 0.2, fontSize: 13, textAlign: 'center', width: '100%' }}>
+      Lugar: {vehiculo.puesto ? vehiculo.puesto : 'No asignado'}
+    </Typography>
+    <MinimalBadge label={vehiculo.tipoServicio} color="secondary" />
+    <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', justifyContent: 'center', mb: 0.5 }}>
+      <Chip label={vehiculo.color} size="small" sx={{ bgcolor: '#f8fafc', color: '#2B6CA3', fontSize: 11 }} />
     </Box>
-    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center', mb: 1 }}>
-      <Chip label={vehiculo.color} size="small" sx={{ bgcolor: '#f8fafc', color: '#2B6CA3' }} />
-    </Box>
-    <Typography variant="caption" sx={{ color: '#90a4ae', textAlign: 'center', width: '100%' }}>Entradas: {vehiculo.entradas}</Typography>
-    <Fab size="small" color="info" sx={{ position: 'absolute', bottom: 18, right: 18, boxShadow: 2 }} onClick={e => { e.stopPropagation(); onVerInfo(vehiculo); }}>
-      <LocalParkingIcon />
+    <Typography variant="caption" sx={{ color: '#90a4ae', textAlign: 'center', width: '100%', fontSize: 11 }}>Entradas: {vehiculo.entradas}</Typography>
+    <Fab size="small" color="info" sx={{ position: 'absolute', bottom: 10, right: 10, boxShadow: 2, minHeight: 28, minWidth: 28, width: 28, height: 28 }} onClick={e => { e.stopPropagation(); onVerInfo(vehiculo); }}>
+      <LocalParkingIcon sx={{ fontSize: 16 }} />
     </Fab>
   </MinimalCard>
 );
@@ -503,50 +501,43 @@ const Vehiculos = () => {
         ) : error ? (
           <Typography variant="body1" color="error">{error}</Typography>
         ) : (
-          <Grid container spacing={{ xs: 2, sm: 3, md: 4 }}>
-            {filteredVehiculos.map((vehiculo) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={vehiculo.id}>
-                <MinimalCard
-                  onClick={() => handleVerInfo(vehiculo)}
-                  sx={{
-                    position: 'relative',
-                    borderRadius: 3,
-                    boxShadow: { xs: '0 1px 4px rgba(52,152,243,0.08)', md: '0 4px 16px rgba(52,152,243,0.10)' },
-                    p: { xs: 1.5, sm: 2 },
-                    minHeight: { xs: 180, sm: 200 },
-                    display: 'flex', flexDirection: 'column', alignItems: 'center',
-                    transition: 'box-shadow 0.2s',
-                    '&:hover': { boxShadow: '0 8px 32px rgba(52,152,243,0.13)' }
-                  }}
-                >
+          <Box sx={{ width: '100%', overflowX: 'auto', mt: 3 }}>
+            <Box sx={{ minWidth: 700, bgcolor: '#fff', borderRadius: 3, boxShadow: '0 2px 12px rgba(31,38,135,0.07)' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 1.5, borderBottom: '1.5px solid #e3eaf6', position: 'sticky', top: 0, zIndex: 2, bgcolor: '#fff' }}>
+                <Checkbox disabled sx={{ mr: 1 }} />
+                <Box sx={{ width: 44, mr: 2 }} />
+                <Box sx={{ flex: 2, fontWeight: 700, color: '#2563eb' }}>Placa</Box>
+                <Box sx={{ flex: 1.2, color: '#64748B', fontWeight: 600 }}>Tipo</Box>
+                <Box sx={{ flex: 1, color: '#64748B', fontWeight: 600 }}>Lugar</Box>
+                <Box sx={{ flex: 1, color: '#64748B', fontWeight: 600 }}>Color</Box>
+                <Box sx={{ flex: 1, color: '#64748B', fontWeight: 600 }}>Entradas</Box>
+                <Box sx={{ flex: 0.5 }}></Box>
+              </Box>
+              {filteredVehiculos.map((vehiculo) => (
+                <Box key={vehiculo.id} sx={{ display: 'flex', alignItems: 'center', px: 2, py: 1.5, borderBottom: '1px solid #f0f4fa', transition: 'background 0.18s', '&:hover': { background: '#f4f8fd' } }}>
                   <Checkbox
                     checked={seleccionados.includes(vehiculo.id)}
                     onClick={e => { e.stopPropagation(); handleSeleccionar(vehiculo.id); }}
-                    sx={{ position: 'absolute', top: 10, left: 10, zIndex: 2, p: 0.5 }}
+                    sx={{ mr: 1 }}
                     color="primary"
                   />
-                  <MinimalIcon sx={{ mb: 1, mt: 0.5, fontSize: { xs: 32, sm: 36 } }}>
+                  <Box sx={{ width: 44, height: 44, borderRadius: '50%', bgcolor: '#e3eaf6', display: 'flex', alignItems: 'center', justifyContent: 'center', mr: 2 }}>
                     {getVehiculoIcon(vehiculo.tipo || vehiculo.tipoVehiculo)}
-                  </MinimalIcon>
-                  <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#2B6CA3', mb: 0.5, fontSize: { xs: 15, sm: 16 } }}>{vehiculo.placa}</Typography>
-                  <Typography variant="body2" sx={{ color: '#64748B', mb: 0.5, fontSize: { xs: 13, sm: 14 } }}>{vehiculo.propietario}</Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 1, minHeight: 36, justifyContent: 'center' }}>
-                    <Typography variant="body2" sx={{ color: '#2B6CA3', fontWeight: 600, mb: 0.5, minHeight: 20, fontSize: { xs: 13, sm: 14 } }}>
-                      Lugar: {vehiculo.puesto ? vehiculo.puesto : 'No asignado'}
-                    </Typography>
-                    <MinimalBadge label={vehiculo.tipoServicio} color="secondary" />
                   </Box>
-                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center', mb: 1 }}>
-                    <Chip label={vehiculo.color} size="small" sx={{ bgcolor: '#f8fafc', color: '#2B6CA3', fontSize: { xs: 11, sm: 12 } }} />
+                  <Box sx={{ flex: 2, fontWeight: 700, color: '#2563eb', fontSize: 16 }}>{vehiculo.placa}</Box>
+                  <Box sx={{ flex: 1.2, color: '#64748B', fontWeight: 500 }}>{vehiculo.tipo || vehiculo.tipoVehiculo}</Box>
+                  <Box sx={{ flex: 1, color: '#2B6CA3', fontWeight: 600 }}>{vehiculo.puesto ? vehiculo.puesto : 'No asignado'}</Box>
+                  <Box sx={{ flex: 1 }}><Chip label={vehiculo.color} size="small" sx={{ bgcolor: '#f8fafc', color: '#2B6CA3', fontSize: 13 }} /></Box>
+                  <Box sx={{ flex: 1, color: '#90a4ae', fontWeight: 500 }}>{vehiculo.entradas}</Box>
+                  <Box sx={{ flex: 0.5, display: 'flex', justifyContent: 'flex-end' }}>
+                    <Button size="small" color="info" variant="outlined" sx={{ minWidth: 32, px: 1.5 }} onClick={() => handleVerInfo(vehiculo)}>
+                      Info
+                    </Button>
                   </Box>
-                  <Typography variant="caption" sx={{ color: '#90a4ae', textAlign: 'center', width: '100%', fontSize: { xs: 11, sm: 12 } }}>Entradas: {vehiculo.entradas}</Typography>
-                  <Fab size="small" color="info" sx={{ position: 'absolute', bottom: 14, right: 14, boxShadow: 2, minHeight: 32, minWidth: 32, width: 32, height: 32 }} onClick={e => { e.stopPropagation(); handleVerInfo(vehiculo); }}>
-                    <LocalParkingIcon sx={{ fontSize: 18 }} />
-                  </Fab>
-                </MinimalCard>
-              </Grid>
-            ))}
-          </Grid>
+                </Box>
+              ))}
+            </Box>
+          </Box>
         )}
         <Button
           variant="outlined"
