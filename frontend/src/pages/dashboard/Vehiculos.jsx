@@ -283,7 +283,6 @@ const Vehiculos = () => {
   const [openForm, setOpenForm] = useState(false);
   const [selectedVehiculo, setSelectedVehiculo] = useState(null);
   const [openDeleteAll, setOpenDeleteAll] = useState(false);
-  const [searchUser, setSearchUser] = useState('');
   const [usuarioBuscado, setUsuarioBuscado] = useState(null);
   const [vehiculosUsuario, setVehiculosUsuario] = useState([]);
   const [searchError, setSearchError] = useState('');
@@ -301,6 +300,7 @@ const Vehiculos = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { vehiculos, loading, error, agregarVehiculo, actualizarVehiculo, eliminarVehiculo, cargarVehiculos } = useVehiculo();
   const { currentUser } = useAuth();
+  const [busquedaUsuarioActiva, setBusquedaUsuarioActiva] = useState(false);
 
   const handleVerInfo = (vehiculo) => {
     setSelectedVehiculo(vehiculo);
@@ -352,13 +352,16 @@ const Vehiculos = () => {
     setUsuarioBuscado(null);
     setVehiculosUsuario([]);
     setParqueaderosUsuario([]);
-    if (!searchUser.trim()) return;
+    if (!searchTerm.trim()) return;
     try {
       let res;
-      if (searchUser.includes('@')) {
-        res = await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/correo/${searchUser}`);
+      if (searchTerm.includes('@')) {
+        res = await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/correo/${searchTerm}`);
+      } else if (!isNaN(Number(searchTerm))) {
+        res = await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/${searchTerm}`);
       } else {
-        res = await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/${searchUser}`);
+        setSearchError('Solo puedes buscar por ID numérico o correo electrónico.');
+        return;
       }
       const data = await res.json();
       if (!data.success) throw new Error(data.message || 'Usuario no encontrado');
@@ -367,13 +370,7 @@ const Vehiculos = () => {
       const vehRes = await fetch(`https://gest-par-zedic.onrender.com/api/vehiculos?usuario_id=${data.data.id}`);
       const vehData = await vehRes.json();
       setVehiculosUsuario(vehData.data || []);
-      // Buscar parqueaderos de ese usuario
-      const parqRes = await fetch(`https://gest-par-zedic.onrender.com/api/parqueaderos/usuario/${data.data.id}`);
-      const parqData = await parqRes.json();
-      if (parqData.success && parqData.data) {
-        // Puede ser objeto o array
-        setParqueaderosUsuario(Array.isArray(parqData.data) ? parqData.data : [parqData.data]);
-      }
+      setBusquedaUsuarioActiva(true);
     } catch (err) {
       setSearchError(err.message || 'Usuario no encontrado');
     }
@@ -440,34 +437,20 @@ const Vehiculos = () => {
     }
   };
 
+  // Botón para limpiar búsqueda
+  const limpiarBusquedaUsuario = () => {
+    setUsuarioBuscado(null);
+    setVehiculosUsuario([]);
+    setBusquedaUsuarioActiva(false);
+    setSearchTerm('');
+    setSearchError('');
+  };
+
+  // En el render, si hay búsqueda activa, mostrar solo los vehículos del usuario
+  const vehiculosParaMostrar = busquedaUsuarioActiva && usuarioBuscado ? vehiculosUsuario : filteredVehiculos;
+
   return (
     <Box sx={{ width: '100%', minHeight: '100vh', py: { xs: 2, md: 5 }, px: { xs: 0.5, sm: 2, md: 6 }, bgcolor: '#f6f7fa', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      {/* Búsqueda de usuario: ahora al inicio */}
-      <Paper elevation={3} sx={{
-        position: { xs: 'static', md: 'sticky' },
-        top: { md: 90 },
-        zIndex: 20,
-        mb: 4,
-        p: { xs: 1.5, sm: 2.5 },
-        borderRadius: 0,
-        bgcolor: '#fafdff',
-        maxWidth: { xs: '100%', sm: 500 },
-        mx: 'auto',
-        boxShadow: '0 4px 24px 0 rgba(31, 38, 135, 0.10)',
-        width: { xs: '100%', sm: 500 },
-      }}>
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, gap: 2 }}>
-          <TextField
-            label="Buscar usuario por correo o ID"
-            value={searchUser}
-            onChange={e => setSearchUser(e.target.value)}
-            size="small"
-            fullWidth
-          />
-          <Button variant="contained" size="large" sx={{ minWidth: 120, fontWeight: 700 }} onClick={handleBuscarUsuario}>Buscar</Button>
-        </Box>
-        {searchError && <Typography color="error" sx={{ mt: 1, textAlign: 'center', fontSize: 13 }}>{searchError}</Typography>}
-      </Paper>
       <Paper elevation={3} sx={{
         width: '100%',
         maxWidth: { xs: '100vw', md: 1500, lg: 1700 },
@@ -492,10 +475,14 @@ const Vehiculos = () => {
           </Button>
         </Box>
         <MinimalFilterBar sx={{ flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 2, sm: 2 }, mb: { xs: 2, md: 3 } }}>
-          <TextField variant="outlined" placeholder="Buscar por nombre o placa" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} InputProps={{ startAdornment: (<SearchIcon sx={{ mr: 1 }} />) }} size="small" sx={{ flex: 1 }} />
+          <TextField variant="outlined" placeholder="Buscar por nombre, placa o usuario (ID, correo)" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} InputProps={{ startAdornment: (<SearchIcon sx={{ mr: 1 }} />) }} size="small" sx={{ flex: 2, minWidth: 180 }} />
           <TextField type="date" variant="outlined" value={dateFrom} onChange={e => setDateFrom(e.target.value)} label="Desde" InputLabelProps={{ shrink: true }} size="small" sx={{ minWidth: 120 }} />
           <TextField type="date" variant="outlined" value={dateTo} onChange={e => setDateTo(e.target.value)} label="Hasta" InputLabelProps={{ shrink: true }} size="small" sx={{ minWidth: 120 }} />
+          <Button variant="contained" size="large" sx={{ minWidth: 120, fontWeight: 700 }} onClick={handleBuscarUsuario}>Buscar usuario</Button>
         </MinimalFilterBar>
+        {searchError && (
+          <Typography color="error" sx={{ mb: 2, ml: 1, fontWeight: 600, fontSize: 15 }}>{searchError}</Typography>
+        )}
         {loading ? (
           <Typography variant="body1">Cargando vehículos...</Typography>
         ) : error ? (
@@ -513,7 +500,7 @@ const Vehiculos = () => {
                 <Box sx={{ flex: 1, color: '#64748B', fontWeight: 600 }}>Entradas</Box>
                 <Box sx={{ flex: 0.5 }}></Box>
               </Box>
-              {filteredVehiculos.map((vehiculo) => (
+              {vehiculosParaMostrar.map((vehiculo) => (
                 <Box key={vehiculo.id} sx={{ display: 'flex', alignItems: 'center', px: 2, py: 1.5, borderBottom: '1px solid #f0f4fa', transition: 'background 0.18s', '&:hover': { background: '#f4f8fd' } }}>
                   <Checkbox
                     checked={seleccionados.includes(vehiculo.id)}
@@ -530,9 +517,15 @@ const Vehiculos = () => {
                   <Box sx={{ flex: 1 }}><Chip label={vehiculo.color} size="small" sx={{ bgcolor: '#f8fafc', color: '#2B6CA3', fontSize: 13 }} /></Box>
                   <Box sx={{ flex: 1, color: '#90a4ae', fontWeight: 500 }}>{vehiculo.entradas}</Box>
                   <Box sx={{ flex: 0.5, display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button size="small" color="info" variant="outlined" sx={{ minWidth: 32, px: 1.5 }} onClick={() => handleVerInfo(vehiculo)}>
-                      Info
-                    </Button>
+                    {busquedaUsuarioActiva && usuarioBuscado && vehiculo.parqueadero_id !== currentUser?.parqueadero_id ? (
+                      <Button size="small" color="primary" variant="contained" sx={{ minWidth: 32, px: 1.5 }} onClick={() => { setVehiculoParaAsociar(vehiculo); setOpenAsociar(true); }}>
+                        Asociar
+                      </Button>
+                    ) : (
+                      <Button size="small" color="info" variant="outlined" sx={{ minWidth: 32, px: 1.5 }} onClick={() => handleVerInfo(vehiculo)}>
+                        Info
+                      </Button>
+                    )}
                   </Box>
                 </Box>
               ))}
@@ -581,34 +574,17 @@ const Vehiculos = () => {
         </DialogActions>
       </Dialog>
       {usuarioBuscado && (
-        <Box sx={{ mb: 2, p: 2, bgcolor: '#e3f2fd', borderRadius: 0 }}>
-          <Typography variant="subtitle1" fontWeight={700}>Usuario encontrado:</Typography>
-          <Typography>Nombre: {usuarioBuscado.nombre}</Typography>
-          <Typography>Correo: {usuarioBuscado.correo}</Typography>
-          <Typography>ID: {usuarioBuscado.id}</Typography>
-          <Typography>Tipo: {usuarioBuscado.tipo_usuario}</Typography>
-          <Box sx={{ display: 'flex', gap: 2, my: 1 }}>
-            <Button variant="contained" startIcon={<PlaylistAddIcon />} onClick={() => setOpenFormUsuario(true)}>
-              Registrar vehículo
-            </Button>
-          </Box>
-          <Typography sx={{ mt: 1, fontWeight: 700 }}>Vehículos de este usuario:</Typography>
-          {vehiculosUsuario.length === 0 ? (
-            <Typography>No tiene vehículos registrados.</Typography>
-          ) : (
-            vehiculosUsuario.map(v => (
-              <Box key={v.id || v.placa} sx={{ display: 'flex', alignItems: 'center', gap: 2, my: 1, p: 1, bgcolor: '#fff', borderRadius: 0 }}>
-                <DirectionsCarIcon color="primary" />
-                <Typography>{v.placa} - {v.tipo} - {v.marca} - {v.modelo}</Typography>
-                <Button size="small" variant="outlined" startIcon={<LinkIcon />} onClick={() => { setVehiculoParaAsociar(v); setOpenAsociar(true); }}>
-                  Asociar a parqueadero
-                </Button>
-              </Box>
-            ))
+        <Box sx={{ mb: 2, p: 2, bgcolor: '#e3f2fd', borderRadius: 2, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2 }}>
+          <Typography variant="subtitle1" fontWeight={700} color="#2563eb">Usuario encontrado:</Typography>
+          <Typography>Nombre: <b>{usuarioBuscado.nombre}</b></Typography>
+          <Typography>Correo: <b>{usuarioBuscado.correo}</b></Typography>
+          <Typography>ID: <b>{usuarioBuscado.id}</b></Typography>
+          <Typography>Tipo: <b>{usuarioBuscado.tipo_usuario}</b></Typography>
+          {busquedaUsuarioActiva && vehiculosUsuario.length > 0 && (
+            <Typography sx={{ ml: 2 }} color="primary">Vehículos de este usuario listados abajo. Puedes asociarlos a tu parqueadero si no lo están.</Typography>
           )}
         </Box>
       )}
-      {/* Modal registrar vehículo para usuario */}
       <FormVehiculo
         open={openFormUsuario}
         onClose={() => setOpenFormUsuario(false)}
@@ -616,7 +592,6 @@ const Vehiculos = () => {
         onGuardar={handleRegistrarVehiculoUsuario}
         onEliminar={null}
       />
-      {/* Modal asociar vehículo a parqueadero */}
       <Dialog open={openAsociar} onClose={() => setOpenAsociar(false)}>
         <DialogTitle>Asociar vehículo a parqueadero</DialogTitle>
         <DialogContent>
@@ -646,6 +621,11 @@ const Vehiculos = () => {
       <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
         <Alert severity={snackbar.severity} sx={{ width: '100%' }}>{snackbar.message}</Alert>
       </Snackbar>
+      {busquedaUsuarioActiva && usuarioBuscado && (
+        <Button variant="outlined" color="primary" sx={{ ml: 2, mb: 1 }} onClick={limpiarBusquedaUsuario}>
+          Limpiar búsqueda
+        </Button>
+      )}
     </Box>
   );
 };
