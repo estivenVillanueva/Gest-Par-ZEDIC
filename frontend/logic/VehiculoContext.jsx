@@ -119,11 +119,16 @@ export const VehiculoProvider = ({ children }) => {
     setLoading(true);
     try {
       if (usuario_id) {
-        // Solo desasociar del parqueadero
+        // 1. Obtener los datos actuales del vehículo
+        const res = await fetch(`${API_URL}/api/vehiculos/placa/${placa}`);
+        const vehiculo = await res.json();
+        if (!vehiculo.success || !vehiculo.data) throw new Error('No se pudo obtener el vehículo');
+        // 2. Hacer PUT con todos los datos, pero parqueadero_id: null
+        const dataToSend = { ...vehiculo.data, parqueadero_id: null };
         const response = await fetch(`${API_URL}/api/vehiculos/${placa}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ parqueadero_id: null })
+          body: JSON.stringify(dataToSend)
         });
         if (!response.ok) throw new Error('Error al desasociar el vehículo');
       } else {
