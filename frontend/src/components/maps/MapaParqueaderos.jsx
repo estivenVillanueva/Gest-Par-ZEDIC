@@ -4,7 +4,7 @@ import { Box, Typography, Paper, Button } from '@mui/material';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import { MapContainer } from '../../styles/components/MapaParqueaderos.styles';
 
-const MapaParqueaderos = ({ parqueaderos = [] }) => {
+const MapaParqueaderos = ({ parqueaderos = [], onVerDetalles }) => {
   const [selectedParking, setSelectedParking] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const mapRef = useRef(null);
@@ -118,6 +118,7 @@ const MapaParqueaderos = ({ parqueaderos = [] }) => {
                 fullWidth
                 startIcon={<LocalParkingIcon />}
                 sx={{ mt: 1 }}
+                onClick={() => onVerDetalles && onVerDetalles(selectedParking)}
               >
                 Ver detalles
               </Button>

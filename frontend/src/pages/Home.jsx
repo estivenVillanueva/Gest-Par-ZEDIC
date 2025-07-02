@@ -216,7 +216,7 @@ const Home = () => {
                   boxShadow: '0 4px 24px rgba(33, 150, 243, 0.10)',
                   mb: 2
                 }}>
-                  <MapaParqueaderos parqueaderos={filteredParqueaderos} />
+                  <MapaParqueaderos parqueaderos={filteredParqueaderos} onVerDetalles={handleOpenDetails} />
                 </Box>
               </Box>
             </Grid>
