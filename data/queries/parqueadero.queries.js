@@ -28,7 +28,7 @@ export const parqueaderoQueries = {
     },
 
     // Actualizar un parqueadero
-    async updateParqueadero(id, { nombre, ubicacion, capacidad, precio_hora, estado, telefono, email, direccion, horarios, descripcion, logo_url, portada_url }) {
+    async updateParqueadero(id, { nombre, ubicacion, capacidad, precio_hora, estado, telefono, email, direccion, horarios, descripcion, logo_url, portada_url, latitud, longitud }) {
         const query = `
             UPDATE parqueaderos
             SET nombre = $1,
@@ -42,11 +42,13 @@ export const parqueaderoQueries = {
                 horarios = $9,
                 descripcion = $10,
                 logo_url = $11,
-                portada_url = $12
-            WHERE id = $13
+                portada_url = $12,
+                latitud = $13,
+                longitud = $14
+            WHERE id = $15
             RETURNING *
         `;
-        const values = [nombre, ubicacion, capacidad, precio_hora, estado, telefono, email, direccion, horarios, descripcion, logo_url || null, portada_url || null, id];
+        const values = [nombre, ubicacion, capacidad, precio_hora, estado, telefono, email, direccion, horarios, descripcion, logo_url || null, portada_url || null, latitud, longitud, id];
         const result = await pool.query(query, values);
         return this._withDefaultImages(result.rows[0]);
     },
