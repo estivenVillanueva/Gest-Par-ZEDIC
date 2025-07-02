@@ -80,21 +80,28 @@ const Inicio = () => {
   });
   const [ultimosVehiculos, setUltimosVehiculos] = React.useState([]);
   const [ultimosPagos, setUltimosPagos] = React.useState([]);
+  const [capacidad, setCapacidad] = React.useState(0);
 
   React.useEffect(() => {
     if (currentUser && currentUser.parqueadero_id) {
-      fetchVehiculos();
+      fetchVehiculos(currentUser.parqueadero_id);
       fetchPagos(currentUser.parqueadero_id);
+      fetchCapacidad(currentUser.parqueadero_id);
+      fetchSolicitudes(currentUser.parqueadero_id);
     }
   }, [currentUser]);
 
-  const fetchVehiculos = async () => {
+  const fetchVehiculos = async (parqueaderoId) => {
     try {
-      const res = await axios.get(`${API_URL}/vehiculos`);
+      const res = await axios.get(`${API_URL}/vehiculos?parqueadero_id=${parqueaderoId}`);
       if (res.data && res.data.data) {
         setStats((prev) => ({ ...prev, vehiculos: res.data.data.length }));
         const vehiculosOrdenados = [...res.data.data].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         setUltimosVehiculos(vehiculosOrdenados.slice(0, 5));
+        // Actualizar ocupación si ya tenemos capacidad
+        if (capacidad > 0) {
+          setStats((prev) => ({ ...prev, ocupacion: `${Math.round((res.data.data.length / capacidad) * 100)}%` }));
+        }
       }
     } catch (e) {
       setUltimosVehiculos([]);
@@ -127,6 +134,33 @@ const Inicio = () => {
     }
   };
 
+  const fetchCapacidad = async (parqueaderoId) => {
+    try {
+      const res = await axios.get(`${API_URL}/parqueaderos/${parqueaderoId}`);
+      if (res.data && res.data.data && res.data.data.capacidad) {
+        setCapacidad(res.data.data.capacidad);
+        // Si ya tenemos vehículos, actualizar ocupación
+        setStats(prev => ({
+          ...prev,
+          ocupacion: prev.vehiculos > 0 ? `${Math.round((prev.vehiculos / res.data.data.capacidad) * 100)}%` : '0%'
+        }));
+      }
+    } catch (e) {
+      setCapacidad(0);
+    }
+  };
+
+  const fetchSolicitudes = async (parqueaderoId) => {
+    try {
+      const res = await axios.get(`${API_URL}/solicitudes?parqueadero_id=${parqueaderoId}&estado=pendiente`);
+      if (res.data && Array.isArray(res.data.data)) {
+        setStats(prev => ({ ...prev, solicitudes: res.data.data.length }));
+      }
+    } catch (e) {
+      setStats(prev => ({ ...prev, solicitudes: 0 }));
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -144,7 +178,7 @@ const Inicio = () => {
       <Paper elevation={3} sx={{
         width: '100%',
         maxWidth: '98vw',
-        borderRadius: 2,
+        borderRadius: 0,
         bgcolor: '#fff',
         boxShadow: '0 6px 32px rgba(52,152,243,0.10)',
         px: { xs: 2, sm: 4, md: 6 },
@@ -229,7 +263,7 @@ const Inicio = () => {
         {/* Resumen de Actividad */}
         <Paper elevation={1} sx={{
           width: '100%',
-          borderRadius: 2,
+          borderRadius: 0,
           p: { xs: 2, sm: 4 },
           boxShadow: '0 2px 8px rgba(52,152,243,0.06)',
           bgcolor: '#f8fafc',
