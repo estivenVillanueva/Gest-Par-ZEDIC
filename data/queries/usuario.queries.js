@@ -1,6 +1,7 @@
 import { pool } from '../postgres.js';
 import bcrypt from 'bcrypt';
 import { parqueaderoQueries } from './parqueadero.queries.js';
+import { geocodeAddress } from '../geocode_parqueaderos.js';
 
 export const usuarioQueries = {
     // Crear un nuevo usuario
@@ -40,6 +41,19 @@ export const usuarioQueries = {
         if (usuario.tipo_usuario === 'admin') {
             const existente = await parqueaderoQueries.getParqueaderoByUsuarioId(usuario.id);
             if (!existente) {
+                let latitud = null;
+                let longitud = null;
+                if (usuario.ubicacion) {
+                    try {
+                        const coords = await geocodeAddress(`${usuario.ubicacion}, Colombia`);
+                        if (coords) {
+                            latitud = coords.lat;
+                            longitud = coords.lng;
+                        }
+                    } catch (geoError) {
+                        console.error('Error al geocodificar dirección:', geoError);
+                    }
+                }
                 await parqueaderoQueries.createParqueadero({
                     nombre: 'Parqueadero de ' + usuario.nombre,
                     ubicacion: usuario.ubicacion || '',
@@ -51,7 +65,9 @@ export const usuarioQueries = {
                     direccion: usuario.ubicacion || '',
                     horarios: '',
                     descripcion: '',
-                    usuario_id: usuario.id
+                    usuario_id: usuario.id,
+                    latitud,
+                    longitud
                 });
             }
         }

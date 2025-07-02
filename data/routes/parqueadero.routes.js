@@ -129,7 +129,19 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
     try {
         console.log('Datos recibidos para actualizar parqueadero:', req.body, 'ID:', req.params.id);
-        const parqueaderoActualizado = await parqueaderoQueries.updateParqueadero(req.params.id, req.body);
+        let updateData = { ...req.body };
+        if (req.body.direccion) {
+            try {
+                const coords = await geocodeAddress(`${req.body.direccion}, Colombia`);
+                if (coords) {
+                    updateData.latitud = coords.lat;
+                    updateData.longitud = coords.lng;
+                }
+            } catch (geoError) {
+                console.error('Error al geocodificar dirección al actualizar:', geoError);
+            }
+        }
+        const parqueaderoActualizado = await parqueaderoQueries.updateParqueadero(req.params.id, updateData);
         if (!parqueaderoActualizado) {
             return res.status(404).json({
                 success: false,
