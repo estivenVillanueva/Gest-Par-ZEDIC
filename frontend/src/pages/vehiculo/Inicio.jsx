@@ -198,7 +198,7 @@ const Inicio = () => {
   return (
     <Box sx={{
       minHeight: '100vh',
-      bgcolor: '#eaf1fb',
+      bgcolor: 'transparent',
       py: { xs: 2, md: 6 },
       display: 'flex',
       flexDirection: 'column',

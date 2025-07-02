@@ -319,7 +319,14 @@ const MisVehiculos = () => {
   };
 
   return (
-    <Box sx={{ bgcolor: '#f0f4fa', minHeight: '100vh', py: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <Box sx={{
+      minHeight: '100vh',
+      bgcolor: 'transparent',
+      py: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center'
+    }}>
       <Paper elevation={6} sx={{ width: '95vw', maxWidth: 1400, borderRadius: 0, p: { xs: 1, sm: 2, md: 3 }, boxShadow: '0 12px 48px rgba(43,108,163,0.13)', bgcolor: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '60vh', my: 4 }}>
         <Typography variant="h4" sx={{ fontWeight: 800, color: '#3498f3', mb: 2, mt: 2, textAlign: 'center' }}>Tus Vehículos</Typography>
         <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap', justifyContent: 'center' }}>

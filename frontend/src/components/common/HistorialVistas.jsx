@@ -78,16 +78,6 @@ const HistorialVistas = () => {
 
   return (
     <>
-      <Zoom in={true}>
-        <StyledFab
-          color="primary"
-          aria-label="historial"
-          onClick={() => setOpen(true)}
-        >
-          <HistoryIcon />
-        </StyledFab>
-      </Zoom>
-
       <StyledDrawer
         anchor="right"
         open={open}

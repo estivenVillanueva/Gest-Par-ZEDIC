@@ -94,7 +94,13 @@ const Reservas = () => {
   const reservasMostradas = reservasFiltradas.slice(0, limit);
 
   return (
-    <Box sx={{ bgcolor: '#f0f4fa', minHeight: '100vh', py: { xs: 2, sm: 4, md: 6 }, display: 'flex', justifyContent: 'center' }}>
+    <Box sx={{
+      minHeight: '100vh',
+      bgcolor: 'transparent',
+      py: { xs: 2, sm: 4, md: 6 },
+      display: 'flex',
+      justifyContent: 'center'
+    }}>
       <Paper elevation={3} sx={{ width: '95vw', maxWidth: 1400, borderRadius: 0, p: { xs: 1, sm: 2, md: 4 }, boxShadow: '0 8px 32px rgba(43,108,163,0.10)', bgcolor: '#fff' }}>
         <Typography variant="h4" sx={{ fontWeight: 800, color: '#3498f3', mb: 2, fontSize: { xs: '1.3rem', sm: '1.7rem' } }}>
           Mis Reservas

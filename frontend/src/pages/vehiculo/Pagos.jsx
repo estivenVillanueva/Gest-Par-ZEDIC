@@ -23,7 +23,14 @@ function Pagos() {
   const pagadas = facturas.filter(f => ['pagado', 'pagada'].includes((f.estado || '').toLowerCase()));
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f6f7fa', py: { xs: 2, md: 4 }, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <Box sx={{
+      minHeight: '100vh',
+      bgcolor: 'transparent',
+      py: { xs: 2, md: 4 },
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center'
+    }}>
       <Paper elevation={4} sx={{ width: '95vw', maxWidth: 1200, borderRadius: 0, p: { xs: 2, sm: 3, md: 5 }, boxShadow: '0 8px 32px rgba(43,108,163,0.13)', mb: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Typography variant="h4" fontWeight={800} color="primary.main" sx={{ mb: 3, fontSize: { xs: '1.3rem', sm: '1.7rem' }, textAlign: 'center', width: '100%' }}>Mis Pagos</Typography>
         <Tabs value={tab} onChange={(_, v) => setTab(v)} indicatorColor="primary" textColor="primary" variant="fullWidth" sx={{ mb: 3, width: '100%' }}>
