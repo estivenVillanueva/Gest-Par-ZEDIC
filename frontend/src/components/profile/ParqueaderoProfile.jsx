@@ -255,10 +255,21 @@ const ParqueaderoProfile = () => {
         });
         setOpenEdit(false);
         // Volver a cargar los datos actualizados del parqueadero
-        const refreshed = await fetch(`${PARQUEADERO_API_URL}/usuario/${currentUser.id}`);
-        if (refreshed.ok) {
-          const refreshedData = await refreshed.json();
-          setParqueaderoInfo(refreshedData.data);
+        if (field === 'direccion') {
+          // Esperar un pequeño tiempo para asegurar que la geocodificación se procese en el backend
+          setTimeout(async () => {
+            const refreshed = await fetch(`${PARQUEADERO_API_URL}/usuario/${currentUser.id}`);
+            if (refreshed.ok) {
+              const refreshedData = await refreshed.json();
+              setParqueaderoInfo(refreshedData.data);
+            }
+          }, 1000);
+        } else {
+          const refreshed = await fetch(`${PARQUEADERO_API_URL}/usuario/${currentUser.id}`);
+          if (refreshed.ok) {
+            const refreshedData = await refreshed.json();
+            setParqueaderoInfo(refreshedData.data);
+          }
         }
       } catch (error) {
         setSnackbar({
