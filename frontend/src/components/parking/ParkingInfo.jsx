@@ -113,14 +113,6 @@ const ParkingInfo = ({ parkingData, onClose }) => {
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           onError={e => { e.target.onerror = null; e.target.src = DEFAULT_PORTADA_URL; }}
         />
-        <Box sx={{ position: 'absolute', left: 24, bottom: -40, zIndex: 2 }}>
-          <img
-            src={parkingData?.logo_url || DEFAULT_LOGO_URL}
-            alt="Logo parqueadero"
-            style={{ width: 80, height: 80, borderRadius: '50%', border: '4px solid white', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', background: '#fff', objectFit: 'cover' }}
-            onError={e => { e.target.onerror = null; e.target.src = DEFAULT_LOGO_URL; }}
-          />
-        </Box>
         <Button onClick={onClose} sx={{ position: 'absolute', top: 16, right: 16, bgcolor: 'rgba(255,255,255,0.8)', color: '#2563eb', fontWeight: 700, borderRadius: 2, px: 2, boxShadow: 2, '&:hover': { bgcolor: '#2563eb', color: 'white' } }}>Cerrar</Button>
       </Box>
       <Box sx={{ p: { xs: 2, md: 4 }, pt: 4 }}>
