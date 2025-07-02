@@ -114,14 +114,25 @@ export const VehiculoProvider = ({ children }) => {
     }
   };
 
-  const eliminarVehiculo = async (placa) => {
+  const eliminarVehiculo = async (placa, usuario_id = null) => {
     setError('');
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/vehiculos/${placa}`, {
-        method: 'DELETE'
-      });
-      if (!response.ok) throw new Error('Error al eliminar el vehículo');
+      if (usuario_id) {
+        // Solo desasociar del parqueadero
+        const response = await fetch(`${API_URL}/api/vehiculos/${placa}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ parqueadero_id: null })
+        });
+        if (!response.ok) throw new Error('Error al desasociar el vehículo');
+      } else {
+        // Eliminar completamente
+        const response = await fetch(`${API_URL}/api/vehiculos/${placa}`, {
+          method: 'DELETE'
+        });
+        if (!response.ok) throw new Error('Error al eliminar el vehículo');
+      }
       await cargarVehiculos();
     } catch (error) {
       setError('Error al eliminar el vehículo');

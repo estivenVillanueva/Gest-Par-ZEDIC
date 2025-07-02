@@ -316,7 +316,8 @@ const Vehiculos = () => {
   };
 
   const handleEliminar = async (placa) => {
-    await eliminarVehiculo(placa);
+    const veh = vehiculos.find(v => v.placa === placa);
+    await eliminarVehiculo(placa, veh?.usuario_id || null);
   };
 
   const handleEliminarTodos = async () => {
@@ -427,7 +428,7 @@ const Vehiculos = () => {
     try {
       for (const id of seleccionados) {
         const veh = vehiculos.find(v => v.id === id);
-        if (veh) await eliminarVehiculo(veh.placa);
+        if (veh) await eliminarVehiculo(veh.placa, veh.usuario_id || null);
       }
       setSeleccionados([]);
       setOpenConfirmarEliminar(false);
