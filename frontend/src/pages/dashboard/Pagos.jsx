@@ -389,38 +389,22 @@ const FormularioPago = ({ open, onClose, onGuardar }) => {
 
 const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
   const [metodoPago, setMetodoPago] = useState('efectivo');
-  const [parqueadero, setParqueadero] = useState(null);
-  const [detalles, setDetalles] = useState([]);
-  const [vehiculo, setVehiculo] = useState(null);
-  const [numIngresos, setNumIngresos] = useState(0);
-  const [numSalidas, setNumSalidas] = useState(0);
+  const [facturaCompleta, setFacturaCompleta] = useState(null);
   const { currentUser } = useAuth();
 
-  // LOGS DE DEPURACIÓN
-  console.log('PagarDialog - parqueadero:', parqueadero);
-  console.log('PagarDialog - currentUser?.parqueadero:', currentUser?.parqueadero);
-
   useEffect(() => {
-    const fetchParqueadero = async () => {
-      if (factura && factura.parqueadero_id) {
+    const fetchFacturaCompleta = async () => {
+      if (factura && factura.id) {
         try {
           const res = await fetch(`${API_URL}/api/facturas/completa/${factura.id}`);
           const data = await res.json();
-          setParqueadero(data.data.parqueadero);
-          setDetalles(data.data.detalles);
-          setVehiculo(data.data.vehiculo);
-          setNumIngresos(data.data.numIngresos);
-          setNumSalidas(data.data.numSalidas);
+          setFacturaCompleta(data.data);
         } catch (err) {
-          setParqueadero(null);
-          setDetalles([]);
-          setVehiculo(null);
-          setNumIngresos(0);
-          setNumSalidas(0);
+          setFacturaCompleta(null);
         }
       }
     };
-    fetchParqueadero();
+    fetchFacturaCompleta();
   }, [factura]);
 
   if (!factura) return null;
@@ -434,18 +418,15 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>Factura</DialogTitle>
       <DialogContent>
-        {!factura ? (
+        {!facturaCompleta ? (
           <Box sx={{ p: 4, textAlign: 'center' }}>
             <Typography variant="h6">Cargando datos de la factura...</Typography>
           </Box>
         ) : (
           <FacturaPreview
-            factura={factura}
-            parqueadero={parqueadero}
-            vehiculo={vehiculo}
-            detalles={detalles}
-            numIngresos={numIngresos}
-            numSalidas={numSalidas}
+            open={open}
+            onClose={onClose}
+            {...facturaCompleta}
           />
         )}
         <Button
@@ -453,7 +434,7 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
           color="primary"
           sx={{ mt: 2 }}
           onClick={handleImprimir}
-          disabled={!factura}
+          disabled={!facturaCompleta}
         >
           Imprimir factura
         </Button>
