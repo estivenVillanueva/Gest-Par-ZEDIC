@@ -14,10 +14,10 @@ const FacturaPreview = ({ factura, vehiculo, detalles, numIngresos, numSalidas }
   // Datos del cliente y vehículo
   const clienteNombre = vehiculo?.dueno_nombre || factura?.usuario_nombre || 'No registrado';
   const clientePlaca = vehiculo?.placa || factura?.placa || 'No registrado';
-  const marca = vehiculo?.marca || 'No registrado';
-  const modelo = vehiculo?.modelo || 'No registrado';
-  const color = vehiculo?.color || 'No registrado';
-  const tipo = vehiculo?.tipo || 'No registrado';
+  const marca = vehiculo && vehiculo.marca && vehiculo.marca.trim() !== '' ? vehiculo.marca : 'No registrado';
+  const modelo = vehiculo && vehiculo.modelo && vehiculo.modelo.trim() !== '' ? vehiculo.modelo : 'No registrado';
+  const color = vehiculo && vehiculo.color && vehiculo.color.trim() !== '' ? vehiculo.color : 'No registrado';
+  const tipo = vehiculo && vehiculo.tipo && vehiculo.tipo.trim() !== '' ? vehiculo.tipo : 'No registrado';
   const servicio = factura?.servicio_nombre || 'No registrado';
   const fechaEmision = factura?.fecha_creacion ? new Date(factura.fecha_creacion).toLocaleString() : 'No registrado';
 
@@ -53,6 +53,26 @@ const FacturaPreview = ({ factura, vehiculo, detalles, numIngresos, numSalidas }
         <Typography variant="body1" sx={{ mb: 1 }}>{color}</Typography>
         <Typography variant="subtitle1" fontWeight={700}>Tipo:</Typography>
         <Typography variant="body1" sx={{ mb: 1 }}>{tipo}</Typography>
+        {/* Datos adicionales del vehículo */}
+        {vehiculo && (
+          <>
+            <Typography variant="subtitle1" fontWeight={700}>Puesto:</Typography>
+            <Typography variant="body1" sx={{ mb: 1 }}>{vehiculo.puesto || 'No registrado'}</Typography>
+            <Typography variant="subtitle1" fontWeight={700}>Teléfono dueño:</Typography>
+            <Typography variant="body1" sx={{ mb: 1 }}>{vehiculo.dueno_telefono || 'No registrado'}</Typography>
+            <Typography variant="subtitle1" fontWeight={700}>Email dueño:</Typography>
+            <Typography variant="body1" sx={{ mb: 1 }}>{vehiculo.dueno_email || 'No registrado'}</Typography>
+          </>
+        )}
+        {/* Datos del parqueadero */}
+        {factura?.parqueadero && (
+          <>
+            <Typography variant="subtitle1" fontWeight={700}>Parqueadero:</Typography>
+            <Typography variant="body1" sx={{ mb: 1 }}>{factura.parqueadero.nombre || 'No registrado'}</Typography>
+            <Typography variant="subtitle1" fontWeight={700}>Dirección parqueadero:</Typography>
+            <Typography variant="body1" sx={{ mb: 1 }}>{factura.parqueadero.direccion || 'No registrado'}</Typography>
+          </>
+        )}
         <Typography variant="subtitle1" fontWeight={700}>Servicio:</Typography>
         <Typography variant="body1" sx={{ mb: 1 }}>{servicio}</Typography>
       </Box>
