@@ -406,11 +406,11 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
         try {
           const res = await fetch(`${API_URL}/api/facturas/completa/${factura.id}`);
           const data = await res.json();
-          setParqueadero(data.parqueadero);
-          setDetalles(data.detalles);
-          setVehiculo(data.vehiculo);
-          setNumIngresos(data.numIngresos);
-          setNumSalidas(data.numSalidas);
+          setParqueadero(data.data.parqueadero);
+          setDetalles(data.data.detalles);
+          setVehiculo(data.data.vehiculo);
+          setNumIngresos(data.data.numIngresos);
+          setNumSalidas(data.data.numSalidas);
         } catch (err) {
           setParqueadero(null);
           setDetalles([]);
