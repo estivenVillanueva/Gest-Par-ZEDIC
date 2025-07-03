@@ -139,7 +139,6 @@ router.put('/:id', async (req, res) => {
         }
         // Si el correo fue cambiado, enviar correo de verificación
         if (usuarioActualizado.nuevoToken) {
-            const nodemailer = require('nodemailer');
             const transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
