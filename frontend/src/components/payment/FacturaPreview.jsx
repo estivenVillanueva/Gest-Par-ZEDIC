@@ -56,6 +56,20 @@ const FacturaPreview = ({ factura, vehiculo, detalles, numIngresos, numSalidas }
         <Typography variant="subtitle1" fontWeight={700}>Servicio:</Typography>
         <Typography variant="body1" sx={{ mb: 1 }}>{servicio}</Typography>
       </Box>
+      {/* Mostrar detalles de la factura si existen */}
+      {detalles && detalles.length > 0 && (
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Detalles:</Typography>
+          {detalles.map((detalle, idx) => (
+            <Box key={detalle.id || idx} sx={{ mb: 1, pl: 2 }}>
+              <Typography variant="body2"><b>Servicio:</b> {detalle.servicio_nombre}</Typography>
+              <Typography variant="body2"><b>Cantidad:</b> {detalle.cantidad}</Typography>
+              <Typography variant="body2"><b>Precio unitario:</b> ${parseFloat(detalle.precio_unitario).toLocaleString('es-CO')}</Typography>
+              <Typography variant="body2"><b>Subtotal:</b> ${parseFloat(detalle.subtotal).toLocaleString('es-CO')}</Typography>
+            </Box>
+          ))}
+        </Box>
+      )}
       <Divider sx={{ my: 2 }} />
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: 2 }}>
         <Typography variant="h6" fontWeight={800}>Total:&nbsp;</Typography>
