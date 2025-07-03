@@ -690,6 +690,24 @@ const Pagos = () => {
     ...pagosHistorial.map(p => p.servicio_nombre)
   ].filter(Boolean))).sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
 
+  const handleGuardarFactura = async (facturaData) => {
+    try {
+      // Buscar el vehículo por placa antes de crear la factura
+      const resVehiculo = await axios.get(`${API_URL}/api/vehiculos/placa/${facturaData.placa}`);
+      const vehiculo = resVehiculo.data.data;
+      // Construir el payload de la factura incluyendo el id correcto
+      const facturaPayload = {
+        ...facturaData,
+        vehiculo_id: vehiculo.id,
+      };
+      await axios.post(`${API_URL}/api/facturas`, facturaPayload);
+      // Aquí puedes agregar feedback, cerrar modal, recargar datos, etc.
+    } catch (error) {
+      console.error('Error al crear la factura:', error);
+      // Manejo de error visual si lo deseas
+    }
+  };
+
   return (
     <Box sx={{ width: '100%', minHeight: '100vh', py: 5, px: { xs: 1, md: 6 }, bgcolor: '#f6f7fa', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <Paper elevation={3} sx={{

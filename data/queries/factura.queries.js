@@ -4,13 +4,13 @@ import { serviciosQueries } from './servicios.queries.js';
 
 export const facturaQueries = {
     // Crear una nueva factura
-    async createFactura({ fechaIngreso, fechaSalida, valorTotal, idServicio }) {
+    async createFactura({ usuario_id, parqueadero_id, vehiculo_id, servicio_id, total, estado = 'pendiente', fecha_creacion = new Date(), fecha_vencimiento }) {
         const query = `
-            INSERT INTO facturas (fecha_ingreso, fecha_salida, valor_total, id_servicio)
-            VALUES ($1, $2, $3, $4)
+            INSERT INTO facturas (usuario_id, parqueadero_id, vehiculo_id, servicio_id, total, estado, fecha_creacion, fecha_vencimiento)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *
         `;
-        const values = [fechaIngreso, fechaSalida, valorTotal, idServicio];
+        const values = [usuario_id, parqueadero_id, vehiculo_id, servicio_id, total, estado, fecha_creacion, fecha_vencimiento];
         const result = await pool.query(query, values);
         return result.rows[0];
     },
@@ -229,10 +229,19 @@ async function getFacturaCompletaById(id) {
     // 4. Obtener datos del vehículo (si no hay, devuelve null)
     let vehiculo = null;
     try {
+        console.log('Buscando vehículo con id:', factura.vehiculo_id);
         const vehiculoQuery = 'SELECT * FROM vehiculos WHERE id = $1';
         const vehiculoRes = await pool.query(vehiculoQuery, [factura.vehiculo_id]);
         vehiculo = vehiculoRes.rows[0] || null;
-        console.log('Vehículo encontrado:', vehiculo);
+        if (vehiculo) {
+            vehiculo.marca = vehiculo.marca || null;
+            vehiculo.modelo = vehiculo.modelo || null;
+            vehiculo.color = vehiculo.color || null;
+            vehiculo.tipo = vehiculo.tipo || null;
+        } else {
+            console.log('No se encontró vehículo con id:', factura.vehiculo_id);
+        }
+        console.log('Vehículo encontrado (con campos clave):', vehiculo);
     } catch (e) {
         vehiculo = null;
         console.log('Error obteniendo vehículo:', e);
