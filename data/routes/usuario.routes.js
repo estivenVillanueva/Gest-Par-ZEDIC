@@ -139,6 +139,7 @@ router.put('/:id', async (req, res) => {
         }
         // Si el correo fue cambiado, enviar correo de verificación
         if (usuarioActualizado.nuevoToken) {
+            console.log('Enviando correo de verificación a:', usuarioActualizado.correo, 'con token:', usuarioActualizado.nuevoToken);
             const transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
@@ -162,12 +163,17 @@ router.put('/:id', async (req, res) => {
                     <p style="color: #6b7280; font-size: 0.95em;">Equipo Gest-Par-ZEDIC</p>
                 </div>
             `;
-            await transporter.sendMail({
-                from: 'Gest-Par-ZEDIC <gestparzedic@gmail.com>',
-                to: usuarioActualizado.correo,
-                subject: 'Verifica tu nuevo correo en Gest-Par-ZEDIC',
-                html: htmlContent
-            });
+            try {
+                await transporter.sendMail({
+                    from: 'Gest-Par-ZEDIC <gestparzedic@gmail.com>',
+                    to: usuarioActualizado.correo,
+                    subject: 'Verifica tu nuevo correo en Gest-Par-ZEDIC',
+                    html: htmlContent
+                });
+                console.log('Correo de verificación enviado correctamente');
+            } catch (err) {
+                console.error('Error enviando correo de verificación:', err);
+            }
         }
         res.json({
             success: true,
