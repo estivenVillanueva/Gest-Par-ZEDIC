@@ -59,7 +59,9 @@ export const facturaQueries = {
             JOIN servicios s ON v.servicio_id = s.id
             WHERE s.tipo_cobro = 'periodo'
         `);
+        console.log('[PERIODICAS] Vehículos encontrados para facturación periódica:', vehiculos.rows.length);
         for (const vehiculo of vehiculos.rows) {
+            console.log('[PERIODICAS] Procesando vehículo:', vehiculo.id, vehiculo.placa, 'usuario_id:', vehiculo.usuario_id, 'parqueadero_id:', vehiculo.parqueadero_id, 'servicio_id:', vehiculo.servicio_id);
             // 2. Buscar la última factura generada para este vehículo y servicio
             const { rows: facturas } = await pool.query(
                 `SELECT * FROM facturas WHERE vehiculo_id = $1 AND servicio_id = $2 ORDER BY fecha_vencimiento DESC LIMIT 1`,
@@ -88,6 +90,7 @@ export const facturaQueries = {
                     [vehiculo.id, vehiculo.servicio_id, fechaCiclo]
                 );
                 if (existe.length === 0) {
+                    console.log('[PERIODICAS] Creando factura para vehículo:', vehiculo.id, 'usuario_id:', vehiculo.usuario_id, 'parqueadero_id:', vehiculo.parqueadero_id, 'servicio_id:', vehiculo.servicio_id, 'fecha_creacion:', fechaCiclo, 'fecha_vencimiento:', fechaVencimiento);
                     // Crear factura pendiente
                     const facturaRes = await pool.query(
                         `INSERT INTO facturas (usuario_id, parqueadero_id, vehiculo_id, servicio_id, total, estado, fecha_creacion, fecha_vencimiento)
@@ -95,6 +98,7 @@ export const facturaQueries = {
                         [vehiculo.usuario_id, vehiculo.parqueadero_id, vehiculo.id, vehiculo.servicio_id, vehiculo.precio, fechaCiclo, fechaVencimiento]
                     );
                     const facturaId = facturaRes.rows[0].id;
+                    console.log('[PERIODICAS] Factura creada con id:', facturaId, 'para vehiculo_id:', vehiculo.id);
                     // Crear detalle de factura automáticamente
                     await pool.query(
                         `INSERT INTO factura_detalles (factura_id, servicio_id, cantidad, precio_unitario, subtotal, created_at, updated_at)
