@@ -679,6 +679,7 @@ const Pagos = () => {
           key={pago.id}
           pago={pago}
           isPending={false}
+          onCardClick={() => handleOpenDialog(pago)}
         />
       ));
     }
