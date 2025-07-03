@@ -115,6 +115,23 @@ router.delete('/:id', async (req, res) => {
             message: 'Servicio eliminado correctamente'
         });
     } catch (error) {
+        // Si es error de restricción de clave foránea, marcar como inactivo
+        if (error.code === '23503') { // Código de error de Postgres para restricción de clave foránea
+            try {
+                const inactivado = await serviciosQueries.inactivarServicio(req.params.id);
+                return res.status(200).json({
+                    success: true,
+                    message: 'El servicio tiene dependencias y no se puede eliminar, pero ha sido desactivado (estado = inactivo).',
+                    data: inactivado
+                });
+            } catch (err2) {
+                return res.status(500).json({
+                    success: false,
+                    message: 'No se pudo eliminar ni desactivar el servicio',
+                    error: err2.message
+                });
+            }
+        }
         res.status(500).json({
             success: false,
             message: 'Error al eliminar servicio',

@@ -109,5 +109,12 @@ export const serviciosQueries = {
         const query = 'SELECT * FROM servicios';
         const result = await pool.query(query);
         return result.rows;
+    },
+
+    // Marcar servicio como inactivo
+    async inactivarServicio(id) {
+        const query = 'UPDATE servicios SET estado = $1 WHERE id = $2 RETURNING *';
+        const result = await pool.query(query, ['inactivo', id]);
+        return result.rows[0];
     }
 }; 

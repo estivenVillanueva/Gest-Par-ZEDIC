@@ -290,6 +290,88 @@ const ParqueaderoProfile = () => {
       }
       return;
     }
+    // Si el campo es un servicio
+    if (editField === 'servicio') {
+      // Validación dinámica según tipo de servicio
+      if (!editValue.tipo_servicio) {
+        setSnackbar({ open: true, message: 'Selecciona el tipo de servicio', severity: 'error' });
+        return;
+      }
+      if (['mensual', 'quincenal', 'semanal', 'otro'].includes(editValue.tipo_servicio)) {
+        if (!editValue.nombre && editValue.tipo_servicio === 'otro') {
+          setSnackbar({ open: true, message: 'El nombre es obligatorio para servicios tipo "otro"', severity: 'error' });
+          return;
+        }
+        if (!editValue.precio || !editValue.duracion) {
+          setSnackbar({ open: true, message: 'El precio y la duración son obligatorios', severity: 'error' });
+          return;
+        }
+      }
+      if (['dia', 'hora', 'minuto'].includes(editValue.tipo_servicio)) {
+        if (!editValue.duracion) {
+          setSnackbar({ open: true, message: 'Selecciona la duración', severity: 'error' });
+          return;
+        }
+        if (editValue.duracion === 'dia' && !editValue.precio_dia) {
+          setSnackbar({ open: true, message: 'El precio por día es obligatorio', severity: 'error' });
+          return;
+        }
+        if (editValue.duracion === 'hora' && !editValue.precio_hora) {
+          setSnackbar({ open: true, message: 'El precio por hora es obligatorio', severity: 'error' });
+          return;
+        }
+        if (editValue.duracion === 'minuto' && !editValue.precio_minuto) {
+          setSnackbar({ open: true, message: 'El precio por minuto es obligatorio', severity: 'error' });
+          return;
+        }
+      }
+      try {
+        let response, data;
+        const payload = {
+          ...editValue,
+          parqueadero_id: parqueaderoInfo.id,
+        };
+        console.log('Payload a enviar:', payload);
+        if (editValue.index !== undefined && editValue.index >= 0) {
+          const servicioId = parqueaderoInfo.servicios[editValue.index].id;
+          response = await fetch(`${SERVICIOS_API_URL}/${servicioId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (!response.ok) throw new Error('Error al actualizar el servicio');
+          data = await response.json();
+          setParqueaderoInfo(prev => ({
+            ...prev,
+            servicios: prev.servicios.map((s, i) =>
+              i === editValue.index ? data.data : s
+            )
+          }));
+          setSnackbar({ open: true, message: 'Servicio actualizado', severity: 'success' });
+        } else {
+          response = await fetch(`${SERVICIOS_API_URL}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (!response.ok) throw new Error('Error al agregar el servicio');
+          data = await response.json();
+          setParqueaderoInfo(prev => ({
+            ...prev,
+            servicios: [...prev.servicios, data.data]
+          }));
+          setSnackbar({ open: true, message: 'Servicio agregado', severity: 'success' });
+        }
+        setOpenEdit(false);
+      } catch (error) {
+        setSnackbar({
+          open: true,
+          message: 'Error al guardar el servicio',
+          severity: 'error'
+        });
+      }
+      return;
+    }
     // ... (mantener el resto de la lógica si hay otros campos)
   };
 
@@ -568,7 +650,7 @@ const ParqueaderoProfile = () => {
             </Typography>
             <Grid container spacing={2} sx={{ mb: 3 }}>
               {(parqueaderoInfo.servicios || [])
-                .filter(servicio => servicio && (servicio.nombre || servicio.precio))
+                .filter(servicio => servicio && (servicio.nombre || servicio.precio) && servicio.estado !== 'inactivo')
                 .map((servicio, index) => {
                   const tipoServicio = servicio.nombre || 'Sin tipo';
                   const tarifaServicio = servicio.precio || 'Sin tarifa';
@@ -622,7 +704,17 @@ const ParqueaderoProfile = () => {
                               const servicioId = parqueaderoInfo.servicios[index].id;
                               try {
                                 const res = await fetch(`${SERVICIOS_API_URL}/${servicioId}`, { method: 'DELETE' });
-                                if (res.ok) {
+                                const data = await res.json();
+                                if (res.ok && data.message && data.message.includes('desactivado')) {
+                                  // Servicio desactivado, no eliminado
+                                  setParqueaderoInfo(prev => ({
+                                    ...prev,
+                                    servicios: prev.servicios.map((s, i) =>
+                                      i === index ? { ...s, estado: 'inactivo' } : s
+                                    )
+                                  }));
+                                  setSnackbar({ open: true, message: 'El servicio tiene dependencias y fue desactivado.', severity: 'info' });
+                                } else if (res.ok) {
                                   setParqueaderoInfo(prev => ({ ...prev, servicios: prev.servicios.filter((_, i) => i !== index) }));
                                   setSnackbar({ open: true, message: 'Servicio eliminado', severity: 'success' });
                                 } else {
@@ -709,19 +801,167 @@ const ParqueaderoProfile = () => {
           Editar {editField === 'usuario.correo' ? 'Correo' : editField.replace('usuario.', '').replace('parqueadero.', '')}
         </DialogTitle>
         <DialogContent sx={{ pt: 1, pb: 2 }}>
-          <TextField
-            autoFocus
-            margin="dense"
-            label={editField === 'usuario.correo' ? 'Correo electrónico' : 'Nuevo valor'}
-            type={editField === 'usuario.correo' ? 'email' : 'text'}
-            fullWidth
-            variant="outlined"
-            value={editValue}
-            onChange={e => setEditValue(e.target.value)}
-            sx={{ borderRadius: 2, bgcolor: '#f7fafd' }}
-            error={editField === 'usuario.correo' && !!editValue && !/^\S+@\S+\.\S+$/.test(editValue)}
-            helperText={editField === 'usuario.correo' && !!editValue && !/^\S+@\S+\.\S+$/.test(editValue) ? 'Formato de correo inválido' : ''}
-          />
+          {editField === 'servicio' ? (
+            <>
+              <TextField
+                select
+                margin="dense"
+                label="Tipo de servicio"
+                fullWidth
+                variant="outlined"
+                value={editValue.tipo_servicio || ''}
+                onChange={e => {
+                  const value = e.target.value;
+                  let nombre = value;
+                  if (value === 'otro') nombre = '';
+                  setEditValue({
+                    ...editValue,
+                    tipo_servicio: value,
+                    nombre,
+                    precio: '',
+                    precio_minuto: '',
+                    precio_hora: '',
+                    precio_dia: '',
+                    duracion: '',
+                  });
+                }}
+                sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
+              >
+                <MenuItem value="mensual">Mensual</MenuItem>
+                <MenuItem value="quincenal">Quincenal</MenuItem>
+                <MenuItem value="semanal">Semanal</MenuItem>
+                <MenuItem value="dia">Día</MenuItem>
+                <MenuItem value="hora">Hora</MenuItem>
+                <MenuItem value="minuto">Minuto</MenuItem>
+                <MenuItem value="otro">Otro</MenuItem>
+              </TextField>
+
+              {/* Si es tipo 'otro', permite escribir el nombre */}
+              {editValue.tipo_servicio === 'otro' && (
+                <TextField
+                  margin="dense"
+                  label="Nombre del servicio"
+                  type="text"
+                  fullWidth
+                  variant="outlined"
+                  value={editValue.nombre || ''}
+                  onChange={e => setEditValue({ ...editValue, nombre: e.target.value })}
+                  sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
+                />
+              )}
+
+              <TextField
+                margin="dense"
+                label="Descripción"
+                type="text"
+                fullWidth
+                variant="outlined"
+                value={editValue.descripcion || ''}
+                onChange={e => setEditValue({ ...editValue, descripcion: e.target.value })}
+                sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
+              />
+
+              {/* Si es mensual/quincenal/semanal/otro, pide precio fijo y duración */}
+              {['mensual', 'quincenal', 'semanal', 'otro'].includes(editValue.tipo_servicio) && (
+                <>
+                  <TextField
+                    margin="dense"
+                    label="Precio"
+                    type="number"
+                    fullWidth
+                    variant="outlined"
+                    value={editValue.precio || ''}
+                    onChange={e => setEditValue({ ...editValue, precio: e.target.value })}
+                    sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
+                  />
+                  <TextField
+                    select
+                    margin="dense"
+                    label="Duración"
+                    fullWidth
+                    variant="outlined"
+                    value={editValue.duracion || ''}
+                    onChange={e => setEditValue({ ...editValue, duracion: e.target.value })}
+                    sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
+                  >
+                    <MenuItem value="mes">Mes</MenuItem>
+                    <MenuItem value="quincena">Quincena</MenuItem>
+                    <MenuItem value="semana">Semana</MenuItem>
+                  </TextField>
+                </>
+              )}
+
+              {/* Si es por uso: día, hora, minuto */}
+              {['dia', 'hora', 'minuto'].includes(editValue.tipo_servicio) && (
+                <>
+                  <TextField
+                    select
+                    margin="dense"
+                    label="Duración"
+                    fullWidth
+                    variant="outlined"
+                    value={editValue.duracion || ''}
+                    onChange={e => setEditValue({ ...editValue, duracion: e.target.value })}
+                    sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
+                  >
+                    <MenuItem value="dia">Día</MenuItem>
+                    <MenuItem value="hora">Hora</MenuItem>
+                    <MenuItem value="minuto">Minuto</MenuItem>
+                  </TextField>
+                  {editValue.duracion === 'dia' && (
+                    <TextField
+                      margin="dense"
+                      label="Precio por día"
+                      type="number"
+                      fullWidth
+                      variant="outlined"
+                      value={editValue.precio_dia || ''}
+                      onChange={e => setEditValue({ ...editValue, precio_dia: e.target.value })}
+                      sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
+                    />
+                  )}
+                  {editValue.duracion === 'hora' && (
+                    <TextField
+                      margin="dense"
+                      label="Precio por hora"
+                      type="number"
+                      fullWidth
+                      variant="outlined"
+                      value={editValue.precio_hora || ''}
+                      onChange={e => setEditValue({ ...editValue, precio_hora: e.target.value })}
+                      sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
+                    />
+                  )}
+                  {editValue.duracion === 'minuto' && (
+                    <TextField
+                      margin="dense"
+                      label="Precio por minuto"
+                      type="number"
+                      fullWidth
+                      variant="outlined"
+                      value={editValue.precio_minuto || ''}
+                      onChange={e => setEditValue({ ...editValue, precio_minuto: e.target.value })}
+                      sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
+                    />
+                  )}
+                </>
+              )}
+            </>
+          ) : (
+            <TextField
+              autoFocus
+              margin="dense"
+              label={editField === 'usuario.correo' ? 'Correo electrónico' : 'Nuevo valor'}
+              type={editField === 'usuario.correo' ? 'email' : 'text'}
+              fullWidth
+              variant="outlined"
+              value={editValue}
+              onChange={e => setEditValue(e.target.value)}
+              sx={{ borderRadius: 2, bgcolor: '#f7fafd' }}
+              error={editField === 'usuario.correo' && !!editValue && !/^\S+@\S+\.\S+$/.test(editValue)}
+              helperText={editField === 'usuario.correo' && !!editValue && !/^\S+@\S+\.\S+$/.test(editValue) ? 'Formato de correo inválido' : ''}
+            />
+          )}
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'center', pb: 2 }}>
           <Button onClick={() => setOpenEdit(false)} color="secondary" variant="outlined">Cancelar</Button>
