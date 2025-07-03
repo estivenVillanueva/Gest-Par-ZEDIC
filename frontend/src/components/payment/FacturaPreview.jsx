@@ -24,12 +24,10 @@ import {
 // Estilos para impresión y visualización profesional
 const styles = `
 @media print {
-  body * { visibility: hidden !important; }
-  #factura-print-area, #factura-print-area * { visibility: visible !important; }
-  #factura-print-area { position: absolute; left: 0; top: 0; width: 100vw; background: white; box-shadow: none; }
   .no-print { display: none !important; }
+  body { background: white !important; }
 }
-#factura-print-area {
+.print-factura {
   font-family: 'Segoe UI', Arial, sans-serif;
   background: #fff;
   color: #222;
@@ -200,187 +198,97 @@ const FacturaPreview = ({
   return (
     <>
       <style>{styles}</style>
-      {/* Área oculta para impresión, siempre renderizada */}
-      <div id="factura-print-area" style={{ display: 'none' }}>
-        {/* Cabecera profesional */}
-        <div className="factura-header">
-          <div style={{ display: 'flex', alignItems: 'flex-start' }}>
-            {logoUrl ? (
-              <img src={logoUrl} alt="Logo parqueadero" className="factura-logo" />
-            ) : (
-              <Box className="factura-logo" sx={{ bgcolor: '#e3e3e3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#1976d2' }}>{nombreParqueadero[0]}</Box>
-            )}
-            <div className="factura-header-info">
-              <span className="factura-title">{nombreParqueadero}</span>
-              <Typography variant="body2" color="text.secondary">{direccionParqueadero}</Typography>
-              {telefonoParqueadero && <Typography variant="body2" color="text.secondary"><Phone sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} />{telefonoParqueadero}</Typography>}
-              {emailParqueadero && <Typography variant="body2" color="text.secondary">Email: {emailParqueadero}</Typography>}
-            </div>
-          </div>
-          <div className="factura-header-datos">
-            <Typography variant="h6" sx={{ color: '#222', fontWeight: 700 }}>Factura #{id}</Typography>
-            <Chip label={getEstadoText(estado)} sx={{ bgcolor: getEstadoColor(estado), color: 'white', fontWeight: 700, mt: 1 }} className="chip" />
-          </div>
-        </div>
-        {/* Información principal */}
-        <table className="factura-info-table">
-          <tbody>
-            <tr>
-              <td><b>Fecha de Emisión:</b></td>
-              <td>{formatDate(fecha_creacion ?? fecha ?? null)}</td>
-              <td><b>Estado:</b></td>
-              <td>{getEstadoText(estado)}</td>
-            </tr>
-            <tr>
-              <td><b>Número de Factura:</b></td>
-              <td>#{id}</td>
-              <td><b>Total:</b></td>
-              <td>{formatCurrency(totalNumber)}</td>
-            </tr>
-          </tbody>
-        </table>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={5}>
-            <div className="factura-section-title"><DirectionsCar sx={{ fontSize: 20, mr: 1, verticalAlign: 'middle' }} />Vehículo</div>
-            {vehiculo ? (
-              <>
-                <Typography variant="body1" fontWeight="medium">{vehiculo.marca} {vehiculo.modelo}</Typography>
-                <Typography variant="body2" color="text.secondary">Color: {vehiculo.color}</Typography>
-                <Typography variant="body2" color="text.secondary">Tipo: {vehiculo.tipo}</Typography>
-                <Typography variant="body2" color="text.secondary">Placa: {vehiculo.placa}</Typography>
-                {vehiculo.puesto && <Typography variant="body2" color="text.secondary">Puesto: {vehiculo.puesto}</Typography>}
-              </>
-            ) : (
-              <Typography variant="body2" color="text.secondary">Información del vehículo no disponible</Typography>
-            )}
-          </Grid>
-          <Grid item xs={12} md={7}>
-            <div className="factura-section-title">Detalles de Servicios</div>
-            <table className="factura-details-table">
-              <thead>
-                <tr>
-                  <th>Servicio</th>
-                  <th>Cantidad</th>
-                  <th>Precio Unitario</th>
-                  <th>Subtotal</th>
-                </tr>
-              </thead>
-              <tbody>
-                {detalles && detalles.length > 0 ? (
-                  detalles.map((detalle, idx) => (
-                    <tr key={idx}>
-                      <td>{detalle.servicio_nombre || 'Servicio'}</td>
-                      <td>{detalle.cantidad || 1}</td>
-                      <td>{formatCurrency(Number(detalle.precio_unitario || 0))}</td>
-                      <td>{formatCurrency(Number(detalle.subtotal || 0))}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr><td colSpan={4}>No hay detalles de servicios disponibles</td></tr>
-                )}
-              </tbody>
-            </table>
-            <div className="factura-total-row" style={{ textAlign: 'right', marginTop: 8 }}>
-              Total a Pagar {formatCurrency(totalNumber)}
-            </div>
-          </Grid>
-        </Grid>
-        <div className="factura-footer">
-          ¡Gracias por preferir nuestros servicios!<br />
-          Esta factura fue generada por el sistema de gestión de parqueaderos.<br />
-          <span style={{ fontSize: '0.85em' }}>Consulte términos y condiciones en la administración del parqueadero.</span>
-        </div>
-      </div>
-      {/* Modal visual para pantalla */}
       <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
         <DialogContent>
-          {/* Cabecera profesional */}
-          <div className="factura-header">
-            <div style={{ display: 'flex', alignItems: 'flex-start' }}>
-              {logoUrl ? (
-                <img src={logoUrl} alt="Logo parqueadero" className="factura-logo" />
-              ) : (
-                <Box className="factura-logo" sx={{ bgcolor: '#e3e3e3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#1976d2' }}>{nombreParqueadero[0]}</Box>
-              )}
-              <div className="factura-header-info">
-                <span className="factura-title">{nombreParqueadero}</span>
-                <Typography variant="body2" color="text.secondary">{direccionParqueadero}</Typography>
-                {telefonoParqueadero && <Typography variant="body2" color="text.secondary"><Phone sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} />{telefonoParqueadero}</Typography>}
-                {emailParqueadero && <Typography variant="body2" color="text.secondary">Email: {emailParqueadero}</Typography>}
+          <div className="print-factura">
+            {/* Cabecera profesional */}
+            <div className="factura-header">
+              <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                {logoUrl ? (
+                  <img src={logoUrl} alt="Logo parqueadero" className="factura-logo" />
+                ) : (
+                  <Box className="factura-logo" sx={{ bgcolor: '#e3e3e3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#1976d2' }}>{nombreParqueadero[0]}</Box>
+                )}
+                <div className="factura-header-info">
+                  <span className="factura-title">{nombreParqueadero}</span>
+                  <Typography variant="body2" color="text.secondary">{direccionParqueadero}</Typography>
+                  {telefonoParqueadero && <Typography variant="body2" color="text.secondary"><Phone sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} />{telefonoParqueadero}</Typography>}
+                  {emailParqueadero && <Typography variant="body2" color="text.secondary">Email: {emailParqueadero}</Typography>}
+                </div>
+              </div>
+              <div className="factura-header-datos">
+                <Typography variant="h6" sx={{ color: '#222', fontWeight: 700 }}>Factura #{id}</Typography>
+                <Chip label={getEstadoText(estado)} sx={{ bgcolor: getEstadoColor(estado), color: 'white', fontWeight: 700, mt: 1 }} className="chip" />
               </div>
             </div>
-            <div className="factura-header-datos">
-              <Typography variant="h6" sx={{ color: '#222', fontWeight: 700 }}>Factura #{id}</Typography>
-              <Chip label={getEstadoText(estado)} sx={{ bgcolor: getEstadoColor(estado), color: 'white', fontWeight: 700, mt: 1 }} className="chip" />
+            {/* Información principal */}
+            <table className="factura-info-table">
+              <tbody>
+                <tr>
+                  <td><b>Fecha de Emisión:</b></td>
+                  <td>{formatDate(fecha_creacion ?? fecha ?? null)}</td>
+                  <td><b>Estado:</b></td>
+                  <td>{getEstadoText(estado)}</td>
+                </tr>
+                <tr>
+                  <td><b>Número de Factura:</b></td>
+                  <td>#{id}</td>
+                  <td><b>Total:</b></td>
+                  <td>{formatCurrency(totalNumber)}</td>
+                </tr>
+              </tbody>
+            </table>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={5}>
+                <div className="factura-section-title"><DirectionsCar sx={{ fontSize: 20, mr: 1, verticalAlign: 'middle' }} />Vehículo</div>
+                {vehiculo ? (
+                  <>
+                    <Typography variant="body1" fontWeight="medium">{vehiculo.marca} {vehiculo.modelo}</Typography>
+                    <Typography variant="body2" color="text.secondary">Color: {vehiculo.color}</Typography>
+                    <Typography variant="body2" color="text.secondary">Tipo: {vehiculo.tipo}</Typography>
+                    <Typography variant="body2" color="text.secondary">Placa: {vehiculo.placa}</Typography>
+                    {vehiculo.puesto && <Typography variant="body2" color="text.secondary">Puesto: {vehiculo.puesto}</Typography>}
+                  </>
+                ) : (
+                  <Typography variant="body2" color="text.secondary">Información del vehículo no disponible</Typography>
+                )}
+              </Grid>
+              <Grid item xs={12} md={7}>
+                <div className="factura-section-title">Detalles de Servicios</div>
+                <table className="factura-details-table">
+                  <thead>
+                    <tr>
+                      <th>Servicio</th>
+                      <th>Cantidad</th>
+                      <th>Precio Unitario</th>
+                      <th>Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {detalles && detalles.length > 0 ? (
+                      detalles.map((detalle, idx) => (
+                        <tr key={idx}>
+                          <td>{detalle.servicio_nombre || 'Servicio'}</td>
+                          <td>{detalle.cantidad || 1}</td>
+                          <td>{formatCurrency(Number(detalle.precio_unitario || 0))}</td>
+                          <td>{formatCurrency(Number(detalle.subtotal || 0))}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr><td colSpan={4}>No hay detalles de servicios disponibles</td></tr>
+                    )}
+                  </tbody>
+                </table>
+                <div className="factura-total-row" style={{ textAlign: 'right', marginTop: 8 }}>
+                  Total a Pagar {formatCurrency(totalNumber)}
+                </div>
+              </Grid>
+            </Grid>
+            <div className="factura-footer">
+              ¡Gracias por preferir nuestros servicios!<br />
+              Esta factura fue generada por el sistema de gestión de parqueaderos.<br />
+              <span style={{ fontSize: '0.85em' }}>Consulte términos y condiciones en la administración del parqueadero.</span>
             </div>
-          </div>
-          {/* Información principal */}
-          <table className="factura-info-table">
-            <tbody>
-              <tr>
-                <td><b>Fecha de Emisión:</b></td>
-                <td>{formatDate(fecha_creacion ?? fecha ?? null)}</td>
-                <td><b>Estado:</b></td>
-                <td>{getEstadoText(estado)}</td>
-              </tr>
-              <tr>
-                <td><b>Número de Factura:</b></td>
-                <td>#{id}</td>
-                <td><b>Total:</b></td>
-                <td>{formatCurrency(totalNumber)}</td>
-              </tr>
-            </tbody>
-          </table>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={5}>
-              <div className="factura-section-title"><DirectionsCar sx={{ fontSize: 20, mr: 1, verticalAlign: 'middle' }} />Vehículo</div>
-              {vehiculo ? (
-                <>
-                  <Typography variant="body1" fontWeight="medium">{vehiculo.marca} {vehiculo.modelo}</Typography>
-                  <Typography variant="body2" color="text.secondary">Color: {vehiculo.color}</Typography>
-                  <Typography variant="body2" color="text.secondary">Tipo: {vehiculo.tipo}</Typography>
-                  <Typography variant="body2" color="text.secondary">Placa: {vehiculo.placa}</Typography>
-                  {vehiculo.puesto && <Typography variant="body2" color="text.secondary">Puesto: {vehiculo.puesto}</Typography>}
-                </>
-              ) : (
-                <Typography variant="body2" color="text.secondary">Información del vehículo no disponible</Typography>
-              )}
-            </Grid>
-            <Grid item xs={12} md={7}>
-              <div className="factura-section-title">Detalles de Servicios</div>
-              <table className="factura-details-table">
-                <thead>
-                  <tr>
-                    <th>Servicio</th>
-                    <th>Cantidad</th>
-                    <th>Precio Unitario</th>
-                    <th>Subtotal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {detalles && detalles.length > 0 ? (
-                    detalles.map((detalle, idx) => (
-                      <tr key={idx}>
-                        <td>{detalle.servicio_nombre || 'Servicio'}</td>
-                        <td>{detalle.cantidad || 1}</td>
-                        <td>{formatCurrency(Number(detalle.precio_unitario || 0))}</td>
-                        <td>{formatCurrency(Number(detalle.subtotal || 0))}</td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr><td colSpan={4}>No hay detalles de servicios disponibles</td></tr>
-                  )}
-                </tbody>
-              </table>
-              <div className="factura-total-row" style={{ textAlign: 'right', marginTop: 8 }}>
-                Total a Pagar {formatCurrency(totalNumber)}
-              </div>
-            </Grid>
-          </Grid>
-          <div className="factura-footer">
-            ¡Gracias por preferir nuestros servicios!<br />
-            Esta factura fue generada por el sistema de gestión de parqueaderos.<br />
-            <span style={{ fontSize: '0.85em' }}>Consulte términos y condiciones en la administración del parqueadero.</span>
           </div>
         </DialogContent>
         <DialogActions className="no-print">
