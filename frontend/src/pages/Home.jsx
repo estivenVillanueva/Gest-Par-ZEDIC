@@ -161,13 +161,13 @@ const Home = () => {
     <Box sx={{ width: '100%', margin: 0, padding: 0, overflow: 'hidden' }}>
       <HeroSection>
         <StyledContainer>
-          <Typography variant="h1" component="h1" gutterBottom>
-           Gest-Par ZEDIC
+          <Typography variant="h1" component="h1" gutterBottom sx={{ fontSize: { xs: 60, md: 120 }, fontWeight: 900, letterSpacing: 2 }}>
+            ZEDIC
           </Typography>
-          <Typography variant="h5" gutterBottom>
+          <Typography variant="h5" gutterBottom sx={{ fontSize: { xs: 32, md: 48 }, fontWeight: 700, mt: 2 }}>
             Encuentra el mejor lugar para tu vehículo
           </Typography>
-          <Typography variant="subtitle1" sx={{ mb: 4, opacity: 0.9 }}>
+          <Typography variant="subtitle1" gutterBottom sx={{ fontSize: { xs: 20, md: 28 }, fontWeight: 500, color: '#e3eaf6', mb: 4 }}>
             Red de parqueaderos seguros con ubicaciones estratégicas en toda la ciudad
           </Typography>
           <SearchSection>

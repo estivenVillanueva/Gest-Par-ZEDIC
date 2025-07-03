@@ -78,10 +78,10 @@ const Header = () => {
             <Link to="/">
               <img 
                 src={safeparkingLogo}
-                alt="Gest-Par ZEDIC Logo" 
+                alt="ZEDIC Logo" 
               />
               <Typography variant="h6">
-                Gest-Par ZEDIC
+                ZEDIC
               </Typography>
             </Link>
           </LogoContainer>

@@ -42,7 +42,7 @@ const Parqueadero = () => {
       <Container maxWidth="sm" sx={{ py: 8 }}>
         <Paper elevation={3} sx={{ p: 4, borderRadius: 2, textAlign: 'center' }}>
           <Typography variant="h4" gutterBottom>
-            ¡Bienvenido a Gest-Par ZEDIC!
+            ¡Bienvenido a ZEDIC!
           </Typography>
           <Typography variant="h6" color="text.secondary" gutterBottom>
             Tu cuenta ha sido creada exitosamente.<br />

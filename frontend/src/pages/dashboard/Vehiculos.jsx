@@ -308,16 +308,28 @@ const Vehiculos = () => {
   };
 
   const handleGuardar = async (data) => {
-    if (selectedVehiculo) {
-      await actualizarVehiculo(selectedVehiculo.placa, data);
-    } else {
-      await agregarVehiculo(data);
+    try {
+      if (selectedVehiculo) {
+        await actualizarVehiculo(selectedVehiculo.placa, data);
+        setSnackbar({ open: true, message: 'Vehículo editado correctamente', severity: 'success' });
+      } else {
+        await agregarVehiculo(data);
+        setSnackbar({ open: true, message: 'Vehículo agregado correctamente', severity: 'success' });
+      }
+      setOpenForm(false);
+    } catch (e) {
+      setSnackbar({ open: true, message: 'Error al guardar el vehículo', severity: 'error' });
     }
   };
 
   const handleEliminar = async (placa) => {
-    const veh = vehiculos.find(v => v.placa === placa);
-    await eliminarVehiculo(placa, veh?.usuario_id || null);
+    try {
+      const veh = vehiculos.find(v => v.placa === placa);
+      await eliminarVehiculo(placa, veh?.usuario_id || null);
+      setSnackbar({ open: true, message: 'Vehículo eliminado correctamente', severity: 'success' });
+    } catch (e) {
+      setSnackbar({ open: true, message: 'Error al eliminar el vehículo', severity: 'error' });
+    }
   };
 
   const handleEliminarTodos = async () => {

@@ -112,7 +112,7 @@ const Acceder = () => {
       <AuthPaper elevation={0}>
         <AuthHeader>
           <h4>Iniciar Sesió</h4>
-          <p>Bienvenido de nuevo a Gest-Par ZEDIC</p>
+          <p>Bienvenido de nuevo a ZEDIC</p>
         </AuthHeader>
 
         {error && (

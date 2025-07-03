@@ -99,6 +99,8 @@ const ParqueaderoProfile = () => {
   const [portadaInputRef, setPortadaInputRef] = useState(null);
   const [logoTimestamp, setLogoTimestamp] = useState(Date.now());
   const [portadaTimestamp, setPortadaTimestamp] = useState(Date.now());
+  const [openPassword, setOpenPassword] = useState(false);
+  const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
 
   const CLOUDINARY_UPLOAD_PRESET = 'Gest-par-zedic';
   const CLOUDINARY_CLOUD_NAME = 'dnudkdqyr';
@@ -344,12 +346,32 @@ const ParqueaderoProfile = () => {
     }
   };
 
+  const handlePasswordChange = async () => {
+    if (passwords.new !== passwords.confirm) {
+      setSnackbar({ open: true, message: 'Las contraseñas no coinciden', severity: 'error' });
+      return;
+    }
+    try {
+      const res = await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/${currentUser.id}/password`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nuevaContrasena: passwords.new })
+      });
+      if (!res.ok) throw new Error('Error al cambiar la contraseña');
+      setOpenPassword(false);
+      setSnackbar({ open: true, message: '¡Contraseña cambiada exitosamente!', severity: 'success' });
+      setPasswords({ current: '', new: '', confirm: '' });
+    } catch (err) {
+      setSnackbar({ open: true, message: 'Error al cambiar la contraseña', severity: 'error' });
+    }
+  };
+
   if (showWelcome) {
     return (
       <Container maxWidth="sm" sx={{ py: 8 }}>
         <Paper elevation={3} sx={{ p: 4, borderRadius: 2, textAlign: 'center' }}>
           <Typography variant="h4" gutterBottom>
-            ¡Bienvenido a Gest-Par ZEDIC!
+            ¡Bienvenido a ZEDIC!
           </Typography>
           <Typography variant="h6" color="text.secondary" gutterBottom>
             Tu cuenta ha sido creada exitosamente.<br />
@@ -500,6 +522,13 @@ const ParqueaderoProfile = () => {
               value={parqueaderoInfo.horarios}
               onEdit={() => handleEdit('parqueadero.horarios', parqueaderoInfo.horarios)}
             />
+            
+            <InfoItem
+              icon={<EmailIcon color="primary" />}
+              title="Email"
+              value={parqueaderoInfo.email}
+              onEdit={() => handleEdit('usuario.correo', parqueaderoInfo.email)}
+            />
           </Grid>
 
           <Grid item xs={12} md={6}>
@@ -512,12 +541,6 @@ const ParqueaderoProfile = () => {
               title="Teléfono"
               value={parqueaderoInfo.telefono}
               onEdit={() => handleEdit('parqueadero.telefono', parqueaderoInfo.telefono)}
-            />
-            
-            <InfoItem
-              icon={<EmailIcon color="primary" />}
-              title="Email"
-              value={parqueaderoInfo.email}
             />
           </Grid>
 
@@ -649,14 +672,26 @@ const ParqueaderoProfile = () => {
             </Grid>
           </Grid>
         </Grid>
-        <Button
-          variant="outlined"
-          color="error"
-          onClick={() => setOpenDeleteDialog(true)}
-          sx={{ position: 'absolute', bottom: 24, right: 24 }}
-        >
-          Eliminar cuenta
-        </Button>
+        <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2, flex: 1 }}
+            onClick={() => setOpenPassword(true)}
+            startIcon={<PersonIcon />}
+          >
+            Cambiar Contraseña
+          </Button>
+          <Button
+            variant="outlined"
+            color="error"
+            sx={{ textTransform: 'none', fontWeight: 500, borderRadius: 2, flex: 1 }}
+            onClick={() => setOpenDeleteDialog(true)}
+            startIcon={<DeleteIcon />}
+          >
+            Eliminar cuenta
+          </Button>
+        </Box>
       </Paper>
 
       <Dialog open={openEdit} onClose={() => setOpenEdit(false)}
@@ -671,192 +706,30 @@ const ParqueaderoProfile = () => {
         }}
       >
         <DialogTitle sx={{ fontWeight: 700, fontSize: 22, textTransform: 'capitalize', pb: 1 }}>
-          {editField === 'servicio' ? 'Editar servicio' : `Editar ${editField.replace('parqueadero.', '').replace('usuario.', '').replace('_', ' ')}`}
+          Editar {editField === 'usuario.correo' ? 'Correo' : editField.replace('usuario.', '').replace('parqueadero.', '')}
         </DialogTitle>
         <DialogContent sx={{ pt: 1, pb: 2 }}>
-          {editField === 'servicio' ? (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-              <TextField
-                select
-                fullWidth
-                label="Nombre del servicio"
-                value={["mes", "hora", "minuto", "semanal", "quincenal", "días", "otro"].includes(editValue.nombre) ? editValue.nombre : "otro"}
-                onChange={e => {
-                  const value = e.target.value;
-                  setEditValue({ ...editValue, nombre: value === 'otro' ? '' : value, nombrePersonalizado: value === 'otro' ? (editValue.nombrePersonalizado || '') : '' });
-                }}
-                sx={{ mb: 2 }}
-              >
-                <MenuItem value="mes">Mes</MenuItem>
-                <MenuItem value="hora">Hora</MenuItem>
-                <MenuItem value="minuto">Minuto</MenuItem>
-                <MenuItem value="semanal">Semanal</MenuItem>
-                <MenuItem value="quincenal">Quincenal</MenuItem>
-                <MenuItem value="días">Días</MenuItem>
-                <MenuItem value="otro">Otro</MenuItem>
-              </TextField>
-              {((!['mes','hora','minuto','semanal','quincenal','días'].includes(editValue.nombre) && editValue.nombre !== '') || editValue.nombre === '') && (
-                <TextField
-                  fullWidth
-                  label="Nombre personalizado del servicio"
-                  value={editValue.nombrePersonalizado || ''}
-                  onChange={e => setEditValue({ ...editValue, nombrePersonalizado: e.target.value, nombre: e.target.value })}
-                  sx={{ mb: 2 }}
-                />
-              )}
-              <TextField
-                fullWidth
-                label="Descripción"
-                value={editValue.descripcion}
-                onChange={e => setEditValue({ ...editValue, descripcion: e.target.value })}
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                fullWidth
-                label="Precio"
-                value={editValue.precio}
-                onChange={e => setEditValue({ ...editValue, precio: e.target.value })}
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                select
-                fullWidth
-                label="Duración"
-                value={["mes", "hora", "minuto", "semanal", "quincenal", "días", "otro"].includes(editValue.duracion) ? editValue.duracion : "otro"}
-                onChange={e => {
-                  const value = e.target.value;
-                  setEditValue({ ...editValue, duracion: value === 'otro' ? '' : value, duracionPersonalizada: value === 'otro' ? (editValue.duracionPersonalizada || '') : '' });
-                }}
-                sx={{ mb: 2 }}
-              >
-                <MenuItem value="mes">Mes</MenuItem>
-                <MenuItem value="hora">Hora</MenuItem>
-                <MenuItem value="minuto">Minuto</MenuItem>
-                <MenuItem value="semanal">Semanal</MenuItem>
-                <MenuItem value="quincenal">Quincenal</MenuItem>
-                <MenuItem value="días">Días</MenuItem>
-                <MenuItem value="otro">Otro</MenuItem>
-              </TextField>
-              {((!['mes','hora','minuto','semanal','quincenal','días'].includes(editValue.duracion) && editValue.duracion !== '') || editValue.duracion === '') && (
-                <TextField
-                  fullWidth
-                  label="Duración personalizada"
-                  value={editValue.duracionPersonalizada || ''}
-                  onChange={e => setEditValue({ ...editValue, duracionPersonalizada: e.target.value, duracion: e.target.value })}
-                  sx={{ mb: 2 }}
-                />
-              )}
-              <TextField
-                select
-                fullWidth
-                label="Estado"
-                value={editValue.estado}
-                onChange={e => setEditValue({ ...editValue, estado: e.target.value })}
-              >
-                <MenuItem value="activo">Activo</MenuItem>
-                <MenuItem value="inactivo">Inactivo</MenuItem>
-              </TextField>
-            </Box>
-          ) : (
-            <TextField
-              fullWidth
-              multiline={editField === 'descripcion'}
-              rows={editField === 'descripcion' ? 4 : 1}
-              value={editValue}
-              onChange={(e) => setEditValue(e.target.value)}
-              sx={{ mt: 2 }}
-              variant="outlined"
-              label={
-                editField === 'descripcion' ? 'Descripción' :
-                editField.replace('parqueadero.', '').replace('usuario.', '').replace('_', ' ').charAt(0).toUpperCase() +
-                editField.replace('parqueadero.', '').replace('usuario.', '').replace('_', ' ').slice(1)
-              }
-              InputLabelProps={{ shrink: true }}
-              helperText={
-                editField === 'nombre' ? 'El nombre debe ser claro y representativo.' :
-                editField === 'telefono' ? 'Incluye solo números, sin espacios.' :
-                ''
-              }
-            />
-          )}
+          <TextField
+            autoFocus
+            margin="dense"
+            label={editField === 'usuario.correo' ? 'Correo electrónico' : 'Nuevo valor'}
+            type={editField === 'usuario.correo' ? 'email' : 'text'}
+            fullWidth
+            variant="outlined"
+            value={editValue}
+            onChange={e => setEditValue(e.target.value)}
+            sx={{ borderRadius: 2, bgcolor: '#f7fafd' }}
+            error={editField === 'usuario.correo' && !!editValue && !/^\S+@\S+\.\S+$/.test(editValue)}
+            helperText={editField === 'usuario.correo' && !!editValue && !/^\S+@\S+\.\S+$/.test(editValue) ? 'Formato de correo inválido' : ''}
+          />
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2, pt: 0, justifyContent: 'flex-end' }}>
-          <Button onClick={() => setOpenEdit(false)} sx={{ color: 'text.secondary', fontWeight: 600, borderRadius: 2 }}>Cancelar</Button>
-          <Button onClick={() => {
-            if (editField === 'servicio') {
-              if (!parqueaderoInfo.id) {
-                setSnackbar({ open: true, message: 'No se encontró el parqueadero para agregar servicio.', severity: 'error' });
-                setOpenEdit(false);
-                return;
-              }
-              if (editValue.index === -1) {
-                // Crear servicio
-                let tipoCobro = ['mes','semanal','quincenal','días'].includes(editValue.duracion) ? 'periodo' : ['minuto','hora','día'].includes(editValue.duracion) ? 'uso' : 'uso';
-                if (!tipoCobro) tipoCobro = 'uso'; // Valor por defecto
-                const bodyServicio = {
-                  nombre: editValue.nombre,
-                  descripcion: editValue.descripcion,
-                  precio: editValue.precio,
-                  duracion: editValue.duracion,
-                  estado: editValue.estado,
-                  parqueadero_id: parqueaderoInfo.id,
-                  tipo_cobro: tipoCobro || 'uso',
-                };
-                console.log('Enviando servicio:', bodyServicio);
-                fetch(SERVICIOS_API_URL, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(bodyServicio)
-                })
-                  .then(res => res.json())
-                  .then(data => {
-                    setParqueaderoInfo(prev => ({ ...prev, servicios: [...prev.servicios, data.data] }));
-                    setSnackbar({ open: true, message: 'Servicio guardado', severity: 'success' });
-                    setOpenEdit(false);
-                  })
-                  .catch(() => {
-                    setSnackbar({ open: true, message: 'Error al guardar el servicio', severity: 'error' });
-                  });
-              } else {
-                // Editar servicio
-                let tipoCobro = ['mes','semanal','quincenal','días'].includes(editValue.duracion) ? 'periodo' : ['minuto','hora','día'].includes(editValue.duracion) ? 'uso' : 'uso';
-                if (!tipoCobro) tipoCobro = 'uso'; // Valor por defecto
-                const bodyServicio = {
-                  nombre: editValue.nombre,
-                  descripcion: editValue.descripcion,
-                  precio: editValue.precio,
-                  duracion: editValue.duracion,
-                  estado: editValue.estado,
-                  parqueadero_id: parqueaderoInfo.id,
-                  tipo_cobro: tipoCobro || 'uso',
-                };
-                console.log('Enviando servicio (update):', bodyServicio);
-                fetch(`${SERVICIOS_API_URL}/${parqueaderoInfo.servicios[editValue.index].id}`, {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(bodyServicio)
-                })
-                  .then(res => res.json())
-                  .then(data => {
-                    setParqueaderoInfo(prev => {
-                      const servicios = [...prev.servicios];
-                      servicios[editValue.index] = data.data;
-                      return { ...prev, servicios };
-                    });
-                    setSnackbar({ open: true, message: 'Servicio actualizado', severity: 'success' });
-                    setOpenEdit(false);
-                  })
-                  .catch(() => {
-                    setSnackbar({ open: true, message: 'Error al actualizar el servicio', severity: 'error' });
-                  });
-              }
-            } else {
-              handleSave();
-            }
-          }}
+        <DialogActions sx={{ justifyContent: 'center', pb: 2 }}>
+          <Button onClick={() => setOpenEdit(false)} color="secondary" variant="outlined">Cancelar</Button>
+          <Button
+            onClick={handleSave}
             variant="contained"
             color="primary"
-            sx={{ fontWeight: 700, borderRadius: 2, boxShadow: '0 2px 8px rgba(43,108,163,0.10)' }}
+            disabled={editField === 'usuario.correo' && !!editValue && !/^\S+@\S+\.\S+$/.test(editValue)}
           >
             Guardar
           </Button>
@@ -913,6 +786,35 @@ const ParqueaderoProfile = () => {
         <DialogActions>
           <Button onClick={() => setOpenDeleteDialog(false)}>Cancelar</Button>
           <Button color="error" onClick={handleDeleteAccount}>Eliminar</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Modal de cambiar contraseña con diseño profesional */}
+      <Dialog open={openPassword} onClose={() => setOpenPassword(false)}>
+        <DialogTitle sx={{ fontWeight: 700, textAlign: 'center', color: 'primary.main', pb: 0 }}>Cambiar Contraseña</DialogTitle>
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 350, pt: 1 }}>
+          <TextField
+            label="Nueva contraseña"
+            type="password"
+            fullWidth
+            variant="outlined"
+            value={passwords.new}
+            onChange={e => setPasswords({ ...passwords, new: e.target.value })}
+            sx={{ borderRadius: 2, bgcolor: '#f7fafd' }}
+          />
+          <TextField
+            label="Confirmar nueva contraseña"
+            type="password"
+            fullWidth
+            variant="outlined"
+            value={passwords.confirm}
+            onChange={e => setPasswords({ ...passwords, confirm: e.target.value })}
+            sx={{ borderRadius: 2, bgcolor: '#f7fafd' }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'center', pb: 2 }}>
+          <Button onClick={() => setOpenPassword(false)} color="secondary" variant="outlined">Cancelar</Button>
+          <Button onClick={handlePasswordChange} variant="contained" color="primary">Guardar</Button>
         </DialogActions>
       </Dialog>
 

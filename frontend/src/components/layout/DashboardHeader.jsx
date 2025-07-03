@@ -188,7 +188,7 @@ const DashboardHeader = () => {
               fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' }
             }}
           >
-            Gest-Par ZEDIC
+            ZEDIC
           </Typography>
           <DirectionsCarIcon sx={{ color: '#2B6CA3', display: { xs: 'block', sm: 'none' }, fontSize: 28 }} />
         </Box>
