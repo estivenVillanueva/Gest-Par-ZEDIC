@@ -2,6 +2,7 @@ import { pool } from '../postgres.js';
 import bcrypt from 'bcrypt';
 import { parqueaderoQueries } from './parqueadero.queries.js';
 import { geocodeAddress } from '../geocode_parqueaderos.js';
+import crypto from 'crypto';
 
 export const usuarioQueries = {
     // Crear un nuevo usuario
@@ -102,7 +103,7 @@ export const usuarioQueries = {
         let correoFinal = correo;
         if (correo && correo !== usuarioActual.correo) {
             // Si el correo cambió, generar nuevo token y marcar como no verificado
-            nuevoToken = require('crypto').randomBytes(32).toString('hex');
+            nuevoToken = crypto.randomBytes(32).toString('hex');
             verificado = false;
             tokenVerificacion = nuevoToken;
         }
