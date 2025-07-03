@@ -540,8 +540,14 @@ const Pagos = () => {
     setTabValue(newValue);
   };
 
-  const handleOpenDialog = (factura) => {
-    setSelectedFactura(factura);
+  const handleOpenDialog = async (factura) => {
+    try {
+      const res = await fetch(`${API_URL}/api/facturas/completa/${factura.id}`);
+      const data = await res.json();
+      setSelectedFactura({ ...factura, ...data.data });
+    } catch (error) {
+      setSelectedFactura(factura); // fallback
+    }
     setDialogOpen(true);
   };
 
