@@ -160,7 +160,7 @@ export const detalleFacturaQueries = {
         const query = `
             SELECT df.*, s.nombre as servicio_nombre
             FROM factura_detalles df
-            JOIN servicios s ON df.id_servicio = s.id
+            JOIN servicios s ON df.servicio_id = s.id
             WHERE df.factura_id = $1
         `;
         const result = await pool.query(query, [idFactura]);
