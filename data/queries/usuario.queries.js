@@ -148,7 +148,7 @@ export const usuarioQueries = {
 
         const query = `
             UPDATE usuarios
-            SET contrasena = $1
+            SET password = $1
             WHERE id = $2
             RETURNING *
         `;
