@@ -280,8 +280,18 @@ async function getFacturaCompletaById(id) {
         console.error('[FACTURA][ERROR] Error contando ingresos/salidas:', e);
     }
 
+    // Devolver los datos principales de la factura al nivel raíz
     return {
-        factura,
+        id: factura.id,
+        fecha_creacion: factura.fecha_creacion,
+        estado: factura.estado,
+        total: factura.total,
+        usuario_id: factura.usuario_id,
+        parqueadero_id: factura.parqueadero_id,
+        vehiculo_id: factura.vehiculo_id,
+        servicio_id: factura.servicio_id,
+        servicio_nombre: factura.servicio_nombre,
+        servicio_precio: factura.servicio_precio,
         detalles,
         parqueadero,
         vehiculo,
