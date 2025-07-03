@@ -133,6 +133,11 @@ export const AuthProvider = ({ children }) => {
             if (usuario.message && !usuario.data) {
                 return { message: usuario.message };
             }
+            // Solo permitir acceso si está verificado
+            if (!usuario.data?.verificado) {
+                setError('Debes verificar tu correo antes de acceder. Revisa tu bandeja de entrada.');
+                return { message: 'Debes verificar tu correo antes de acceder.' };
+            }
             setCurrentUser(usuario.data);
             localStorage.setItem('user', JSON.stringify(usuario.data));
             // Redirección automática según tipo de usuario

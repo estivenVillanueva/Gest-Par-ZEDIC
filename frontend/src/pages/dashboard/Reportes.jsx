@@ -66,6 +66,12 @@ function Reportes() {
     fetchData();
   }, [parqueaderoId]);
 
+  // Filtrar servicios: solo los que están asociados a vehículos activos
+  const serviciosConActividad = servicios.filter(s => vehiculos.some(v => v.servicio_id === s.id));
+
+  // Filtrar facturas: solo las asociadas a vehículos activos
+  const facturasConActividad = facturas.filter(f => vehiculos.some(v => v.id === f.vehiculo_id));
+
   // Ingresos por mes
   const ingresosPorMes = {};
   ingresos.forEach(i => {
@@ -75,9 +81,9 @@ function Reportes() {
   });
   const ingresosMesData = Object.entries(ingresosPorMes).map(([mes, total]) => ({ mes, total }));
 
-  // Pagos pendientes vs pagados
-  const pagosPendientes = facturas.filter(f => f.estado?.toLowerCase() === 'pendiente').length;
-  const pagosPagados = facturas.filter(f => f.estado?.toLowerCase() === 'pagado' || f.estado?.toLowerCase() === 'pagada').length;
+  // Pagos pendientes vs pagados (solo con actividad)
+  const pagosPendientes = facturasConActividad.filter(f => f.estado?.toLowerCase() === 'pendiente').length;
+  const pagosPagados = facturasConActividad.filter(f => f.estado?.toLowerCase() === 'pagado' || f.estado?.toLowerCase() === 'pagada').length;
   const pagosPieData = [
     { name: 'Pendientes', value: pagosPendientes },
     { name: 'Pagados', value: pagosPagados }
@@ -91,10 +97,10 @@ function Reportes() {
   });
   const vehiculosTipoData = Object.entries(tipos).map(([tipo, cantidad]) => ({ tipo, cantidad }));
 
-  // Servicios activos por tipo
+  // Servicios activos por tipo (solo con actividad)
   const serviciosPorTipo = { Semanal: 0, Quincenal: 0, Mensual: 0, Ocasional: 0 };
   vehiculos.forEach(v => {
-    const servicio = servicios.find(s => s.id === v.servicio_id);
+    const servicio = serviciosConActividad.find(s => s.id === v.servicio_id);
     const duracion = (servicio?.duracion || '').toLowerCase();
     if (duracion.includes('semana')) serviciosPorTipo.Semanal++;
     else if (duracion.includes('quincena')) serviciosPorTipo.Quincenal++;
@@ -121,7 +127,7 @@ function Reportes() {
 
   // KPIs rápidos
   const totalVehiculos = vehiculos.length;
-  const totalServicios = servicios.length;
+  const totalServicios = serviciosConActividad.length;
   const ingresosAcumulados = ingresos
     .filter(i => typeof i.valor_pagado === 'number' && i.valor_pagado > 0)
     .reduce((acc, i) => acc + i.valor_pagado, 0);
