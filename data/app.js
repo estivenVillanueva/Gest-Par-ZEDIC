@@ -56,6 +56,7 @@ app.use(express.json());
 
 app.use((req, res, next) => {
   req.io = io;
+  console.log('[GLOBAL LOG] Petición recibida:', req.method, req.originalUrl);
   next();
 });
 
