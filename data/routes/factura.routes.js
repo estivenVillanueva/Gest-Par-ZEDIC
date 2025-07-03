@@ -187,6 +187,7 @@ router.delete('/detalles/:id', async (req, res) => {
 
 // Nueva ruta para obtener factura completa
 router.get('/completa/:id', async (req, res) => {
+  console.log('[FACTURA][ROUTE] Llamada a /completa/:id con id:', req.params.id);
   try {
     const { id } = req.params;
     const data = await getFacturaCompletaById(id);
