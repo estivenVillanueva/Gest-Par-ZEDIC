@@ -83,10 +83,8 @@ const FacturaPreview = ({
   // Log para depuración
   console.log('FacturaPreview props:', { id, fecha, fecha_creacion, total, estado, detalles });
 
-  // Ajuste para el total (puede venir como string o estar ausente)
-  const totalNumber = Number(total) || (detalles && detalles.length > 0
-    ? detalles.reduce((acc, d) => acc + Number(d.precio_unitario || d.precio || d.subtotal || 0), 0)
-    : 0);
+  // Ajuste para el total (ahora siempre viene como prop directo)
+  const totalNumber = Number(total) || 0;
 
   return (
     <Dialog 

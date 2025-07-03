@@ -464,7 +464,7 @@ const Pagos = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedFactura, setSelectedFactura] = useState(null);
+  const [facturaCompleta, setFacturaCompleta] = useState(null);
   const [tipoServicio, setTipoServicio] = useState('');
   const [estado, setEstado] = useState('');
   const [fechaDesde, setFechaDesde] = useState(null);
@@ -525,24 +525,24 @@ const Pagos = () => {
     try {
       const res = await fetch(`${API_URL}/api/facturas/completa/${factura.id}`);
       const data = await res.json();
-      setSelectedFactura({ ...factura, ...data.data });
+      setFacturaCompleta(data.data);
     } catch (error) {
-      setSelectedFactura(factura); // fallback
+      setFacturaCompleta(null);
     }
     setDialogOpen(true);
   };
 
   const handleCloseDialog = () => {
-    setSelectedFactura(null);
+    setFacturaCompleta(null);
     setDialogOpen(false);
   };
 
   const handleConfirmarPago = async (metodo_pago) => {
-    if (!selectedFactura) return;
+    if (!facturaCompleta) return;
     try {
-      await axios.put(`${API_URL}/api/pagos/${selectedFactura.id}/pagar`, { metodo_pago });
+      await axios.put(`${API_URL}/api/pagos/${facturaCompleta.id}/pagar`, { metodo_pago });
       handleCloseDialog();
-      fetchPagos(); // Recargar datos
+      fetchPagos();
     } catch (e) {
       console.error('Error al marcar como pagado:', e);
       setError('No se pudo completar el pago.');
@@ -781,7 +781,7 @@ const Pagos = () => {
         open={dialogOpen}
         onClose={handleCloseDialog}
         onConfirm={handleConfirmarPago}
-        factura={selectedFactura}
+        factura={facturaCompleta}
       />
     </Box>
   );
