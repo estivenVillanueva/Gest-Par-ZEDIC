@@ -123,11 +123,51 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
     try {
         console.log('Datos recibidos para actualizar:', req.body); // <-- Log para depuración
+        // Validar formato de correo si se va a cambiar
+        if (req.body.correo) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(req.body.correo)) {
+                return res.status(400).json({ success: false, message: 'El formato del correo no es válido' });
+            }
+        }
         const usuarioActualizado = await usuarioQueries.updateUsuario(req.params.id, req.body);
         if (!usuarioActualizado) {
             return res.status(404).json({
                 success: false,
                 message: 'Usuario no encontrado'
+            });
+        }
+        // Si el correo fue cambiado, enviar correo de verificación
+        if (usuarioActualizado.nuevoToken) {
+            const nodemailer = require('nodemailer');
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: 'gestparzedic@gmail.com',
+                    pass: 'bakmbvndonibatee'
+                }
+            });
+            const urlVerificacion = `https://gest-par-zedic.onrender.com/api/usuarios/verificar/${usuarioActualizado.nuevoToken}`;
+            const htmlContent = `
+                <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px; padding: 24px; background: #fafbfc;">
+                    <h2 style="color: #2563EB;">¡Verifica tu nuevo correo en Gest-Par-ZEDIC!</h2>
+                    <p>Hola <b>${usuarioActualizado.nombre}</b>,</p>
+                    <p>Has solicitado cambiar tu correo. Para activar tu cuenta y poder acceder a todas las funcionalidades, por favor haz clic en el siguiente botón o enlace:</p>
+                    <div style="text-align: center; margin: 24px 0;">
+                        <a href="${urlVerificacion}" style="background: #2563EB; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Verificar mi nuevo correo</a>
+                    </div>
+                    <p>Si el botón no funciona, copia y pega este enlace en tu navegador:</p>
+                    <p style="word-break: break-all;">${urlVerificacion}</p>
+                    <hr style="margin: 24px 0;">
+                    <p style="color: #6b7280; font-size: 0.95em;">Si no solicitaste este cambio, puedes ignorar este mensaje.</p>
+                    <p style="color: #6b7280; font-size: 0.95em;">Equipo Gest-Par-ZEDIC</p>
+                </div>
+            `;
+            await transporter.sendMail({
+                from: 'Gest-Par-ZEDIC <gestparzedic@gmail.com>',
+                to: usuarioActualizado.correo,
+                subject: 'Verifica tu nuevo correo en Gest-Par-ZEDIC',
+                html: htmlContent
             });
         }
         res.json({

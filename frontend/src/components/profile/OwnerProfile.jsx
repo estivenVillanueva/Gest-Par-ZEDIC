@@ -110,7 +110,15 @@ const OwnerProfile = () => {
       if (!res.ok) throw new Error('Error al actualizar');
       const data = await res.json();
       setProfile(data.data);
-      setSnackbar({ open: true, message: 'Campo actualizado', severity: 'success' });
+      if (editField === 'correo' && data.data && data.data.verificado === false) {
+        setSnackbar({
+          open: true,
+          message: '¡Correo actualizado! Revisa tu nuevo correo para verificarlo.',
+          severity: 'info'
+        });
+      } else {
+        setSnackbar({ open: true, message: 'Campo actualizado', severity: 'success' });
+      }
       setOpenEdit(false);
     } catch (err) {
       setSnackbar({ open: true, message: 'Error al actualizar', severity: 'error' });

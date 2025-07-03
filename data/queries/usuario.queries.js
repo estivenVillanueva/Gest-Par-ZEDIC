@@ -94,18 +94,33 @@ export const usuarioQueries = {
         console.log('DATA RECIBIDA EN UPDATE:', data);
         const { nombre, correo, ubicacion, telefono } = data;
         const tipoUsuarioFinal = data.tipo_usuario || data.tipoUsuario;
-        console.log('tipoUsuarioFinal usado en UPDATE:', tipoUsuarioFinal);
-        console.log('Valores para UPDATE:', [nombre, correo, ubicacion, telefono, tipoUsuarioFinal, id]);
+        // Obtener el usuario actual para comparar el correo
+        const usuarioActual = await this.getUsuarioById(id);
+        let nuevoToken = null;
+        let verificado = usuarioActual.verificado;
+        let tokenVerificacion = usuarioActual.tokenverificacion;
+        let correoFinal = correo;
+        if (correo && correo !== usuarioActual.correo) {
+            // Si el correo cambió, generar nuevo token y marcar como no verificado
+            nuevoToken = require('crypto').randomBytes(32).toString('hex');
+            verificado = false;
+            tokenVerificacion = nuevoToken;
+        }
         const query = `
             UPDATE usuarios
-            SET nombre = $1, correo = $2, ubicacion = $3, telefono = $4, tipo_usuario = $5
-            WHERE id = $6
+            SET nombre = $1, correo = $2, ubicacion = $3, telefono = $4, tipo_usuario = $5, verificado = $6, tokenverificacion = $7
+            WHERE id = $8
             RETURNING *
         `;
-        const values = [nombre, correo, ubicacion, telefono, tipoUsuarioFinal, id];
+        const values = [nombre, correoFinal, ubicacion, telefono, tipoUsuarioFinal, verificado, tokenVerificacion, id];
         const result = await pool.query(query, values);
-        console.log('RESULTADO DEL UPDATE:', result.rows[0]);
-        return result.rows[0];
+        const usuario = result.rows[0];
+        // Si el correo cambió, retornar el token para enviar el correo de verificación
+        if (nuevoToken) {
+            usuario.nuevoToken = nuevoToken;
+        }
+        console.log('RESULTADO DEL UPDATE:', usuario);
+        return usuario;
     },
 
     // Eliminar usuario y dependencias
@@ -201,31 +216,4 @@ export const usuarioQueries = {
             SET reset_token = $1, reset_token_expiry = $2
             WHERE id = $3
             RETURNING *
-        `;
-        const result = await pool.query(query, [token, expiry, id]);
-        return result.rows[0];
-    },
-
-    // Buscar usuario por token de recuperación
-    async getUsuarioByResetToken(token) {
-        const query = 'SELECT * FROM usuarios WHERE reset_token = $1 AND reset_token_expiry > NOW()';
-        const result = await pool.query(query, [token]);
-        return result.rows[0];
-    },
-
-    // Cambiar contraseña usando el token
-    async resetPasswordWithToken(token, nuevaContrasena) {
-        const usuario = await this.getUsuarioByResetToken(token);
-        if (!usuario) throw new Error('Token inválido o expirado');
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(nuevaContrasena, salt);
-        const query = `
-            UPDATE usuarios
-            SET password = $1, reset_token = NULL, reset_token_expiry = NULL
-            WHERE id = $2
-            RETURNING *
-        `;
-        const result = await pool.query(query, [hashedPassword, usuario.id]);
-        return result.rows[0];
-    }
-}; 
+        `

@@ -199,11 +199,19 @@ const ParqueaderoProfile = () => {
         });
         if (!response.ok) throw new Error('Error al actualizar usuario');
         const data = await response.json();
-        setSnackbar({
-          open: true,
-          message: 'Cambios guardados exitosamente',
-          severity: 'success'
-        });
+        if (field === 'correo' && data.data && data.data.verificado === false) {
+          setSnackbar({
+            open: true,
+            message: '¡Correo actualizado! Revisa tu nuevo correo para verificarlo.',
+            severity: 'info'
+          });
+        } else {
+          setSnackbar({
+            open: true,
+            message: 'Cambios guardados exitosamente',
+            severity: 'success'
+          });
+        }
         setOpenEdit(false);
         // Volver a cargar los datos actualizados del usuario y actualizar el estado local
         const refreshed = await fetch(`https://gest-par-zedic.onrender.com/api/usuarios/${currentUser.id}`);
