@@ -493,4 +493,21 @@ router.delete('/notificaciones/:id', async (req, res) => {
   }
 });
 
+// Cambiar contraseña de usuario
+router.put('/:id/password', async (req, res) => {
+    try {
+        const { nuevaContrasena } = req.body;
+        if (!nuevaContrasena) {
+            return res.status(400).json({ success: false, message: 'La nueva contraseña es requerida' });
+        }
+        const usuarioActualizado = await usuarioQueries.updatePassword(req.params.id, nuevaContrasena);
+        if (!usuarioActualizado) {
+            return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+        }
+        res.json({ success: true, message: 'Contraseña actualizada correctamente' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al actualizar contraseña', error: error.message });
+    }
+});
+
 export const usuarioRoutes = router; 

@@ -108,8 +108,13 @@ export const usuarioQueries = {
         return result.rows[0];
     },
 
-    // Eliminar usuario
+    // Eliminar usuario y dependencias
     async deleteUsuario(id) {
+        // 1. Eliminar reservas del usuario
+        await pool.query('DELETE FROM reservas WHERE usuario_id = $1', [id]);
+        // 2. Eliminar vehículos del usuario
+        await pool.query('DELETE FROM vehiculos WHERE usuario_id = $1', [id]);
+        // 3. Eliminar el usuario
         const query = 'DELETE FROM usuarios WHERE id = $1 RETURNING *';
         const result = await pool.query(query, [id]);
         return result.rows[0];

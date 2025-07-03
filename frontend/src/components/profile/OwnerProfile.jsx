@@ -135,15 +135,25 @@ const OwnerProfile = () => {
     }
   };
 
-  // Cambiar contraseña (placeholder, requiere endpoint real)
-  const handlePasswordChange = () => {
+  // Cambiar contraseña
+  const handlePasswordChange = async () => {
     if (passwords.new !== passwords.confirm) {
       setSnackbar({ open: true, message: 'Las contraseñas no coinciden', severity: 'error' });
       return;
     }
-    setOpenPassword(false);
-    setSnackbar({ open: true, message: 'Contraseña actualizada', severity: 'success' });
-    // TODO: Llamar API para cambiar contraseña
+    try {
+      const res = await fetch(`${API_URL}/api/usuarios/${profile.id}/password`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nuevaContrasena: passwords.new })
+      });
+      if (!res.ok) throw new Error('Error al cambiar la contraseña');
+      setOpenPassword(false);
+      setSnackbar({ open: true, message: '¡Contraseña cambiada exitosamente!', severity: 'success' });
+      setPasswords({ current: '', new: '', confirm: '' });
+    } catch (err) {
+      setSnackbar({ open: true, message: 'Error al cambiar la contraseña', severity: 'error' });
+    }
   };
 
   // Eliminar cuenta
@@ -337,33 +347,39 @@ const OwnerProfile = () => {
 
         {/* Cambiar contraseña */}
         <Dialog open={openPassword} onClose={() => setOpenPassword(false)}>
-          <DialogTitle>Cambiar Contraseña</DialogTitle>
-          <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <DialogTitle sx={{ fontWeight: 700, textAlign: 'center', color: 'primary.main', pb: 0 }}>Cambiar Contraseña</DialogTitle>
+          <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 350, pt: 1 }}>
             <TextField
               label="Contraseña actual"
               type="password"
               fullWidth
+              variant="outlined"
               value={passwords.current}
               onChange={e => setPasswords({ ...passwords, current: e.target.value })}
+              sx={{ borderRadius: 2, bgcolor: '#f7fafd' }}
             />
             <TextField
               label="Nueva contraseña"
               type="password"
               fullWidth
+              variant="outlined"
               value={passwords.new}
               onChange={e => setPasswords({ ...passwords, new: e.target.value })}
+              sx={{ borderRadius: 2, bgcolor: '#f7fafd' }}
             />
             <TextField
               label="Confirmar nueva contraseña"
               type="password"
               fullWidth
+              variant="outlined"
               value={passwords.confirm}
               onChange={e => setPasswords({ ...passwords, confirm: e.target.value })}
+              sx={{ borderRadius: 2, bgcolor: '#f7fafd' }}
             />
           </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenPassword(false)}>Cancelar</Button>
-            <Button onClick={handlePasswordChange} variant="contained">Guardar</Button>
+          <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
+            <Button onClick={() => setOpenPassword(false)} color="inherit" sx={{ borderRadius: 2 }}>Cancelar</Button>
+            <Button onClick={handlePasswordChange} variant="contained" color="primary" sx={{ borderRadius: 2, fontWeight: 600 }}>Guardar</Button>
           </DialogActions>
         </Dialog>
 
