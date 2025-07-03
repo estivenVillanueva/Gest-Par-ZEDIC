@@ -216,4 +216,8 @@ export const usuarioQueries = {
             SET reset_token = $1, reset_token_expiry = $2
             WHERE id = $3
             RETURNING *
-        `
+        `;
+        const result = await pool.query(query, [token, expiry, id]);
+        return result.rows[0];
+    }
+};
