@@ -116,11 +116,16 @@ export const usuarioQueries = {
         await pool.query('DELETE FROM vehiculos WHERE usuario_id = $1', [id]);
         // 3. Eliminar notificaciones del usuario
         await pool.query('DELETE FROM notificaciones WHERE usuario_id = $1', [id]);
-        // 4. Eliminar facturas del usuario
+        // 4. Eliminar detalles de factura de las facturas del usuario
+        const facturas = await pool.query('SELECT id FROM facturas WHERE usuario_id = $1', [id]);
+        for (const factura of facturas.rows) {
+            await pool.query('DELETE FROM factura_detalles WHERE factura_id = $1', [factura.id]);
+        }
+        // 5. Eliminar facturas del usuario
         await pool.query('DELETE FROM facturas WHERE usuario_id = $1', [id]);
-        // 5. Eliminar parqueaderos del usuario (si es admin)
+        // 6. Eliminar parqueaderos del usuario (si es admin)
         await pool.query('DELETE FROM parqueaderos WHERE usuario_id = $1', [id]);
-        // 6. Eliminar el usuario
+        // 7. Eliminar el usuario
         const query = 'DELETE FROM usuarios WHERE id = $1 RETURNING *';
         const result = await pool.query(query, [id]);
         return result.rows[0];
