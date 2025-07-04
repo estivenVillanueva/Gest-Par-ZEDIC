@@ -72,10 +72,10 @@ const Navbar = () => {
 
           <NavButton
             component={Link}
-            to="/dashboard/pagos"
+            to="/dashboard/facturas"
             startIcon={<PaymentIcon />}
           >
-            Pagos
+            Facturas
           </NavButton>
 
           <NavButton

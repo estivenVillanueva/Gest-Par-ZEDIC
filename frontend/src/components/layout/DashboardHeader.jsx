@@ -50,7 +50,7 @@ const navigationItems = [
     icon: <DirectionsCarIcon />
   },
   { 
-    label: 'Pagos', 
+    label: 'Facturas', 
     path: '/dashboard/pagos',
     icon: <PaymentIcon />
   },

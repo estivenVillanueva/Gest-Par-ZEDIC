@@ -479,6 +479,7 @@ const Pagos = () => {
   const [selectedPagos, setSelectedPagos] = useState([]);
   const [confirmacionPagoOpen, setConfirmacionPagoOpen] = useState(false);
   const [facturaParaImprimir, setFacturaParaImprimir] = useState(null);
+  const [pagoAConfirmar, setPagoAConfirmar] = useState(null);
   
   const { currentUser } = useAuth();
   
@@ -713,11 +714,15 @@ const Pagos = () => {
     }
   };
 
-  const handleConfirmarPagoDirecto = async (pago) => {
+  const handleConfirmarPagoDirecto = (pago) => {
+    setPagoAConfirmar(pago);
+  };
+
+  // Agregar función para marcar como pagada desde el diálogo de confirmación
+  const handlePagarFactura = async (factura) => {
+    if (!factura) return;
     try {
-      await axios.put(`${API_URL}/api/pagos/${pago.id}/pagar`, { metodo_pago: 'efectivo' });
-      setFacturaParaImprimir(pago);
-      setConfirmacionPagoOpen(true);
+      await axios.put(`${API_URL}/api/pagos/${factura.id}/pagar`, { metodo_pago: 'efectivo' });
       fetchPagos();
     } catch (e) {
       setError('No se pudo completar el pago.');
@@ -737,7 +742,7 @@ const Pagos = () => {
         mt: { xs: 2, md: 4 },
         mb: 4,
       }}>
-        <Typography variant="h4" fontWeight={800} color="primary.main" sx={{ mb: 4 }}>Gestión de Pagos</Typography>
+        <Typography variant="h4" fontWeight={800} color="primary.main" sx={{ mb: 4 }}>Facturas</Typography>
         {/* Filtros visuales */}
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 3, alignItems: 'center', justifyContent: 'flex-start' }}>
@@ -827,6 +832,22 @@ const Pagos = () => {
             }
             setConfirmacionPagoOpen(false);
           }} color="primary" variant="contained">Imprimir factura</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={!!pagoAConfirmar} onClose={() => setPagoAConfirmar(null)}>
+        <DialogTitle>Confirmar Pago</DialogTitle>
+        <DialogContent>
+          <Typography>¿Estás seguro de que deseas marcar esta factura como pagada?</Typography>
+          <Typography sx={{ mt: 2, fontWeight: 700 }}>Factura: {pagoAConfirmar?.servicio_nombre} - {pagoAConfirmar?.placa}</Typography>
+          <Typography sx={{ mt: 1 }}>Valor: {pagoAConfirmar?.total?.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPagoAConfirmar(null)}>Cancelar</Button>
+          <Button variant="contained" color="primary" onClick={async () => {
+            await handlePagarFactura(pagoAConfirmar);
+            setPagoAConfirmar(null);
+          }}>Confirmar Pago</Button>
         </DialogActions>
       </Dialog>
     </Box>
