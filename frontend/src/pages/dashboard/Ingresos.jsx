@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import {
-  Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Snackbar, Alert, Box, Autocomplete, Card, CardContent, Divider, MenuItem, Chip
+  Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Snackbar, Alert, Box, Autocomplete, Card, CardContent, Divider, MenuItem, Chip, DialogContentText
 } from '@mui/material';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -36,6 +36,8 @@ export default function Ingresos() {
   const [puestosDisponibles, setPuestosDisponibles] = useState([]);
   const [puestoSeleccionado, setPuestoSeleccionado] = useState('');
   const timerRef = useRef(null);
+  const [confirmarCrearVehiculo, setConfirmarCrearVehiculo] = useState(false);
+  const [placaParaCrear, setPlacaParaCrear] = useState('');
 
   useEffect(() => {
     fetchIngresos();
@@ -136,8 +138,9 @@ export default function Ingresos() {
     setLoadingPlaca(true);
     setVehiculo(null);
     setServicioVehiculo(null);
+    const placaNormalizada = (placaBuscada || '').toUpperCase().trim();
     try {
-      const res = await axios.get(`${API_URL}/api/vehiculos/placa/${placaBuscada}`);
+      const res = await axios.get(`${API_URL}/api/vehiculos/placa/${placaNormalizada}`);
       if (res.data && res.data.data) {
         setVehiculo(res.data.data);
         // Si el vehículo tiene servicio_id, obtener el servicio
@@ -176,55 +179,10 @@ export default function Ingresos() {
 
   const handleRegistrarIngreso = async () => {
     if (!vehiculo && placa) {
-      try {
-        // Buscar el servicio por minuto del parqueadero
-        let servicioMinuto = null;
-        try {
-          const resServicios = await axios.get(`${API_URL}/api/servicios/parqueadero/${currentUser?.parqueadero_id}`);
-          if (resServicios.data && resServicios.data.data) {
-            servicioMinuto = resServicios.data.data.find(s => (s.duracion || '').toLowerCase() === 'minuto');
-          }
-        } catch {}
-        if (!servicioMinuto) {
-          setSnackbar({ open: true, message: 'No hay servicio por minuto configurado para este parqueadero.', severity: 'error' });
-          return;
-        }
-        if (!puestoSeleccionado) {
-          setSnackbar({ open: true, message: 'Debes seleccionar un puesto disponible.', severity: 'error' });
-          return;
-        }
-        const resVehiculo = await axios.post(`${API_URL}/api/vehiculos`, {
-          placa,
-          marca: '',
-          modelo: '',
-          color: '',
-          tipo: 'ocasional',
-          usuario_id: null,
-          parqueadero_id: currentUser?.parqueadero_id,
-          servicio_id: servicioMinuto.id,
-          puesto: Number(puestoSeleccionado)
-        });
-        setVehiculo(resVehiculo.data.data);
-        await axios.post(`${API_URL}/api/ingresos`, { vehiculo_id: resVehiculo.data.data.id, observaciones });
-        setSnackbar({ open: true, message: 'Ingreso rápido registrado', severity: 'success' });
-        setOpenIngreso(false);
-        setPlaca('');
-        setVehiculo(null);
-        setObservaciones('');
-        setPuestoSeleccionado('');
-        fetchIngresos();
-        fetchHistorial();
-        // Abrir automáticamente el diálogo de salida para mostrar el contador
-        const ingresosActualizados = await axios.get(`${API_URL}/api/ingresos/actuales?parqueadero_id=${currentUser?.parqueadero_id}`);
-        const nuevoIngreso = ingresosActualizados.data.find(ing => ing.vehiculo_id === resVehiculo.data.data.id);
-        if (nuevoIngreso) {
-          handleOpenSalidaDialog(nuevoIngreso);
-        }
-        return;
-      } catch (e) {
-        setSnackbar({ open: true, message: 'Error al registrar ingreso rápido', severity: 'error' });
-        return;
-      }
+      // Si no hay vehículo, primero confirmamos con el usuario antes de crearlo
+      setPlacaParaCrear(placa);
+      setConfirmarCrearVehiculo(true);
+      return;
     }
     if (!vehiculo) {
       setSnackbar({ open: true, message: 'Debes seleccionar un vehículo válido', severity: 'error' });
@@ -277,11 +235,17 @@ export default function Ingresos() {
       const info = { ...res.data, ingreso_id: ingreso.id };
       console.log('[SALIDA] tipo_cobro recibido:', info.tipo_cobro, 'servicio_nombre:', info.servicio_nombre);
       setSalidaInfo(info);
-      const tiposCobroConContador = ['uso', 'hora', 'minuto', 'día', 'dias', 'días'];
-      if (tiposCobroConContador.includes((info.tipo_cobro || '').toLowerCase())) {
-        setOpenSalida(true); // Mostrar contador
+      // Mejor lógica: considerar tipo_cobro y coincidencias flexibles en el nombre
+      const normalizar = s => (s || '').toLowerCase().replace(/\s+/g, '');
+      const nombreServicio = normalizar(info.servicio_nombre);
+      const tipoCobro = normalizar(info.tipo_cobro);
+      // Si el tipo de cobro es periodo, o el nombre contiene palabras clave de periodo, mostrar mensaje de periodo
+      const palabrasPeriodo = ['mes', 'mensual', 'semanal', 'quincenal', 'quincena', 'semana', 'periodo', 'plan'];
+      const esPeriodo = tipoCobro === 'periodo' || palabrasPeriodo.some(p => nombreServicio.includes(p));
+      if (esPeriodo) {
+        setOpenConfirmSalidaSinCosto(true); // Mostrar mensaje de periodo
       } else {
-        setOpenConfirmSalidaSinCosto(true); // Salida sin costo ni contador
+        setOpenSalida(true); // Mostrar contador
       }
     } catch (e) {
       setSnackbar({ open: true, message: 'Error al verificar el servicio', severity: 'error' });
@@ -713,6 +677,72 @@ export default function Ingresos() {
           <Button onClick={handleConfirmarSalidaSinCosto} variant="contained" color="success">
             Confirmar y Registrar Salida
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Diálogo de confirmación para crear vehículo ocasional */}
+      <Dialog open={confirmarCrearVehiculo} onClose={() => setConfirmarCrearVehiculo(false)}>
+        <DialogTitle>Registrar vehículo ocasional</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            No se encontró un vehículo con la placa <b>{placaParaCrear}</b>.<br />
+            ¿Deseas registrarlo como vehículo ocasional (servicio por minuto)?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmarCrearVehiculo(false)} color="secondary">Cancelar</Button>
+          <Button onClick={async () => {
+            setConfirmarCrearVehiculo(false);
+            try {
+              // Buscar el servicio por minuto del parqueadero
+              let servicioMinuto = null;
+              try {
+                const resServicios = await axios.get(`${API_URL}/api/servicios/parqueadero/${currentUser?.parqueadero_id}`);
+                if (resServicios.data && resServicios.data.data) {
+                  servicioMinuto = resServicios.data.data.find(s => (s.duracion || '').toLowerCase() === 'minuto');
+                }
+              } catch {}
+              if (!servicioMinuto) {
+                setSnackbar({ open: true, message: 'No hay servicio por minuto configurado para este parqueadero.', severity: 'error' });
+                return;
+              }
+              if (!puestoSeleccionado) {
+                setSnackbar({ open: true, message: 'Debes seleccionar un puesto disponible.', severity: 'error' });
+                return;
+              }
+              const resVehiculo = await axios.post(`${API_URL}/api/vehiculos`, {
+                placa: placaParaCrear,
+                marca: '',
+                modelo: '',
+                color: '',
+                tipo: 'ocasional',
+                usuario_id: null,
+                parqueadero_id: currentUser?.parqueadero_id,
+                servicio_id: servicioMinuto.id,
+                puesto: Number(puestoSeleccionado)
+              });
+              setVehiculo(resVehiculo.data.data);
+              await axios.post(`${API_URL}/api/ingresos`, { vehiculo_id: resVehiculo.data.data.id, observaciones });
+              setSnackbar({ open: true, message: 'Ingreso rápido registrado', severity: 'success' });
+              setOpenIngreso(false);
+              setPlaca('');
+              setVehiculo(null);
+              setObservaciones('');
+              setPuestoSeleccionado('');
+              fetchIngresos();
+              fetchHistorial();
+              // Abrir automáticamente el diálogo de salida para mostrar el contador
+              const ingresosActualizados = await axios.get(`${API_URL}/api/ingresos/actuales?parqueadero_id=${currentUser?.parqueadero_id}`);
+              const nuevoIngreso = ingresosActualizados.data.find(ing => ing.vehiculo_id === resVehiculo.data.data.id);
+              if (nuevoIngreso) {
+                handleOpenSalidaDialog(nuevoIngreso);
+              }
+              return;
+            } catch (e) {
+              setSnackbar({ open: true, message: 'Error al registrar ingreso rápido', severity: 'error' });
+              return;
+            }
+          }} color="primary" autoFocus>Aceptar y registrar</Button>
         </DialogActions>
       </Dialog>
 
