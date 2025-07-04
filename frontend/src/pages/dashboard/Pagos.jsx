@@ -761,7 +761,7 @@ const Pagos = () => {
             />
           </Box>
         </LocalizationProvider>
-        <ElegantPaper sx={{ maxWidth: 1100, mx: 'auto', p: 0 }}>
+        <ElegantPaper sx={{ p: 0 }}>
           <TabsContainer>
             <Tabs value={tabValue} onChange={handleTabChange} variant="fullWidth">
               <Tab label="Pendientes" />

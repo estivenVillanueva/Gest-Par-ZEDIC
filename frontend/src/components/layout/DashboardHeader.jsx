@@ -167,7 +167,7 @@ const DashboardHeader = () => {
         borderRadius: 0
       }}
     >
-      <Toolbar sx={{ justifyContent: 'space-between', height: { xs: '66px', sm: '74px', md: '80px' }, px: { xs: 1, sm: 2 } }}>
+      <Toolbar sx={{ justifyContent: 'space-between', height: { xs: '90px', sm: '110px', md: '130px' }, px: { xs: 2, sm: 4 } }}>
         {/* Logo y Título */}
         <Box 
           component={Link}
@@ -176,21 +176,21 @@ const DashboardHeader = () => {
             display: 'flex', 
             alignItems: 'center',
             textDecoration: 'none',
-            gap: 1
+            gap: 2
           }}
         >
           <Typography 
-            variant="h6" 
+            variant="h4"
             sx={{ 
               color: '#2B6CA3',
-              fontWeight: 600,
+              fontWeight: 700,
               display: { xs: 'none', sm: 'block' },
-              fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' }
+              fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' }
             }}
           >
             ZEDIC
           </Typography>
-          <DirectionsCarIcon sx={{ color: '#2B6CA3', display: { xs: 'block', sm: 'none' }, fontSize: 28 }} />
+          <DirectionsCarIcon sx={{ color: '#2B6CA3', display: { xs: 'block', sm: 'none' }, fontSize: 40 }} />
         </Box>
 
         {/* Menú Hamburguesa en móvil */}
