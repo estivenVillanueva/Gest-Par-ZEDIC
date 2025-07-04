@@ -29,10 +29,13 @@ router.post('/', async (req, res) => {
     const servicios = await serviciosQueries.getServiciosByParqueadero(vehiculo.parqueadero_id);
     let servicioCorrecto = null;
     if (vehiculo.servicio_id) {
-      // Buscar el servicio del mismo tipo (minuto, hora, día) en el parqueadero
+      // Buscar el servicio del vehículo
       const servicioVehiculo = servicios.find(s => s.id === vehiculo.servicio_id);
       if (servicioVehiculo) {
-        if ((servicioVehiculo.duracion || '').toLowerCase() === 'minuto') {
+        // Si el servicio del vehículo es de tipo_cobro 'periodo', NO cambiarlo
+        if ((servicioVehiculo.tipo_cobro || '').toLowerCase() === 'periodo') {
+          servicioCorrecto = servicioVehiculo;
+        } else if ((servicioVehiculo.duracion || '').toLowerCase() === 'minuto') {
           servicioCorrecto = servicios.find(s => (s.duracion || '').toLowerCase() === 'minuto');
         } else if ((servicioVehiculo.duracion || '').toLowerCase() === 'hora') {
           servicioCorrecto = servicios.find(s => (s.duracion || '').toLowerCase() === 'hora');
@@ -47,8 +50,8 @@ router.post('/', async (req, res) => {
         || servicios.find(s => (s.duracion || '').toLowerCase() === 'hora')
         || servicios.find(s => ['día','dia'].includes((s.duracion || '').toLowerCase()));
     }
-    if (servicioCorrecto && vehiculo.servicio_id !== servicioCorrecto.id) {
-      // Actualizar el servicio_id del vehículo si es necesario
+    // Solo actualizar el servicio_id si el servicio actual NO es de tipo_cobro 'periodo' y el nuevo es diferente
+    if (servicioCorrecto && vehiculo.servicio_id !== servicioCorrecto.id && (servicioCorrecto.tipo_cobro || '').toLowerCase() !== 'periodo') {
       await vehiculoQueries.updateVehiculo(vehiculo.placa, { ...vehiculo, servicio_id: servicioCorrecto.id });
     }
 
