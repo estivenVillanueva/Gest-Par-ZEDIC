@@ -900,7 +900,7 @@ const ParqueaderoProfile = () => {
                 onChange={e => {
                   const value = e.target.value;
                   let nombre = value;
-                  if (value === 'otro') nombre = '';
+                  if (["mensual", "quincenal", "semanal", "otro"].includes(value)) nombre = '';
                   setEditValue({
                     ...editValue,
                     tipo_servicio: value,
@@ -923,8 +923,8 @@ const ParqueaderoProfile = () => {
                 <MenuItem value="otro">Otro</MenuItem>
               </TextField>
 
-              {/* Si es tipo 'otro', permite escribir el nombre */}
-              {editValue.tipo_servicio === 'otro' && (
+              {/* Si es tipo 'mensual', 'quincenal', 'semanal' u 'otro', permite escribir el nombre */}
+              {["mensual", "quincenal", "semanal", "otro"].includes(editValue.tipo_servicio) && (
                 <TextField
                   margin="dense"
                   label="Nombre del servicio"
@@ -948,108 +948,35 @@ const ParqueaderoProfile = () => {
                 sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
               />
 
-              {/* Si es mensual/quincenal/semanal/otro, pide precio fijo y duración */}
-              {['mensual', 'quincenal', 'semanal', 'otro'].includes(editValue.tipo_servicio) && (
-                <>
-                  <TextField
-                    margin="dense"
-                    label="Precio"
-                    type="number"
-                    fullWidth
-                    variant="outlined"
-                    value={editValue.precio || ''}
-                    onChange={e => setEditValue({ ...editValue, precio: e.target.value })}
-                    sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
-                  />
-                  <TextField
-                    select
-                    margin="dense"
-                    label="Duración"
-                    fullWidth
-                    variant="outlined"
-                    value={editValue.duracion || ''}
-                    onChange={e => setEditValue({ ...editValue, duracion: e.target.value })}
-                    sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
-                  >
-                    <MenuItem value="mes">Mes</MenuItem>
-                    <MenuItem value="quincena">Quincena</MenuItem>
-                    <MenuItem value="semana">Semana</MenuItem>
-                  </TextField>
-                </>
-              )}
-
-              {/* Si es por uso: día, hora, minuto */}
-              {['dia', 'hora', 'minuto'].includes(editValue.tipo_servicio) && (
-                <>
-                  <TextField
-                    select
-                    margin="dense"
-                    label="Duración"
-                    fullWidth
-                    variant="outlined"
-                    value={editValue.duracion || ''}
-                    onChange={e => setEditValue({ ...editValue, duracion: e.target.value })}
-                    sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
-                  >
-                    <MenuItem value="dia">Día</MenuItem>
-                    <MenuItem value="hora">Hora</MenuItem>
-                    <MenuItem value="minuto">Minuto</MenuItem>
-                  </TextField>
-                  {editValue.duracion === 'dia' && (
-                    <TextField
-                      margin="dense"
-                      label="Precio por día"
-                      type="number"
-                      fullWidth
-                      variant="outlined"
-                      value={editValue.precio_dia || ''}
-                      onChange={e => setEditValue({ ...editValue, precio_dia: e.target.value })}
-                      sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
-                    />
-                  )}
-                  {editValue.duracion === 'hora' && (
-                    <TextField
-                      margin="dense"
-                      label="Precio por hora"
-                      type="number"
-                      fullWidth
-                      variant="outlined"
-                      value={editValue.precio_hora || ''}
-                      onChange={e => setEditValue({ ...editValue, precio_hora: e.target.value })}
-                      sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
-                    />
-                  )}
-                  {editValue.duracion === 'minuto' && (
-                    <TextField
-                      margin="dense"
-                      label="Precio por minuto"
-                      type="number"
-                      fullWidth
-                      variant="outlined"
-                      value={editValue.precio_minuto || ''}
-                      onChange={e => setEditValue({ ...editValue, precio_minuto: e.target.value })}
-                      sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
-                    />
-                  )}
-                </>
-              )}
-
+              {/* Siempre pide duración y precio */}
               <TextField
                 select
                 margin="dense"
-                label="Tipo de vehículo"
+                label="Duración"
                 fullWidth
                 variant="outlined"
-                value={editValue.tipo_vehiculo || ''}
-                onChange={e => setEditValue({ ...editValue, tipo_vehiculo: e.target.value })}
+                value={editValue.duracion || ''}
+                onChange={e => setEditValue({ ...editValue, duracion: e.target.value })}
                 sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
               >
-                <MenuItem value="carro">Carro</MenuItem>
-                <MenuItem value="moto">Moto</MenuItem>
-                <MenuItem value="bus">Bus</MenuItem>
-                <MenuItem value="bolqueta">Bolqueta</MenuItem>
-                <MenuItem value="todos">Todos</MenuItem>
+                <MenuItem value="mes">Mes</MenuItem>
+                <MenuItem value="quincena">Quincena</MenuItem>
+                <MenuItem value="semana">Semana</MenuItem>
+                <MenuItem value="dia">Día</MenuItem>
+                <MenuItem value="hora">Hora</MenuItem>
+                <MenuItem value="minuto">Minuto</MenuItem>
               </TextField>
+
+              <TextField
+                margin="dense"
+                label="Precio"
+                type="number"
+                fullWidth
+                variant="outlined"
+                value={editValue.precio || ''}
+                onChange={e => setEditValue({ ...editValue, precio: e.target.value })}
+                sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
+              />
             </>
           ) : (
             <TextField
