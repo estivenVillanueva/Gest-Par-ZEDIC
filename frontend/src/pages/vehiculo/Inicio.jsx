@@ -220,7 +220,7 @@ const Inicio = () => {
         {/* Cabecera Dashboard */}
         <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
           <Typography variant="h4" component="h1" sx={{ fontWeight: 800, color: '#3498f3', mb: 1 }}>
-            ¡Hola, Usuario! Bienvenido a tu Dashboard
+            ¡Hola, Usuario! Bienvenido a tu Panel de Control
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
             Gestiona tus vehículos y reservas de parqueadero
