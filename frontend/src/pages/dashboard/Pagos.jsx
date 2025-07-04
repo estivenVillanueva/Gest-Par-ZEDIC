@@ -59,7 +59,7 @@ const TabPanel = ({ children, value, index }) => (
   </div>
 );
 
-const PagoCard = ({ pago, onCardClick, isPending, selectable, checked, onSelectChange }) => {
+const PagoCard = ({ pago, onCardClick, onPagar, isPending, selectable, checked, onSelectChange }) => {
   const isVencida = isPending && new Date(pago.fecha_vencimiento) < new Date();
   const diasRestantes = isPending ? Math.ceil((new Date(pago.fecha_vencimiento) - new Date()) / (1000 * 60 * 60 * 24)) : null;
   const porVencer = isPending && diasRestantes !== null && diasRestantes <= 3 && diasRestantes >= 0;
@@ -153,8 +153,8 @@ const PagoCard = ({ pago, onCardClick, isPending, selectable, checked, onSelectC
             ${parseInt(pago.total, 10).toLocaleString('es-CO')}
           </Typography>
           {isPending && (
-            <Button variant="contained" color="primary" size="small" sx={{ mt: 1 }} onClick={onCardClick}>
-              Marcar como pagada
+            <Button variant="contained" color="primary" size="small" sx={{ mt: 1 }} onClick={e => { e.stopPropagation(); onPagar && onPagar(); }}>
+              Pagar
             </Button>
           )}
         </Box>
@@ -438,12 +438,18 @@ const PagarDialog = ({ open, onClose, onConfirm, factura }) => {
         >
           Imprimir factura
         </Button>
+        <Button
+          variant="outlined"
+          color="primary"
+          sx={{ mt: 2, ml: 2 }}
+          onClick={() => onConfirm(metodoPago)}
+          disabled={!facturaCompleta}
+        >
+          Pagar
+        </Button>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancelar</Button>
-        <Button onClick={() => onConfirm(metodoPago)} variant="contained" color="primary">
-          Confirmar Pago
-        </Button>
+        <Button onClick={onClose}>Cerrar</Button>
       </DialogActions>
     </Dialog>
   );
@@ -471,6 +477,8 @@ const Pagos = () => {
   const [fechaHasta, setFechaHasta] = useState(null);
   const [serviciosDisponibles, setServiciosDisponibles] = useState([]);
   const [selectedPagos, setSelectedPagos] = useState([]);
+  const [confirmacionPagoOpen, setConfirmacionPagoOpen] = useState(false);
+  const [facturaParaImprimir, setFacturaParaImprimir] = useState(null);
   
   const { currentUser } = useAuth();
   
@@ -541,6 +549,8 @@ const Pagos = () => {
     if (!facturaCompleta) return;
     try {
       await axios.put(`${API_URL}/api/pagos/${facturaCompleta.id}/pagar`, { metodo_pago });
+      setFacturaParaImprimir(facturaCompleta);
+      setConfirmacionPagoOpen(true);
       handleCloseDialog();
       fetchPagos();
     } catch (e) {
@@ -631,7 +641,8 @@ const Pagos = () => {
           <PagoCard
             key={pago.id}
             pago={pago}
-            onCardClick={isPendingTab ? () => handleOpenDialog(pago) : undefined}
+            onCardClick={() => handleOpenDialog(pago)}
+            onPagar={() => handleConfirmarPagoDirecto(pago)}
             isPending={isPendingTab}
             selectable
             checked={selectedPagos.includes(pago.id)}
@@ -650,7 +661,8 @@ const Pagos = () => {
           <PagoCard
             key={pago.id}
             pago={pago}
-            onCardClick={isPendingTab ? () => handleOpenDialog(pago) : undefined}
+            onCardClick={() => handleOpenDialog(pago)}
+            onPagar={() => handleConfirmarPagoDirecto(pago)}
             isPending={isPendingTab}
             selectable
             checked={selectedPagos.includes(pago.id)}
@@ -665,8 +677,9 @@ const Pagos = () => {
         <PagoCard
           key={pago.id}
           pago={pago}
-          isPending={false}
           onCardClick={() => handleOpenDialog(pago)}
+          onPagar={() => handleConfirmarPagoDirecto(pago)}
+          isPending={false}
         />
       ));
     }
@@ -697,6 +710,17 @@ const Pagos = () => {
     } catch (error) {
       alert('Error al crear la factura. Verifica la placa del vehículo.');
       console.error('Error al crear la factura:', error);
+    }
+  };
+
+  const handleConfirmarPagoDirecto = async (pago) => {
+    try {
+      await axios.put(`${API_URL}/api/pagos/${pago.id}/pagar`, { metodo_pago: 'efectivo' });
+      setFacturaParaImprimir(pago);
+      setConfirmacionPagoOpen(true);
+      fetchPagos();
+    } catch (e) {
+      setError('No se pudo completar el pago.');
     }
   };
 
@@ -787,6 +811,24 @@ const Pagos = () => {
         onConfirm={handleConfirmarPago}
         factura={facturaCompleta}
       />
+
+      <Dialog open={confirmacionPagoOpen} onClose={() => setConfirmacionPagoOpen(false)}>
+        <DialogTitle>Factura marcada como pagada</DialogTitle>
+        <DialogContent>
+          <Typography>La factura ha sido marcada como pagada exitosamente.</Typography>
+          <Typography>¿Desea imprimir la factura?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmacionPagoOpen(false)} color="secondary">Cerrar</Button>
+          <Button onClick={() => {
+            if (facturaParaImprimir) {
+              setFacturaCompleta(facturaParaImprimir);
+              setDialogOpen(true);
+            }
+            setConfirmacionPagoOpen(false);
+          }} color="primary" variant="contained">Imprimir factura</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
