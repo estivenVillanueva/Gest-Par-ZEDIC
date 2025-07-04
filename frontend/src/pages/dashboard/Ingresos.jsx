@@ -275,11 +275,13 @@ export default function Ingresos() {
     try {
       const res = await axios.get(`${API_URL}/api/ingresos/con-servicio/${ingreso.id}`);
       const info = { ...res.data, ingreso_id: ingreso.id };
+      console.log('[SALIDA] tipo_cobro recibido:', info.tipo_cobro, 'servicio_nombre:', info.servicio_nombre);
       setSalidaInfo(info);
-      if (info.tipo_cobro === 'periodo') {
-        setOpenConfirmSalidaSinCosto(true);
+      const tiposCobroConContador = ['uso', 'hora', 'minuto', 'día', 'dias', 'días'];
+      if (tiposCobroConContador.includes((info.tipo_cobro || '').toLowerCase())) {
+        setOpenSalida(true); // Mostrar contador
       } else {
-        setOpenSalida(true);
+        setOpenConfirmSalidaSinCosto(true); // Salida sin costo ni contador
       }
     } catch (e) {
       setSnackbar({ open: true, message: 'Error al verificar el servicio', severity: 'error' });
@@ -624,55 +626,72 @@ export default function Ingresos() {
       <Dialog open={openSalida} onClose={() => setOpenSalida(false)} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ fontWeight: 700, color: 'primary.main' }}>Registrar Salida</DialogTitle>
         <DialogContent>
-          <Typography>Vehículo con servicio por uso. Por favor, ingrese el valor a pagar.</Typography>
-          {salidaInfo && ['uso', 'hora', 'minuto', 'día', 'dias', 'días'].includes((salidaInfo.tipo_cobro || '').toLowerCase()) && (
+          {salidaInfo && ['uso', 'hora', 'minuto', 'día', 'dias', 'días'].includes((salidaInfo.tipo_cobro || '').toLowerCase()) ? (
+            <>
+              <Typography>Vehículo con servicio por uso. Por favor, ingrese el valor a pagar.</Typography>
+              <Box sx={{ my: 2, p: 2, bgcolor: '#f5faff', borderRadius: 2, textAlign: 'center' }}>
+                <Typography variant="subtitle2" color="primary">Tiempo transcurrido:</Typography>
+                <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
+                  {tiempoTranscurrido.dias > 0 && `${tiempoTranscurrido.dias}d `}
+                  {tiempoTranscurrido.horas}h {tiempoTranscurrido.minutos}m
+                </Typography>
+                <Typography variant="subtitle2" color="primary">Valor calculado:</Typography>
+                <Typography variant="h5" fontWeight={700} color="success.main">
+                  {valorCalculado.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                </Typography>
+              </Box>
+              <TextField
+                autoFocus
+                margin="dense"
+                label="Valor Pagado"
+                type="number"
+                fullWidth
+                variant="outlined"
+                value={valorPagado}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const num = parseFloat(value);
+                  if (num < 0) {
+                    setErrorValorPagado('El valor pagado no puede ser negativo.');
+                  } else if (num > 0 && num < 100) {
+                    setErrorValorPagado('El valor pagado debe ser mínimo 100 pesos.');
+                  } else {
+                    setErrorValorPagado('');
+                  }
+                  setValorPagado(value);
+                }}
+                error={!!errorValorPagado}
+                helperText={errorValorPagado || `Sugerido: ${valorCalculado.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                sx={{ mt: 2 }}
+              />
+            </>
+          ) : (
             <Box sx={{ my: 2, p: 2, bgcolor: '#f5faff', borderRadius: 2, textAlign: 'center' }}>
-              <Typography variant="subtitle2" color="primary">Tiempo transcurrido:</Typography>
-              <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
-                {tiempoTranscurrido.dias > 0 && `${tiempoTranscurrido.dias}d `}
-                {tiempoTranscurrido.horas}h {tiempoTranscurrido.minutos}m
-              </Typography>
-              <Typography variant="subtitle2" color="primary">Valor calculado:</Typography>
-              <Typography variant="h5" fontWeight={700} color="success.main">
-                {valorCalculado.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-              </Typography>
+              <Typography variant="h6" color="primary">Vehículo con servicio por periodo</Typography>
+              <Typography>Este vehículo tiene un servicio de tipo periodo (ej: quincenal, mensual, semanal). Puede entrar y salir libremente sin cobro adicional.</Typography>
             </Box>
           )}
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Valor Pagado"
-            type="number"
-            fullWidth
-            variant="outlined"
-            value={valorPagado}
-            onChange={(e) => {
-              const value = e.target.value;
-              const num = parseFloat(value);
-              if (num < 0) {
-                setErrorValorPagado('El valor pagado no puede ser negativo.');
-              } else if (num > 0 && num < 100) {
-                setErrorValorPagado('El valor pagado debe ser mínimo 100 pesos.');
-              } else {
-                setErrorValorPagado('');
-              }
-              setValorPagado(value);
-            }}
-            error={!!errorValorPagado}
-            helperText={errorValorPagado || `Sugerido: ${valorCalculado.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-            sx={{ mt: 2 }}
-          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenSalida(false)}>Cancelar</Button>
-          <Button
-            onClick={() => handleRegistrarSalida(salidaInfo.ingreso_id, valorPagado)}
-            variant="contained"
-            color="primary"
-            disabled={!!errorValorPagado || valorPagado === ''}
-          >
-            Registrar Salida
-          </Button>
+          {salidaInfo && ['uso', 'hora', 'minuto', 'día', 'dias', 'días'].includes((salidaInfo.tipo_cobro || '').toLowerCase()) ? (
+            <Button
+              onClick={() => handleRegistrarSalida(salidaInfo.ingreso_id, valorPagado)}
+              variant="contained"
+              color="primary"
+              disabled={!!errorValorPagado || valorPagado === ''}
+            >
+              Registrar Salida
+            </Button>
+          ) : (
+            <Button
+              onClick={() => handleRegistrarSalida(salidaInfo.ingreso_id, 0)}
+              variant="contained"
+              color="success"
+            >
+              Confirmar y Registrar Salida
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
 
