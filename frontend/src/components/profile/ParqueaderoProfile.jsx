@@ -649,6 +649,7 @@ const ParqueaderoProfile = () => {
               Servicios Ofrecidos
             </Typography>
             <Grid container spacing={2} sx={{ mb: 3 }}>
+              {/* Servicios activos */}
               {(parqueaderoInfo.servicios || [])
                 .filter(servicio => servicio && (servicio.nombre || servicio.precio) && servicio.estado !== 'inactivo')
                 .map((servicio, index) => {
@@ -706,7 +707,6 @@ const ParqueaderoProfile = () => {
                                 const res = await fetch(`${SERVICIOS_API_URL}/${servicioId}`, { method: 'DELETE' });
                                 const data = await res.json();
                                 if (res.ok && data.message && data.message.includes('desactivado')) {
-                                  // Servicio desactivado, no eliminado
                                   setParqueaderoInfo(prev => ({
                                     ...prev,
                                     servicios: prev.servicios.map((s, i) =>
@@ -728,11 +728,105 @@ const ParqueaderoProfile = () => {
                           >
                             <span style={{ fontWeight: 'bold', fontSize: 18, lineHeight: 1 }}>×</span>
                           </IconButton>
+                          {/* Botón para desactivar manualmente */}
+                          <IconButton
+                            size="small"
+                            onClick={async () => {
+                              const servicioId = parqueaderoInfo.servicios[index].id;
+                              try {
+                                const res = await fetch(`${SERVICIOS_API_URL}/${servicioId}`, {
+                                  method: 'PUT',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ ...servicio, estado: 'inactivo' })
+                                });
+                                if (res.ok) {
+                                  setParqueaderoInfo(prev => ({
+                                    ...prev,
+                                    servicios: prev.servicios.map((s, i) =>
+                                      i === index ? { ...s, estado: 'inactivo' } : s
+                                    )
+                                  }));
+                                  setSnackbar({ open: true, message: 'Servicio desactivado', severity: 'info' });
+                                } else {
+                                  setSnackbar({ open: true, message: 'Error al desactivar el servicio', severity: 'error' });
+                                }
+                              } catch {
+                                setSnackbar({ open: true, message: 'Error al desactivar el servicio', severity: 'error' });
+                              }
+                            }}
+                            aria-label="Desactivar servicio"
+                          >
+                            <span style={{ fontWeight: 'bold', fontSize: 18, lineHeight: 1 }}>⏸</span>
+                          </IconButton>
                         </Box>
                       </Paper>
                     </Grid>
                   );
                 })}
+
+              {/* Servicios inactivos (opcional: mostrar para reactivar) */}
+              {(parqueaderoInfo.servicios || [])
+                .filter(servicio => servicio && (servicio.nombre || servicio.precio) && servicio.estado === 'inactivo')
+                .map((servicio, index) => (
+                  <Grid item xs={12} sm={4} key={`inactivo-${index}`}>
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        p: 2,
+                        minHeight: 100,
+                        borderRadius: 3,
+                        boxShadow: '0 2px 8px rgba(43,108,163,0.04)',
+                        position: 'relative',
+                        opacity: 0.5,
+                        background: '#f5f5f5',
+                        border: '1.5px dashed #aaa',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 1
+                      }}
+                    >
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
+                        {servicio.nombre || 'Sin tipo'} (Inactivo)
+                      </Typography>
+                      <Typography variant="h6" color="primary" sx={{ fontWeight: 700 }}>
+                        {servicio.precio || 'Sin tarifa'}
+                      </Typography>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={async () => {
+                          const servicioId = servicio.id;
+                          try {
+                            const res = await fetch(`${SERVICIOS_API_URL}/${servicioId}`, {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ ...servicio, estado: 'activo' })
+                            });
+                            if (res.ok) {
+                              setParqueaderoInfo(prev => ({
+                                ...prev,
+                                servicios: prev.servicios.map((s, i) =>
+                                  s.id === servicioId ? { ...s, estado: 'activo' } : s
+                                )
+                              }));
+                              setSnackbar({ open: true, message: 'Servicio activado', severity: 'success' });
+                            } else {
+                              setSnackbar({ open: true, message: 'Error al activar el servicio', severity: 'error' });
+                            }
+                          } catch {
+                            setSnackbar({ open: true, message: 'Error al activar el servicio', severity: 'error' });
+                          }
+                        }}
+                      >
+                        Activar
+                      </Button>
+                    </Paper>
+                  </Grid>
+                ))}
+
+              {/* Botón para agregar servicio */}
               <Grid item xs={12} sm={4}>
                 <Paper
                   variant="outlined"
@@ -751,7 +845,7 @@ const ParqueaderoProfile = () => {
                       background: 'rgba(43,108,163,0.04)',
                     }
                   }}
-                  onClick={() => handleEdit('servicio', { nombre: '', descripcion: '', precio: '', duracion: '', estado: '', index: -1 })}
+                  onClick={() => handleEdit('servicio', { tipo_servicio: '', nombre: '', descripcion: '', precio: '', duracion: '', estado: 'activo', precio_minuto: '', precio_hora: '', precio_dia: '', tipo_cobro: '', index: -1 })}
                 >
                   <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <Typography variant="h4" sx={{ fontWeight: 400, mb: 0.5 }}>+</Typography>
