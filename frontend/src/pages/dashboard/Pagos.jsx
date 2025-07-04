@@ -683,6 +683,10 @@ const Pagos = () => {
       // Buscar el vehículo por placa antes de crear la factura
       const resVehiculo = await axios.get(`${API_URL}/api/vehiculos/placa/${facturaData.placa}`);
       const vehiculo = resVehiculo.data.data;
+      if (!vehiculo) {
+        alert('No se encontró el vehículo con esa placa. Debe registrar el vehículo primero.');
+        return;
+      }
       // Construir el payload de la factura incluyendo el id correcto
       const facturaPayload = {
         ...facturaData,
@@ -691,8 +695,8 @@ const Pagos = () => {
       await axios.post(`${API_URL}/api/facturas`, facturaPayload);
       // Aquí puedes agregar feedback, cerrar modal, recargar datos, etc.
     } catch (error) {
+      alert('Error al crear la factura. Verifica la placa del vehículo.');
       console.error('Error al crear la factura:', error);
-      // Manejo de error visual si lo deseas
     }
   };
 
