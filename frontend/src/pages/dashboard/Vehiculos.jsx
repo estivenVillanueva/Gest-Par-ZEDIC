@@ -488,7 +488,7 @@ const Vehiculos = () => {
           </Button>
         </Box>
         <MinimalFilterBar sx={{ flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 2, sm: 2 }, mb: { xs: 2, md: 3 } }}>
-          <TextField variant="outlined" placeholder="Buscar por nombre, placa o usuario (ID, correo)" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} InputProps={{ startAdornment: (<SearchIcon sx={{ mr: 1 }} />) }} size="small" sx={{ flex: 2, minWidth: 180 }} />
+          <TextField variant="outlined" placeholder="Buscar por placa o usuario (ID, correo)" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} InputProps={{ startAdornment: (<SearchIcon sx={{ mr: 1 }} />) }} size="small" sx={{ flex: 2, minWidth: 180 }} />
           <TextField type="date" variant="outlined" value={dateFrom} onChange={e => setDateFrom(e.target.value)} label="Desde" InputLabelProps={{ shrink: true }} size="small" sx={{ minWidth: 120 }} />
           <TextField type="date" variant="outlined" value={dateTo} onChange={e => setDateTo(e.target.value)} label="Hasta" InputLabelProps={{ shrink: true }} size="small" sx={{ minWidth: 120 }} />
           <Button variant="contained" size="large" sx={{ minWidth: 120, fontWeight: 700 }} onClick={handleBuscarUsuario}>Buscar usuario</Button>
