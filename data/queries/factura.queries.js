@@ -5,12 +5,23 @@ import { serviciosQueries } from './servicios.queries.js';
 export const facturaQueries = {
     // Crear una nueva factura
     async createFactura({ usuario_id, parqueadero_id, vehiculo_id, servicio_id, total, estado = 'pendiente', fecha_creacion = new Date(), fecha_vencimiento }) {
+        // Obtener placa del vehículo y nombre del usuario
+        let placa_vehiculo = null;
+        let nombre_usuario = null;
+        if (vehiculo_id) {
+            const vehiculoRes = await pool.query('SELECT placa FROM vehiculos WHERE id = $1', [vehiculo_id]);
+            placa_vehiculo = vehiculoRes.rows[0]?.placa || null;
+        }
+        if (usuario_id) {
+            const usuarioRes = await pool.query('SELECT nombre FROM usuarios WHERE id = $1', [usuario_id]);
+            nombre_usuario = usuarioRes.rows[0]?.nombre || null;
+        }
         const query = `
-            INSERT INTO facturas (usuario_id, parqueadero_id, vehiculo_id, servicio_id, total, estado, fecha_creacion, fecha_vencimiento)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            INSERT INTO facturas (usuario_id, parqueadero_id, vehiculo_id, servicio_id, total, estado, fecha_creacion, fecha_vencimiento, placa_vehiculo, nombre_usuario)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
             RETURNING *
         `;
-        const values = [usuario_id, parqueadero_id, vehiculo_id, servicio_id, total, estado, fecha_creacion, fecha_vencimiento];
+        const values = [usuario_id, parqueadero_id, vehiculo_id, servicio_id, total, estado, fecha_creacion, fecha_vencimiento, placa_vehiculo, nombre_usuario];
         const result = await pool.query(query, values);
         return result.rows[0];
     },
@@ -92,10 +103,15 @@ export const facturaQueries = {
                 if (existe.length === 0) {
                     console.log('[PERIODICAS] Creando factura para vehículo:', vehiculo.id, 'usuario_id:', vehiculo.usuario_id, 'parqueadero_id:', vehiculo.parqueadero_id, 'servicio_id:', vehiculo.servicio_id, 'fecha_creacion:', fechaCiclo, 'fecha_vencimiento:', fechaVencimiento);
                     // Crear factura pendiente
+                    // Obtener placa y nombre del usuario
+                    const vehiculoRes = await pool.query('SELECT placa FROM vehiculos WHERE id = $1', [vehiculo.id]);
+                    const placa_vehiculo = vehiculoRes.rows[0]?.placa || null;
+                    const usuarioRes = await pool.query('SELECT nombre FROM usuarios WHERE id = $1', [vehiculo.usuario_id]);
+                    const nombre_usuario = usuarioRes.rows[0]?.nombre || null;
                     const facturaRes = await pool.query(
-                        `INSERT INTO facturas (usuario_id, parqueadero_id, vehiculo_id, servicio_id, total, estado, fecha_creacion, fecha_vencimiento)
-                         VALUES ($1, $2, $3, $4, $5, 'pendiente', $6, $7) RETURNING id`,
-                        [vehiculo.usuario_id, vehiculo.parqueadero_id, vehiculo.id, vehiculo.servicio_id, vehiculo.precio, fechaCiclo, fechaVencimiento]
+                        `INSERT INTO facturas (usuario_id, parqueadero_id, vehiculo_id, servicio_id, total, estado, fecha_creacion, fecha_vencimiento, placa_vehiculo, nombre_usuario)
+                         VALUES ($1, $2, $3, $4, $5, 'pendiente', $6, $7, $8, $9) RETURNING id`,
+                        [vehiculo.usuario_id, vehiculo.parqueadero_id, vehiculo.id, vehiculo.servicio_id, vehiculo.precio, fechaCiclo, fechaVencimiento, placa_vehiculo, nombre_usuario]
                     );
                     const facturaId = facturaRes.rows[0].id;
                     console.log('[PERIODICAS] Factura creada con id:', facturaId, 'para vehiculo_id:', vehiculo.id);

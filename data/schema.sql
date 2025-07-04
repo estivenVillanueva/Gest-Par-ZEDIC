@@ -37,4 +37,8 @@ CREATE TABLE IF NOT EXISTS notificaciones (
     leida BOOLEAN DEFAULT FALSE,
     tipo VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-); 
+);
+
+-- Agregar campos históricos a facturas para trazabilidad
+ALTER TABLE facturas ADD COLUMN IF NOT EXISTS placa_vehiculo VARCHAR(20);
+ALTER TABLE facturas ADD COLUMN IF NOT EXISTS nombre_usuario VARCHAR(100); 
