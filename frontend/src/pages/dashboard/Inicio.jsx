@@ -93,7 +93,7 @@ const Inicio = () => {
 
   const fetchVehiculos = async (parqueaderoId) => {
     try {
-      const res = await axios.get(`${API_URL}/vehiculos?parqueadero_id=${parqueaderoId}`);
+      const res = await axios.get(`${API_URL}/api/vehiculos?parqueadero_id=${parqueaderoId}`);
       if (res.data && res.data.data) {
         setStats((prev) => ({ ...prev, vehiculos: res.data.data.length }));
         const vehiculosOrdenados = [...res.data.data].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -110,7 +110,7 @@ const Inicio = () => {
 
   const fetchPagos = async (parqueaderoId) => {
     try {
-      const res = await axios.get(`${API_URL}/pagos/historial/${parqueaderoId}`);
+      const res = await axios.get(`${API_URL}/api/pagos/historial/${parqueaderoId}`);
       if (Array.isArray(res.data)) {
         // Pagos del mes actual
         const now = new Date();
@@ -136,7 +136,7 @@ const Inicio = () => {
 
   const fetchCapacidad = async (parqueaderoId) => {
     try {
-      const res = await axios.get(`${API_URL}/parqueaderos/${parqueaderoId}`);
+      const res = await axios.get(`${API_URL}/api/parqueaderos/${parqueaderoId}`);
       if (res.data && res.data.data && res.data.data.capacidad) {
         setCapacidad(res.data.data.capacidad);
         // Si ya tenemos vehículos, actualizar ocupación
@@ -152,7 +152,7 @@ const Inicio = () => {
 
   const fetchSolicitudes = async (parqueaderoId) => {
     try {
-      const res = await axios.get(`${API_URL}/solicitudes?parqueadero_id=${parqueaderoId}&estado=pendiente`);
+      const res = await axios.get(`${API_URL}/api/solicitudes?parqueadero_id=${parqueaderoId}&estado=pendiente`);
       if (res.data && Array.isArray(res.data.data)) {
         setStats(prev => ({ ...prev, solicitudes: res.data.data.length }));
       }

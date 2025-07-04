@@ -661,37 +661,22 @@ const ParqueaderoProfile = () => {
                         variant="outlined"
                         sx={{
                           p: 2,
-                          minHeight: 100,
+                          minHeight: 120,
                           borderRadius: 3,
                           boxShadow: '0 2px 8px rgba(43,108,163,0.04)',
                           position: 'relative',
                           transition: 'box-shadow 0.2s',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: 2,
                           '&:hover': {
                             boxShadow: '0 4px 16px rgba(43,108,163,0.10)',
-                            '.servicio-actions': { opacity: 1 }
                           }
                         }}
                       >
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
-                            {tipoServicio}
-                          </Typography>
-                          <Typography variant="h6" color="primary" sx={{ fontWeight: 700 }}>
-                            {tarifaServicio}
-                          </Typography>
-                        </Box>
-                        <Box
-                          className="servicio-actions"
-                          sx={{
-                            position: 'absolute',
-                            top: 8,
-                            right: 8,
-                            display: 'flex',
-                            gap: 1,
-                            opacity: 0,
-                            transition: 'opacity 0.2s',
-                          }}
-                        >
+                        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end', mb: 1, gap: 1 }}>
                           <IconButton
                             size="small"
                             onClick={() => handleEdit('servicio', { ...servicio, index })}
@@ -758,6 +743,14 @@ const ParqueaderoProfile = () => {
                           >
                             <span style={{ fontWeight: 'bold', fontSize: 18, lineHeight: 1 }}>⏸</span>
                           </IconButton>
+                        </Box>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, width: '100%' }}>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
+                            {tipoServicio}
+                          </Typography>
+                          <Typography variant="h6" color="primary" sx={{ fontWeight: 700 }}>
+                            {tarifaServicio}
+                          </Typography>
                         </Box>
                       </Paper>
                     </Grid>
