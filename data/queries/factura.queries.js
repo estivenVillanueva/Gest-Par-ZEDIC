@@ -29,6 +29,7 @@ export const facturaQueries = {
             RETURNING *
         `;
         const values = [usuario_id, parqueadero_id, vehiculo_id, servicio_id, total, estado, fecha_creacion, fecha_vencimiento, placa_vehiculo, nombre_usuario];
+        console.log('[FACTURA] Valores para INSERT:', values);
         const result = await pool.query(query, values);
         return result.rows[0];
     },
