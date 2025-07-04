@@ -5,14 +5,21 @@ import { serviciosQueries } from './servicios.queries.js';
 export const facturaQueries = {
     // Crear una nueva factura
     async createFactura({ usuario_id, parqueadero_id, vehiculo_id, servicio_id, total, estado = 'pendiente', fecha_creacion = new Date(), fecha_vencimiento }) {
-        // Obtener placa del vehículo y nombre del usuario
+        console.log('[FACTURA] Payload recibido en createFactura:', { usuario_id, parqueadero_id, vehiculo_id, servicio_id, total, estado, fecha_creacion, fecha_vencimiento });
+        // Obtener placa del vehículo y nombre del usuario o dueño
         let placa_vehiculo = null;
         let nombre_usuario = null;
         if (vehiculo_id) {
-            const vehiculoRes = await pool.query('SELECT placa FROM vehiculos WHERE id = $1', [vehiculo_id]);
+            const vehiculoRes = await pool.query('SELECT placa, usuario_id, dueno_nombre FROM vehiculos WHERE id = $1', [vehiculo_id]);
             placa_vehiculo = vehiculoRes.rows[0]?.placa || null;
-        }
-        if (usuario_id) {
+            const vehiculoUsuarioId = vehiculoRes.rows[0]?.usuario_id;
+            if (vehiculoUsuarioId) {
+                const usuarioRes = await pool.query('SELECT nombre FROM usuarios WHERE id = $1', [vehiculoUsuarioId]);
+                nombre_usuario = usuarioRes.rows[0]?.nombre || null;
+            } else {
+                nombre_usuario = vehiculoRes.rows[0]?.dueno_nombre || null;
+            }
+        } else if (usuario_id) {
             const usuarioRes = await pool.query('SELECT nombre FROM usuarios WHERE id = $1', [usuario_id]);
             nombre_usuario = usuarioRes.rows[0]?.nombre || null;
         }
@@ -103,11 +110,16 @@ export const facturaQueries = {
                 if (existe.length === 0) {
                     console.log('[PERIODICAS] Creando factura para vehículo:', vehiculo.id, 'usuario_id:', vehiculo.usuario_id, 'parqueadero_id:', vehiculo.parqueadero_id, 'servicio_id:', vehiculo.servicio_id, 'fecha_creacion:', fechaCiclo, 'fecha_vencimiento:', fechaVencimiento);
                     // Crear factura pendiente
-                    // Obtener placa y nombre del usuario
-                    const vehiculoRes = await pool.query('SELECT placa FROM vehiculos WHERE id = $1', [vehiculo.id]);
+                    // Obtener placa y nombre del usuario o dueño
+                    const vehiculoRes = await pool.query('SELECT placa, usuario_id, dueno_nombre FROM vehiculos WHERE id = $1', [vehiculo.id]);
                     const placa_vehiculo = vehiculoRes.rows[0]?.placa || null;
-                    const usuarioRes = await pool.query('SELECT nombre FROM usuarios WHERE id = $1', [vehiculo.usuario_id]);
-                    const nombre_usuario = usuarioRes.rows[0]?.nombre || null;
+                    let nombre_usuario = null;
+                    if (vehiculoRes.rows[0]?.usuario_id) {
+                        const usuarioRes = await pool.query('SELECT nombre FROM usuarios WHERE id = $1', [vehiculoRes.rows[0].usuario_id]);
+                        nombre_usuario = usuarioRes.rows[0]?.nombre || null;
+                    } else {
+                        nombre_usuario = vehiculoRes.rows[0]?.dueno_nombre || null;
+                    }
                     const facturaRes = await pool.query(
                         `INSERT INTO facturas (usuario_id, parqueadero_id, vehiculo_id, servicio_id, total, estado, fecha_creacion, fecha_vencimiento, placa_vehiculo, nombre_usuario)
                          VALUES ($1, $2, $3, $4, $5, 'pendiente', $6, $7, $8, $9) RETURNING id`,
