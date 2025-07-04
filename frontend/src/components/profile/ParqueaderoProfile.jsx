@@ -1033,6 +1033,23 @@ const ParqueaderoProfile = () => {
                   )}
                 </>
               )}
+
+              <TextField
+                select
+                margin="dense"
+                label="Tipo de vehículo"
+                fullWidth
+                variant="outlined"
+                value={editValue.tipo_vehiculo || ''}
+                onChange={e => setEditValue({ ...editValue, tipo_vehiculo: e.target.value })}
+                sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
+              >
+                <MenuItem value="carro">Carro</MenuItem>
+                <MenuItem value="moto">Moto</MenuItem>
+                <MenuItem value="bus">Bus</MenuItem>
+                <MenuItem value="bolqueta">Bolqueta</MenuItem>
+                <MenuItem value="todos">Todos</MenuItem>
+              </TextField>
             </>
           ) : (
             <TextField

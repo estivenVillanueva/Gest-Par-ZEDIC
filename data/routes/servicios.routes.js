@@ -63,7 +63,11 @@ router.get('/', async (req, res) => {
 // Crear un nuevo servicio
 router.post('/', async (req, res) => {
     try {
-        const nuevoServicio = await serviciosQueries.createServicio(req.body);
+        // Asegurarse de que tipo_vehiculo esté presente en el body
+        const nuevoServicio = await serviciosQueries.createServicio({
+            ...req.body,
+            tipo_vehiculo: req.body.tipo_vehiculo
+        });
         res.status(201).json({
             success: true,
             data: nuevoServicio
@@ -80,7 +84,11 @@ router.post('/', async (req, res) => {
 // Actualizar servicio
 router.put('/:id', async (req, res) => {
     try {
-        const servicioActualizado = await serviciosQueries.updateServicio(req.params.id, req.body);
+        // Asegurarse de que tipo_vehiculo esté presente en el body
+        const servicioActualizado = await serviciosQueries.updateServicio(req.params.id, {
+            ...req.body,
+            tipo_vehiculo: req.body.tipo_vehiculo
+        });
         if (!servicioActualizado) {
             return res.status(404).json({
                 success: false,

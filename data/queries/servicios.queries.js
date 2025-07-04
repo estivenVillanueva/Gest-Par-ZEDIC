@@ -2,7 +2,7 @@ import { pool } from '../postgres.js';
 
 export const serviciosQueries = {
     // Crear un nuevo servicio
-    async createServicio({ nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto = 0, precio_hora = 0, precio_dia = 0 }) {
+    async createServicio({ nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto = 0, precio_hora = 0, precio_dia = 0, tipo_vehiculo }) {
         // Normalizar campos numéricos vacíos a null o a un valor válido
         let safePrecio = precio;
         if (safePrecio === '' || safePrecio === undefined || safePrecio === null) {
@@ -22,14 +22,14 @@ export const serviciosQueries = {
             ? (((duracion === 'día' || duracion === 'dia') && safePrecio) ? safePrecio : 0)
             : precio_dia;
         console.log('--- CREAR SERVICIO ---');
-        console.log('Datos recibidos:', { nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto, precio_hora, precio_dia });
+        console.log('Datos recibidos:', { nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto, precio_hora, precio_dia, tipo_vehiculo });
         try {
             const query = `
-                INSERT INTO servicios (nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto, precio_hora, precio_dia)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                INSERT INTO servicios (nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto, precio_hora, precio_dia, tipo_vehiculo)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
                 RETURNING *
             `;
-            const values = [nombre, descripcion, safePrecio, duracion, estado, parqueadero_id, tipo_cobro, safePrecioMinuto, safePrecioHora, safePrecioDia];
+            const values = [nombre, descripcion, safePrecio, duracion, estado, parqueadero_id, tipo_cobro, safePrecioMinuto, safePrecioHora, safePrecioDia, tipo_vehiculo];
             console.log('Query:', query);
             console.log('Values:', values);
             const result = await pool.query(query, values);
@@ -56,9 +56,9 @@ export const serviciosQueries = {
     },
 
     // Actualizar servicio
-    async updateServicio(id, { nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto = 0, precio_hora = 0, precio_dia = 0 }) {
+    async updateServicio(id, { nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto = 0, precio_hora = 0, precio_dia = 0, tipo_vehiculo }) {
         console.log('--- ACTUALIZAR SERVICIO ---');
-        console.log('Datos recibidos:', { id, nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto, precio_hora, precio_dia });
+        console.log('Datos recibidos:', { id, nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, precio_minuto, precio_hora, precio_dia, tipo_vehiculo });
         try {
             // Copiar precio a precio_minuto, precio_hora o precio_dia si corresponde
             let safePrecioMinuto = (precio_minuto === '' || precio_minuto === 0 || precio_minuto === null || precio_minuto === undefined)
@@ -81,11 +81,12 @@ export const serviciosQueries = {
                     tipo_cobro = $7,
                     precio_minuto = $8,
                     precio_hora = $9,
-                    precio_dia = $10
-                WHERE id = $11
+                    precio_dia = $10,
+                    tipo_vehiculo = $11
+                WHERE id = $12
                 RETURNING *
             `;
-            const values = [nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, safePrecioMinuto, safePrecioHora, safePrecioDia, id];
+            const values = [nombre, descripcion, precio, duracion, estado, parqueadero_id, tipo_cobro, safePrecioMinuto, safePrecioHora, safePrecioDia, tipo_vehiculo, id];
             console.log('Query:', query);
             console.log('Values:', values);
             const result = await pool.query(query, values);
