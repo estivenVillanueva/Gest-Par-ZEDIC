@@ -448,6 +448,14 @@ const ParqueaderoProfile = () => {
     }
   };
 
+  // Limpiar tipo_vehiculo automáticamente si el tipo de servicio es por uso
+  useEffect(() => {
+    if (["minuto", "hora", "dia"].includes(editValue.tipo_servicio) && editValue.tipo_vehiculo) {
+      setEditValue(prev => ({ ...prev, tipo_vehiculo: '' }));
+    }
+    // eslint-disable-next-line
+  }, [editValue.tipo_servicio]);
+
   if (showWelcome) {
     return (
       <Container maxWidth="sm" sx={{ py: 8 }}>
@@ -838,7 +846,7 @@ const ParqueaderoProfile = () => {
                       background: 'rgba(43,108,163,0.04)',
                     }
                   }}
-                  onClick={() => handleEdit('servicio', { tipo_servicio: '', nombre: '', descripcion: '', precio: '', duracion: '', estado: 'activo', precio_minuto: '', precio_hora: '', precio_dia: '', tipo_cobro: '', index: -1 })}
+                  onClick={() => handleEdit('servicio', { tipo_servicio: '', nombre: '', descripcion: '', precio: '', duracion: '', estado: 'activo', precio_minuto: '', precio_hora: '', precio_dia: '', tipo_cobro: '', tipo_vehiculo: '', index: -1 })}
                 >
                   <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <Typography variant="h4" sx={{ fontWeight: 400, mb: 0.5 }}>+</Typography>
@@ -899,12 +907,17 @@ const ParqueaderoProfile = () => {
                 value={editValue.tipo_servicio || ''}
                 onChange={e => {
                   const value = e.target.value;
-                  let nombre = value;
-                  if (["mensual", "quincenal", "semanal", "otro"].includes(value)) nombre = '';
+                  let tipoCobro = editValue.tipo_cobro;
+                  if (["mensual", "quincenal", "semanal"].includes(value)) {
+                    tipoCobro = "periodo";
+                  } else {
+                    tipoCobro = '';
+                  }
                   setEditValue({
                     ...editValue,
                     tipo_servicio: value,
-                    nombre,
+                    nombre: value,
+                    tipo_cobro: tipoCobro,
                     precio: '',
                     precio_minuto: '',
                     precio_hora: '',
@@ -967,16 +980,81 @@ const ParqueaderoProfile = () => {
                 <MenuItem value="minuto">Minuto</MenuItem>
               </TextField>
 
-              <TextField
-                margin="dense"
-                label="Precio"
-                type="number"
-                fullWidth
-                variant="outlined"
-                value={editValue.precio || ''}
-                onChange={e => setEditValue({ ...editValue, precio: e.target.value })}
-                sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
-              />
+              {/* Campo de precio dinámico según el tipo de servicio */}
+              {editValue.tipo_servicio === 'minuto' && (
+                <TextField
+                  margin="dense"
+                  label="Precio por minuto"
+                  type="number"
+                  fullWidth
+                  variant="outlined"
+                  value={editValue.precio_minuto || ''}
+                  onChange={e => setEditValue({ ...editValue, precio_minuto: e.target.value })}
+                  required
+                  sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
+                />
+              )}
+              {editValue.tipo_servicio === 'hora' && (
+                <TextField
+                  margin="dense"
+                  label="Precio por hora"
+                  type="number"
+                  fullWidth
+                  variant="outlined"
+                  value={editValue.precio_hora || ''}
+                  onChange={e => setEditValue({ ...editValue, precio_hora: e.target.value })}
+                  required
+                  sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
+                />
+              )}
+              {editValue.tipo_servicio === 'dia' && (
+                <TextField
+                  margin="dense"
+                  label="Precio por día"
+                  type="number"
+                  fullWidth
+                  variant="outlined"
+                  value={editValue.precio_dia || ''}
+                  onChange={e => setEditValue({ ...editValue, precio_dia: e.target.value })}
+                  required
+                  sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
+                />
+              )}
+              {['mensual', 'quincenal', 'semanal', 'otro'].includes(editValue.tipo_servicio) && (
+                <TextField
+                  margin="dense"
+                  label="Precio"
+                  type="number"
+                  fullWidth
+                  variant="outlined"
+                  value={editValue.precio || ''}
+                  onChange={e => setEditValue({ ...editValue, precio: e.target.value })}
+                  required
+                  sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
+                />
+              )}
+
+              {/* Mostrar campo Tipo de vehículo solo para servicios de periodo o 'otro' */}
+              {['mensual', 'quincenal', 'semanal', 'otro'].includes(editValue.tipo_servicio) && (
+                <TextField
+                  select
+                  margin="dense"
+                  label="Tipo de vehículo"
+                  fullWidth
+                  variant="outlined"
+                  value={editValue.tipo_vehiculo || ''}
+                  onChange={e => setEditValue({ ...editValue, tipo_vehiculo: e.target.value })}
+                  required
+                  sx={{ borderRadius: 2, bgcolor: '#f7fafd', mb: 2 }}
+                >
+                  <MenuItem value="">Selecciona un tipo</MenuItem>
+                  <MenuItem value="carro">Carro</MenuItem>
+                  <MenuItem value="moto">Moto</MenuItem>
+                  <MenuItem value="bicicleta">Bicicleta</MenuItem>
+                  <MenuItem value="camion">Camión</MenuItem>
+                  <MenuItem value="otro">Otro</MenuItem>
+                </TextField>
+              )}
             </>
           ) : (
             <TextField

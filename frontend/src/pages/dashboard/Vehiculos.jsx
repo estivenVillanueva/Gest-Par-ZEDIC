@@ -201,6 +201,13 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
     onClose();
   };
 
+  // Filtrar servicios según el tipo de vehículo seleccionado
+  const serviciosFiltrados = form.tipo
+    ? servicios.filter(servicio =>
+        servicio.tipo_vehiculo && servicio.tipo_vehiculo.toLowerCase() === form.tipo.toLowerCase()
+      )
+    : servicios;
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -232,7 +239,7 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
             <TextField margin="normal" fullWidth label="Capacidad de carga (kg)" name="capacidad_carga" value={form.capacidad_carga || ''} onChange={e => setForm({ ...form, capacidad_carga: e.target.value })} />
           )}
           <TextField margin="normal" fullWidth select label="Servicio" name="servicio_id" value={form.servicio_id} onChange={handleChange} required>
-            {servicios.map(servicio => (
+            {serviciosFiltrados.map(servicio => (
               <MenuItem key={servicio.id} value={servicio.id}>{servicio.nombre}</MenuItem>
             ))}
           </TextField>
