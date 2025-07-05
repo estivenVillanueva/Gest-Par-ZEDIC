@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Tabs, Tab, Paper, Chip, CircularProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { useAuth } from '../../../logic/AuthContext';
+import FacturaPreview from '../../components/payment/FacturaPreview';
+import Button from '@mui/material/Button';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
 
@@ -9,6 +11,7 @@ function Pagos() {
   const [tab, setTab] = useState(0);
   const [facturas, setFacturas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [facturaSeleccionada, setFacturaSeleccionada] = useState(null);
 
   useEffect(() => {
     if (!currentUser?.id) return;
@@ -47,7 +50,7 @@ function Pagos() {
                 <Paper sx={{ p: 2, textAlign: 'center', mb: 2 }}>No hay pagos {tab === 0 ? 'pendientes' : 'realizados'}.</Paper>
               ) : (
                 (tab === 0 ? pendientes : pagadas).map(f => (
-                  <Paper key={f.id} sx={{ mb: 2, p: 2, borderRadius: 0, boxShadow: '0 2px 12px rgba(52,152,243,0.10)' }}>
+                  <Paper key={f.id} sx={{ mb: 2, p: 2, borderRadius: 0, boxShadow: '0 2px 12px rgba(52,152,243,0.10)' }} onClick={() => setFacturaSeleccionada(f)}>
                     <Typography variant="subtitle1" fontWeight={700}>{f.parqueadero_nombre}</Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>{f.parqueadero_direccion}</Typography>
                     <Typography variant="body2"><b>Vehículo:</b> {f.vehiculo_placa}</Typography>
@@ -75,7 +78,7 @@ function Pagos() {
                   </TableHead>
                   <TableBody>
                     {(tab === 0 ? pendientes : pagadas).map(f => (
-                      <TableRow key={f.id}>
+                      <TableRow key={f.id} hover style={{ cursor: 'pointer' }} onClick={() => setFacturaSeleccionada(f)}>
                         <TableCell>{f.parqueadero_nombre}<br /><span style={{ fontSize: 12, color: '#888' }}>{f.parqueadero_direccion}</span></TableCell>
                         <TableCell>{f.vehiculo_placa}</TableCell>
                         <TableCell>{f.servicio_nombre}</TableCell>
@@ -98,6 +101,40 @@ function Pagos() {
           </>
         )}
       </Paper>
+      {facturaSeleccionada && (
+        <FacturaPreview
+          open={!!facturaSeleccionada}
+          onClose={() => setFacturaSeleccionada(null)}
+          id={facturaSeleccionada.id}
+          fecha={facturaSeleccionada.fecha_pago || facturaSeleccionada.fecha_vencimiento || facturaSeleccionada.fecha_creacion}
+          fecha_creacion={facturaSeleccionada.fecha_creacion}
+          total={facturaSeleccionada.total}
+          estado={facturaSeleccionada.estado}
+          parqueadero={{
+            nombre: facturaSeleccionada.parqueadero_nombre,
+            direccion: facturaSeleccionada.parqueadero_direccion,
+            telefono: facturaSeleccionada.parqueadero_telefono,
+            email: facturaSeleccionada.parqueadero_email,
+            logo_url: facturaSeleccionada.logo_url
+          }}
+          vehiculo={{
+            placa: facturaSeleccionada.vehiculo_placa,
+            tipo: facturaSeleccionada.vehiculo_tipo,
+            color: facturaSeleccionada.vehiculo_color,
+            marca: facturaSeleccionada.vehiculo_marca,
+            modelo: facturaSeleccionada.vehiculo_modelo,
+            puesto: facturaSeleccionada.vehiculo_puesto
+          }}
+          detalles={facturaSeleccionada.detalles || [
+            {
+              servicio_nombre: facturaSeleccionada.servicio_nombre,
+              cantidad: 1,
+              precio_unitario: facturaSeleccionada.total,
+              subtotal: facturaSeleccionada.total
+            }
+          ]}
+        />
+      )}
     </Box>
   );
 }

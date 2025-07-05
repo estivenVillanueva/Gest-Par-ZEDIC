@@ -79,6 +79,10 @@ export const VehiculoProvider = ({ children }) => {
       if (!dataToSend.usuario_id || dataToSend.usuario_id === '') {
         delete dataToSend.usuario_id;
       }
+      // Convertir campos vacíos a null
+      ['marca', 'modelo', 'color', 'dueno_nombre', 'dueno_telefono', 'dueno_email'].forEach(campo => {
+        if (dataToSend[campo] === '') dataToSend[campo] = null;
+      });
       const response = await fetch(`${API_URL}/api/vehiculos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -99,10 +103,15 @@ export const VehiculoProvider = ({ children }) => {
     setLoading(true);
     try {
       if (!currentUser?.parqueadero_id) throw new Error('No hay parqueadero asociado');
+      const dataToSend = { ...vehiculoData, parqueadero_id: currentUser.parqueadero_id };
+      // Convertir campos vacíos a null
+      ['marca', 'modelo', 'color', 'dueno_nombre', 'dueno_telefono', 'dueno_email'].forEach(campo => {
+        if (dataToSend[campo] === '') dataToSend[campo] = null;
+      });
       const response = await fetch(`${API_URL}/api/vehiculos/${placa}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...vehiculoData, parqueadero_id: currentUser.parqueadero_id })
+        body: JSON.stringify(dataToSend)
       });
       if (!response.ok) throw new Error('Error al actualizar el vehículo');
       await cargarVehiculos();
