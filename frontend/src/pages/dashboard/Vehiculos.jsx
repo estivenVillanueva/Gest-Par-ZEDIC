@@ -455,7 +455,9 @@ const Vehiculos = () => {
   };
 
   // En el render, si hay búsqueda activa, mostrar solo los vehículos del usuario
-  const vehiculosParaMostrar = busquedaUsuarioActiva && usuarioBuscado ? vehiculosUsuario : filteredVehiculos;
+  const vehiculosParaMostrar = busquedaUsuarioActiva && usuarioBuscado
+    ? vehiculosUsuario.filter(v => !v.parqueadero_id)
+    : filteredVehiculos;
 
   return (
     <Box sx={{ width: '100%', minHeight: '100vh', py: { xs: 2, md: 5 }, px: { xs: 0.5, sm: 2, md: 6 }, bgcolor: '#f6f7fa', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
