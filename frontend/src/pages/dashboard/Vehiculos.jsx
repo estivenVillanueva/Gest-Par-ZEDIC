@@ -81,7 +81,6 @@ const VehiculoCard = ({ vehiculo, onVerInfo, seleccionado, onSeleccionar }) => (
 const tiposVehiculo = [
   'carro',
   'moto',
-  'bicicleta',
   'camion',
   'otro'
 ];
@@ -183,8 +182,10 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
         setPlacaError('');
       }
       setForm({ ...form, placa: value });
-    } else if (["tipo", "marca", "modelo", "color", "dueno_nombre"].includes(e.target.name)) {
+    } else if (["marca", "modelo", "color", "dueno_nombre"].includes(e.target.name)) {
       setForm({ ...form, [e.target.name]: e.target.value.toUpperCase() });
+    } else if (e.target.name === 'tipo') {
+      setForm({ ...form, tipo: e.target.value });
     } else {
       setForm({ ...form, [e.target.name]: e.target.value });
     }
@@ -225,19 +226,6 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
             <MenuItem value="">Selecciona un tipo</MenuItem>
             {tiposVehiculo.map(tipo => <MenuItem key={tipo} value={tipo}>{tipo}</MenuItem>)}
           </TextField>
-          {/* Campos adicionales según el tipo de vehículo */}
-          {form.tipo === 'carro' && (
-            <TextField margin="normal" fullWidth label="Número de puertas" name="puertas" value={form.puertas || ''} onChange={e => setForm({ ...form, puertas: e.target.value })} />
-          )}
-          {form.tipo === 'moto' && (
-            <TextField margin="normal" fullWidth label="Cilindraje (cc)" name="cilindraje" value={form.cilindraje || ''} onChange={e => setForm({ ...form, cilindraje: e.target.value })} />
-          )}
-          {form.tipo === 'bicicleta' && (
-            <TextField margin="normal" fullWidth label="Tipo de bicicleta" name="tipo_bicicleta" value={form.tipo_bicicleta || ''} onChange={e => setForm({ ...form, tipo_bicicleta: e.target.value })} />
-          )}
-          {form.tipo === 'camion' && (
-            <TextField margin="normal" fullWidth label="Capacidad de carga (kg)" name="capacidad_carga" value={form.capacidad_carga || ''} onChange={e => setForm({ ...form, capacidad_carga: e.target.value })} />
-          )}
           <TextField margin="normal" fullWidth select label="Servicio" name="servicio_id" value={form.servicio_id} onChange={handleChange} required>
             {serviciosFiltrados.map(servicio => (
               <MenuItem key={servicio.id} value={servicio.id}>{servicio.nombre}</MenuItem>
