@@ -50,6 +50,10 @@ const Navbar = () => {
     }
   };
 
+  const handleEliminarTodasNotificaciones = () => {
+    // Implementa la lógica para eliminar todas las notificaciones
+  };
+
   return (
     <StyledAppBar position="fixed">
       <StyledToolbar>
@@ -163,6 +167,10 @@ const Navbar = () => {
             <ListItemText>Cerrar Sesión</ListItemText>
           </MenuItem>
         </Menu>
+
+        <Button variant="outlined" color="error" onClick={handleEliminarTodasNotificaciones} sx={{ mb: 2, width: '100%' }}>
+          Eliminar todas las notificaciones
+        </Button>
       </StyledToolbar>
     </StyledAppBar>
   );
