@@ -13,6 +13,10 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import AssessmentIcon from '@mui/icons-material/Assessment';
@@ -24,13 +28,14 @@ import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 import EditIcon from '@mui/icons-material/Edit';
 import { StyledAppBar, StyledToolbar, NavButton, LogoButton } from '../../styles/components/Navbar.styles';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../../logic/AuthContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-  const { logout } = useAuth();
+  const { logout, currentUser } = useAuth();
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -51,7 +56,20 @@ const Navbar = () => {
   };
 
   const handleEliminarTodasNotificaciones = () => {
-    // Implementa la lógica para eliminar todas las notificaciones
+    setOpenConfirmDialog(true);
+  };
+
+  const confirmarEliminarTodas = async () => {
+    if (!currentUser?.id) return;
+    try {
+      await fetch(`https://gest-par-zedic.onrender.com/api/notificaciones/usuario/${currentUser.id}`, {
+        method: 'DELETE',
+      });
+      if (typeof fetchNotificaciones === 'function') fetchNotificaciones();
+    } catch (e) {
+      alert('Error al eliminar notificaciones');
+    }
+    setOpenConfirmDialog(false);
   };
 
   return (
@@ -172,6 +190,18 @@ const Navbar = () => {
           Eliminar todas las notificaciones
         </Button>
       </StyledToolbar>
+
+      {/* Diálogo de confirmación para eliminar todas las notificaciones */}
+      <Dialog open={openConfirmDialog} onClose={() => setOpenConfirmDialog(false)}>
+        <DialogTitle>Eliminar todas las notificaciones</DialogTitle>
+        <DialogContent>
+          ¿Estás seguro de que deseas eliminar todas las notificaciones? Esta acción no se puede deshacer.
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenConfirmDialog(false)} color="secondary">Cancelar</Button>
+          <Button onClick={confirmarEliminarTodas} color="error" variant="contained">Eliminar</Button>
+        </DialogActions>
+      </Dialog>
     </StyledAppBar>
   );
 };

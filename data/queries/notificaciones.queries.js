@@ -67,6 +67,13 @@ export const notificacionesQueries = {
     const query = `DELETE FROM notificaciones WHERE id = $1 RETURNING *`;
     const result = await pool.query(query, [id]);
     return result.rows[0];
+  },
+
+  // Eliminar todas las notificaciones de un usuario
+  async eliminarTodasPorUsuario(usuario_id) {
+    const query = `DELETE FROM notificaciones WHERE usuario_id = $1`;
+    const result = await pool.query(query, [usuario_id]);
+    return result.rowCount;
   }
 };
 

@@ -13,6 +13,7 @@ import {
   MenuItem,
   Tooltip,
   Divider,
+  Button,
 } from '@mui/material';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import PaymentIcon from '@mui/icons-material/Payment';
@@ -30,6 +31,10 @@ import ListItemText from '@mui/material/ListItemText';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import Checkbox from '@mui/material/Checkbox';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 import { useAuth } from '../../../logic/AuthContext';
 
 const navigationItems = [
@@ -71,6 +76,7 @@ const VehiculoHeader = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [seleccionando, setSeleccionando] = useState(false);
   const [seleccionadas, setSeleccionadas] = useState([]);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
 
   useEffect(() => {
     let intervalId;
@@ -293,14 +299,7 @@ const VehiculoHeader = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 {seleccionando && seleccionadas.length > 0 && (
                   <Tooltip title="Eliminar seleccionadas">
-                    <IconButton size="small" color="error" onClick={async () => {
-                      if (window.confirm('¿Seguro que deseas eliminar las notificaciones seleccionadas?')) {
-                        await Promise.all(seleccionadas.map(id => fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${id}`, { method: 'DELETE' })));
-                        setNotificaciones(prev => prev.filter(n => !seleccionadas.includes(n.id)));
-                        setSeleccionadas([]);
-                        setSeleccionando(false);
-                      }
-                    }}>
+                    <IconButton size="small" color="error" onClick={() => setOpenConfirmDialog(true)}>
                       <DeleteIcon />
                     </IconButton>
                   </Tooltip>
@@ -395,6 +394,29 @@ const VehiculoHeader = () => {
           </Menu>
         </Toolbar>
       </Container>
+
+      <Dialog open={openConfirmDialog} onClose={() => setOpenConfirmDialog(false)}>
+        <DialogTitle>Confirmar eliminación</DialogTitle>
+        <DialogContent>
+          <Typography>¿Seguro que deseas eliminar las notificaciones seleccionadas?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenConfirmDialog(false)}>Cancelar</Button>
+          <Button
+            onClick={async () => {
+              await Promise.all(seleccionadas.map(id => fetch(`https://gest-par-zedic.onrender.com/api/usuarios/notificaciones/${id}`, { method: 'DELETE' })));
+              setNotificaciones(prev => prev.filter(n => !seleccionadas.includes(n.id)));
+              setSeleccionadas([]);
+              setSeleccionando(false);
+              setOpenConfirmDialog(false);
+            }}
+            color="error"
+            variant="contained"
+          >
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </AppBar>
   );
 };
