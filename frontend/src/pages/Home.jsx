@@ -15,7 +15,11 @@ import {
   Drawer,
   useTheme,
   useMediaQuery,
-  Container
+  Container,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  Button
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
@@ -62,6 +66,15 @@ const Home = () => {
   const [pendingIndex, setPendingIndex] = useState(null);
   const [isFading, setIsFading] = useState(false);
   const [userInteracted, setUserInteracted] = useState(false);
+  const [filtros, setFiltros] = useState({
+    capacidad: '',
+    precio: '',
+    servicios: {
+      mensualidadCarro: false,
+      quincenaCarro: false,
+      quincenaMoto: false,
+    }
+  });
 
   useEffect(() => {
     const fetchParqueaderos = async () => {
@@ -98,14 +111,48 @@ const Home = () => {
     }
   };
 
-  // Filtrado de parqueaderos
-  const filteredParqueaderos = searchQuery.trim()
-    ? parqueaderos.filter((p) =>
+  const limpiarFiltros = () => setFiltros({
+    capacidad: '',
+    precio: '',
+    servicios: {
+      mensualidadCarro: false,
+      quincenaCarro: false,
+      quincenaMoto: false,
+    }
+  });
+
+  const handleFiltroChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    if (name in filtros.servicios) {
+      setFiltros(f => ({
+        ...f,
+        servicios: { ...f.servicios, [name]: checked }
+      }));
+    } else {
+      setFiltros(f => ({ ...f, [name]: value }));
+    }
+  };
+
+  const filteredParqueaderos = parqueaderos.filter((p) => {
+    // Filtro por búsqueda de texto
+    const matchText = searchQuery.trim()
+      ? (
         (p.nombre && p.nombre.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (p.ubicacion && p.ubicacion.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (p.direccion && p.direccion.toLowerCase().includes(searchQuery.toLowerCase()))
       )
-    : parqueaderos;
+      : true;
+    // Filtro por capacidad
+    const matchCapacidad = filtros.capacidad ? Number(p.capacidad) >= Number(filtros.capacidad) : true;
+    // Filtro por precio (si tienes campo precio)
+    const matchPrecio = filtros.precio && p.precio ? Number(p.precio) <= Number(filtros.precio) : true;
+    // Filtro por servicios
+    const matchServicios = Object.entries(filtros.servicios).every(([serv, val]) => {
+      if (!val) return true;
+      return p.servicios && p.servicios.includes(serv);
+    });
+    return matchText && matchCapacidad && matchPrecio && matchServicios;
+  });
 
   // Rotación automática solo si no hay búsqueda activa
   useEffect(() => {
@@ -214,7 +261,12 @@ const Home = () => {
                   minHeight: { xs: 200, sm: 200, md: 500 },
                   overflow: 'hidden',
                   boxShadow: '0 4px 24px rgba(33, 150, 243, 0.10)',
-                  mb: 2
+                  mb: 2,
+                  mx: { xs: 0, sm: 0, md: 'auto' },
+                  ml: { xs: 0, sm: 0, md: 'auto' },
+                  mr: { xs: 0, sm: 0, md: 'auto' },
+                  display: { xs: 'block', sm: 'block', md: 'flex' },
+                  justifyContent: { md: 'center' }
                 }}>
                   <MapaParqueaderos parqueaderos={filteredParqueaderos} onVerDetalles={handleOpenDetails} />
                 </Box>
@@ -354,7 +406,69 @@ const Home = () => {
           <Typography variant="h6" gutterBottom>
             Filtros
           </Typography>
-          {/* Aquí irán los filtros */}
+          <TextField
+            label="Capacidad mínima"
+            name="capacidad"
+            type="number"
+            value={filtros.capacidad}
+            onChange={handleFiltroChange}
+            fullWidth
+            margin="normal"
+            InputLabelProps={{ style: { color: '#fff' } }}
+            sx={{ input: { color: '#fff' }, label: { color: '#fff' } }}
+          />
+          <TextField
+            label="Precio máximo"
+            name="precio"
+            type="number"
+            value={filtros.precio}
+            onChange={handleFiltroChange}
+            fullWidth
+            margin="normal"
+            InputLabelProps={{ style: { color: '#fff' } }}
+            sx={{ input: { color: '#fff' }, label: { color: '#fff' } }}
+          />
+          <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>Servicios</Typography>
+          <FormGroup>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={filtros.servicios.mensualidadCarro}
+                  onChange={handleFiltroChange}
+                  name="mensualidadCarro"
+                  sx={{ color: '#fff' }}
+                />
+              }
+              label="Mensualidad Carro"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={filtros.servicios.quincenaCarro}
+                  onChange={handleFiltroChange}
+                  name="quincenaCarro"
+                  sx={{ color: '#fff' }}
+                />
+              }
+              label="Quincena Carro"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={filtros.servicios.quincenaMoto}
+                  onChange={handleFiltroChange}
+                  name="quincenaMoto"
+                  sx={{ color: '#fff' }}
+                />
+              }
+              label="Quincena Moto"
+            />
+          </FormGroup>
+          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+            <Button variant="outlined" color="inherit" onClick={limpiarFiltros}>
+              Limpiar filtros
+            </Button>
+          </Box>
         </Box>
       </Drawer>
 
