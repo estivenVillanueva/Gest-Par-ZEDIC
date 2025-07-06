@@ -109,8 +109,9 @@ async function getReporteIngresos({ parqueadero_id, fecha_inicio, fecha_fin, tip
     valores.push(`%${tipo_servicio.toLowerCase()}%`);
   }
   if (estado_pago) {
-    filtros.push(`LOWER(f.estado) = $${idx++}`);
-    valores.push(estado_pago.toLowerCase());
+    // Eliminar filtro por estado_pago porque no hay relación con facturas
+    // filtros.push(`LOWER(f.estado) = $${idx++}`);
+    // valores.push(estado_pago.toLowerCase());
   }
 
   const where = filtros.length ? `WHERE ${filtros.join(' AND ')}` : '';
@@ -118,11 +119,10 @@ async function getReporteIngresos({ parqueadero_id, fecha_inicio, fecha_fin, tip
 
   // Detalles
   const detallesQuery = `
-    SELECT i.id, i.hora_entrada, i.hora_salida, i.valor_pagado, v.placa, v.tipo, s.duracion AS tipo_servicio, f.estado AS estado_pago
+    SELECT i.id, i.hora_entrada, i.hora_salida, i.valor_pagado, v.placa, v.tipo, s.duracion AS tipo_servicio
     FROM ingresos i
     JOIN vehiculos v ON i.vehiculo_id = v.id
     LEFT JOIN servicios s ON v.servicio_id = s.id
-    LEFT JOIN facturas f ON f.ingreso_id = i.id
     ${where}
     ORDER BY i.hora_entrada DESC
     LIMIT $${idx} OFFSET $${idx + 1}
@@ -135,7 +135,6 @@ async function getReporteIngresos({ parqueadero_id, fecha_inicio, fecha_fin, tip
     FROM ingresos i
     JOIN vehiculos v ON i.vehiculo_id = v.id
     LEFT JOIN servicios s ON v.servicio_id = s.id
-    LEFT JOIN facturas f ON f.ingreso_id = i.id
     ${where}
   `;
   const total = await pool.query(totalQuery, valores);
@@ -146,7 +145,6 @@ async function getReporteIngresos({ parqueadero_id, fecha_inicio, fecha_fin, tip
     FROM ingresos i
     JOIN vehiculos v ON i.vehiculo_id = v.id
     LEFT JOIN servicios s ON v.servicio_id = s.id
-    LEFT JOIN facturas f ON f.ingreso_id = i.id
     ${where}
     GROUP BY fecha
     ORDER BY fecha DESC
@@ -160,7 +158,6 @@ async function getReporteIngresos({ parqueadero_id, fecha_inicio, fecha_fin, tip
     FROM ingresos i
     JOIN vehiculos v ON i.vehiculo_id = v.id
     LEFT JOIN servicios s ON v.servicio_id = s.id
-    LEFT JOIN facturas f ON f.ingreso_id = i.id
     ${where}
     GROUP BY tipo_servicio
     ORDER BY total DESC
