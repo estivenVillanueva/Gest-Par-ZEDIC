@@ -208,10 +208,10 @@ const Home = () => {
                   Encuentra tu parqueadero en el mapa
                 </Typography>
                 <Box sx={{
-                  width: '200%',
-                  height: 500,
-                  minHeight: 500,
-                  maxWidth: 1200,
+                  width: { xs: '100%', sm: '100%', md: '200%' },
+                  maxWidth: { xs: '100vw', sm: '100vw', md: 1200 },
+                  height: { xs: 300, sm: 300, md: 500 },
+                  minHeight: { xs: 200, sm: 200, md: 500 },
                   overflow: 'hidden',
                   boxShadow: '0 4px 24px rgba(33, 150, 243, 0.10)',
                   mb: 2

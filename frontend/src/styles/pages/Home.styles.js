@@ -155,6 +155,12 @@ export const MapContainer = styled(Box)`
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   background: white;
   height: 600px;
+
+  @media (max-width: 600px) {
+    height: 300px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
 `;
 
 export const ParqueaderoCard = styled(Card)(({ theme }) => ({
