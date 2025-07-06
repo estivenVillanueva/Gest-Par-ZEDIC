@@ -250,23 +250,29 @@ const Home = () => {
         <StyledContainer>
           <Grid container spacing={3}>
             <Grid item xs={12}>
-              <Box sx={{ width: '250%', maxWidth: 1200, mx: 'auto', mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Box sx={{
+                width: { xs: '100vw', sm: '100vw', md: '250%' },
+                maxWidth: { xs: '100vw', sm: '100vw', md: 1200 },
+                mx: 'auto',
+                mb: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                overflowX: { xs: 'hidden', md: 'visible' }
+              }}>
                 <Typography variant="h3" fontWeight={800} align="center" sx={{ mb: 3 }}>
                   Encuentra tu parqueadero en el mapa
                 </Typography>
                 <Box sx={{
-                  width: { xs: '100%', sm: '100%', md: '200%' },
+                  width: { xs: '100vw', sm: '100vw', md: '200%' },
                   maxWidth: { xs: '100vw', sm: '100vw', md: 1200 },
                   height: { xs: 300, sm: 300, md: 500 },
                   minHeight: { xs: 200, sm: 200, md: 500 },
                   overflow: 'hidden',
                   boxShadow: '0 4px 24px rgba(33, 150, 243, 0.10)',
                   mb: 2,
-                  mx: { xs: 0, sm: 0, md: 'auto' },
-                  ml: { xs: 0, sm: 0, md: 'auto' },
-                  mr: { xs: 0, sm: 0, md: 'auto' },
-                  display: { xs: 'block', sm: 'block', md: 'flex' },
-                  justifyContent: { md: 'center' }
+                  mx: 'auto',
+                  display: 'block',
                 }}>
                   <MapaParqueaderos parqueaderos={filteredParqueaderos} onVerDetalles={handleOpenDetails} />
                 </Box>
