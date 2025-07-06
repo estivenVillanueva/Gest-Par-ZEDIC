@@ -18,6 +18,7 @@ import { useMemo } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
 const COLORS = ['#2B6CA3', '#43a047', '#fbc02d', '#e53935', '#8e24aa'];
+const PIE_COLORS = ['#2B6CA3', '#43a047', '#fbc02d', '#e53935', '#8e24aa', '#ff9800', '#00bcd4', '#9c27b0'];
 
 function Reportes() {
   const { currentUser } = useAuth();
@@ -910,6 +911,38 @@ function Reportes() {
             Exportar PDF
           </Button>
         </Box>
+        {/* Gráficas */}
+        {loadingUsuarios ? <CircularProgress /> : reporteUsuarios && reporteUsuarios.length > 0 && (
+          <Grid container spacing={2} sx={{ mb: 2 }}>
+            <Grid item xs={12} md={8}>
+              <Paper sx={{ p: 2, bgcolor: '#e8f5e9' }}>
+                <Typography variant="subtitle2">Ingresos por usuario</Typography>
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={reporteUsuarios}>
+                    <XAxis dataKey="usuario_nombre" fontSize={12} />
+                    <YAxis fontSize={12} />
+                    <Tooltip />
+                    <Bar dataKey="ingresos" fill="#43a047" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Paper sx={{ p: 2, bgcolor: '#e3f2fd' }}>
+                <Typography variant="subtitle2">Distribución de ingresos</Typography>
+                <ResponsiveContainer width="100%" height={220}>
+                  <PieChart>
+                    <Pie data={reporteUsuarios} dataKey="ingresos" nameKey="usuario_nombre" cx="50%" cy="50%" outerRadius={70} label>
+                      {reporteUsuarios.map((entry, idx) => <Cell key={entry.usuario_nombre} fill={PIE_COLORS[idx % PIE_COLORS.length]} />)}
+                    </Pie>
+                    <Legend fontSize={12} />
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </Paper>
+            </Grid>
+          </Grid>
+        )}
         {/* Tabla de usuarios frecuentes */}
         {loadingUsuarios ? <CircularProgress /> : reporteUsuarios && (
           <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
@@ -981,6 +1014,38 @@ function Reportes() {
             Exportar PDF
           </Button>
         </Box>
+        {/* Gráficas */}
+        {loadingVehiculos ? <CircularProgress /> : reporteVehiculos && reporteVehiculos.length > 0 && (
+          <Grid container spacing={2} sx={{ mb: 2 }}>
+            <Grid item xs={12} md={8}>
+              <Paper sx={{ p: 2, bgcolor: '#e3f2fd' }}>
+                <Typography variant="subtitle2">Ingresos por vehículo</Typography>
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={reporteVehiculos}>
+                    <XAxis dataKey="placa" fontSize={12} />
+                    <YAxis fontSize={12} />
+                    <Tooltip />
+                    <Bar dataKey="ingresos" fill="#2B6CA3" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Paper sx={{ p: 2, bgcolor: '#e8f5e9' }}>
+                <Typography variant="subtitle2">Distribución por tipo</Typography>
+                <ResponsiveContainer width="100%" height={220}>
+                  <PieChart>
+                    <Pie data={Object.values((reporteVehiculos||[]).reduce((acc, v) => { acc[v.tipo] = acc[v.tipo] ? { ...acc[v.tipo], ingresos: acc[v.tipo].ingresos + Number(v.ingresos) } : { tipo: v.tipo, ingresos: Number(v.ingresos) }; return acc; }, {}))} dataKey="ingresos" nameKey="tipo" cx="50%" cy="50%" outerRadius={70} label>
+                      {Object.values((reporteVehiculos||[]).reduce((acc, v) => { acc[v.tipo] = acc[v.tipo] ? { ...acc[v.tipo], ingresos: acc[v.tipo].ingresos + Number(v.ingresos) } : { tipo: v.tipo, ingresos: Number(v.ingresos) }; return acc; }, {})).map((entry, idx) => <Cell key={entry.tipo} fill={PIE_COLORS[idx % PIE_COLORS.length]} />)}
+                    </Pie>
+                    <Legend fontSize={12} />
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </Paper>
+            </Grid>
+          </Grid>
+        )}
         {/* Tabla de vehículos frecuentes */}
         {loadingVehiculos ? <CircularProgress /> : reporteVehiculos && (
           <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
@@ -1047,6 +1112,38 @@ function Reportes() {
             Exportar PDF
           </Button>
         </Box>
+        {/* Gráficas */}
+        {loadingServicios ? <CircularProgress /> : reporteServicios && reporteServicios.length > 0 && (
+          <Grid container spacing={2} sx={{ mb: 2 }}>
+            <Grid item xs={12} md={8}>
+              <Paper sx={{ p: 2, bgcolor: '#fffde7' }}>
+                <Typography variant="subtitle2">Servicios más contratados</Typography>
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={reporteServicios}>
+                    <XAxis dataKey="servicio_nombre" fontSize={12} />
+                    <YAxis fontSize={12} />
+                    <Tooltip />
+                    <Bar dataKey="cantidad" fill="#ff9800" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Paper sx={{ p: 2, bgcolor: '#e3f2fd' }}>
+                <Typography variant="subtitle2">Participación por servicio</Typography>
+                <ResponsiveContainer width="100%" height={220}>
+                  <PieChart>
+                    <Pie data={reporteServicios} dataKey="cantidad" nameKey="servicio_nombre" cx="50%" cy="50%" outerRadius={70} label>
+                      {reporteServicios.map((entry, idx) => <Cell key={entry.servicio_nombre} fill={PIE_COLORS[idx % PIE_COLORS.length]} />)}
+                    </Pie>
+                    <Legend fontSize={12} />
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </Paper>
+            </Grid>
+          </Grid>
+        )}
         {/* Tabla de servicios más contratados */}
         {loadingServicios ? <CircularProgress /> : reporteServicios && (
           <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
