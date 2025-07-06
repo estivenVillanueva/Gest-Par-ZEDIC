@@ -152,9 +152,11 @@ const Inicio = () => {
 
   const fetchSolicitudes = async (parqueaderoId) => {
     try {
-      const res = await axios.get(`${API_URL}/api/solicitudes?parqueadero_id=${parqueaderoId}&estado=pendiente`);
+      const res = await axios.get(`${API_URL}/api/reservas?parqueadero_id=${parqueaderoId}`);
       if (res.data && Array.isArray(res.data.data)) {
-        setStats(prev => ({ ...prev, solicitudes: res.data.data.length }));
+        // Filtra solo las reservas con estado 'Pendiente'
+        const pendientes = res.data.data.filter(r => r.estado === 'Pendiente');
+        setStats(prev => ({ ...prev, solicitudes: pendientes.length }));
       }
     } catch (e) {
       setStats(prev => ({ ...prev, solicitudes: 0 }));
