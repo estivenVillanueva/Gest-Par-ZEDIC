@@ -296,10 +296,10 @@ export default function Ingresos() {
       py: 4
     }}>
       <Paper elevation={3} sx={{
-        maxWidth: 1100,
-        margin: '40px auto',
+        maxWidth: '100vw',
+        width: '100%',
         borderRadius: 0,
-        p: 4,
+        p: { xs: 1, md: 2 },
         boxShadow: '0 8px 32px rgba(33, 150, 243, 0.08)'
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
