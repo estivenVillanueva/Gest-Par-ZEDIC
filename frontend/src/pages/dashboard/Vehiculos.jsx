@@ -224,7 +224,9 @@ const FormVehiculo = ({ open, onClose, initialData, onGuardar, onEliminar }) => 
           />
           <TextField margin="normal" fullWidth select label="Tipo *" name="tipo" value={form.tipo} onChange={handleChange} required>
             <MenuItem value="">Selecciona un tipo</MenuItem>
-            {tiposVehiculo.map(tipo => <MenuItem key={tipo} value={tipo}>{tipo}</MenuItem>)}
+            {tiposVehiculo.map(tipo => (
+              <MenuItem key={tipo} value={tipo}>{tipo.charAt(0).toUpperCase() + tipo.slice(1)}</MenuItem>
+            ))}
           </TextField>
           <TextField margin="normal" fullWidth select label="Servicio" name="servicio_id" value={form.servicio_id} onChange={handleChange} required>
             {serviciosFiltrados.map(servicio => (
