@@ -148,4 +148,16 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// Endpoint profesional para reporte de servicios más contratados
+router.get('/contratados/reporte', async (req, res) => {
+  try {
+    const { parqueadero_id, fecha_inicio, fecha_fin, page, limit } = req.query;
+    const result = await serviciosQueries.getReporteServiciosContratados({ parqueadero_id, fecha_inicio, fecha_fin, page, limit });
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Error al generar el reporte de servicios más contratados', error: error.message });
+  }
+});
+
 export const serviciosRoutes = router; 

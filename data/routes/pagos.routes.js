@@ -2,7 +2,8 @@ import express from 'express';
 import { 
     getPagosPendientes, 
     getHistorialPagos, 
-    marcarComoPagada 
+    marcarComoPagada,
+    getReportePagosPendientes
 } from '../queries/pagos.queries.js';
 import { facturaQueries } from '../queries/factura.queries.js';
 import { crearYEmitirNotificacion } from '../queries/notificaciones.queries.js';
@@ -75,6 +76,18 @@ router.put('/:facturaId/pagar', async (req, res) => {
         console.error('Error al marcar factura como pagada:', error);
         res.status(500).json({ error: error.message });
     }
+});
+
+// Endpoint profesional para reporte de pagos pendientes y vencidos
+router.get('/pendientes/reporte', async (req, res) => {
+  try {
+    const { parqueadero_id, fecha_inicio, fecha_fin, usuario_nombre, estado, page, limit } = req.query;
+    const result = await getReportePagosPendientes({ parqueadero_id, fecha_inicio, fecha_fin, usuario_nombre, estado, page, limit });
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Error al generar el reporte de pagos pendientes', error: error.message });
+  }
 });
 
 export default router; 

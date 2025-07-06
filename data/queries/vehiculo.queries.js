@@ -91,5 +91,42 @@ export const vehiculoQueries = {
         }
         const result = await pool.query(query, values);
         return result.rowCount > 0;
+    },
+
+    // Reporte profesional de vehículos frecuentes
+    async getReporteVehiculosFrecuentes({ parqueadero_id, fecha_inicio, fecha_fin, tipo, page = 1, limit = 20 }) {
+        let filtros = ['v.parqueadero_id = $1'];
+        let valores = [parqueadero_id];
+        let idx = 2;
+        if (fecha_inicio) {
+            filtros.push('i.hora_entrada >= $' + idx);
+            valores.push(fecha_inicio);
+            idx++;
+        }
+        if (fecha_fin) {
+            filtros.push('i.hora_entrada <= $' + idx);
+            valores.push(fecha_fin);
+            idx++;
+        }
+        if (tipo) {
+            filtros.push('LOWER(v.tipo) = $' + idx);
+            valores.push(tipo.toLowerCase());
+            idx++;
+        }
+        const where = filtros.length ? `WHERE ${filtros.join(' AND ')}` : '';
+        const offset = (parseInt(page) - 1) * parseInt(limit);
+
+        // Vehículos frecuentes
+        const query = `
+            SELECT v.placa, v.tipo, COUNT(i.id) AS ingresos, MIN(i.hora_entrada) AS primer_ingreso, MAX(i.hora_entrada) AS ultimo_ingreso
+            FROM ingresos i
+            JOIN vehiculos v ON i.vehiculo_id = v.id
+            ${where}
+            GROUP BY v.placa, v.tipo
+            ORDER BY ingresos DESC
+            LIMIT $${idx} OFFSET $${idx + 1}
+        `;
+        const result = await pool.query(query, [...valores, limit, offset]);
+        return result.rows;
     }
 }; 

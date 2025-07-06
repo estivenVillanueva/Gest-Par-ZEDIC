@@ -179,4 +179,16 @@ router.delete('/parqueadero/:parqueadero_id', async (req, res) => {
     }
 });
 
+// Endpoint profesional para reporte de vehículos frecuentes
+router.get('/frecuentes/reporte', async (req, res) => {
+  try {
+    const { parqueadero_id, fecha_inicio, fecha_fin, tipo, page, limit } = req.query;
+    const result = await vehiculoQueries.getReporteVehiculosFrecuentes({ parqueadero_id, fecha_inicio, fecha_fin, tipo, page, limit });
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Error al generar el reporte de vehículos frecuentes', error: error.message });
+  }
+});
+
 export const vehiculoRoutes = router; 

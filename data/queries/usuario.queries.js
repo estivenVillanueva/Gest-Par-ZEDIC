@@ -220,5 +220,38 @@ export const usuarioQueries = {
         `;
         const result = await pool.query(query, [token, expiry, id]);
         return result.rows[0];
+    },
+
+    // Reporte profesional de usuarios frecuentes
+    async getReporteUsuariosFrecuentes({ parqueadero_id, fecha_inicio, fecha_fin, page = 1, limit = 20 }) {
+        let filtros = ['v.parqueadero_id = $1'];
+        let valores = [parqueadero_id];
+        let idx = 2;
+        if (fecha_inicio) {
+            filtros.push('i.hora_entrada >= $' + idx);
+            valores.push(fecha_inicio);
+            idx++;
+        }
+        if (fecha_fin) {
+            filtros.push('i.hora_entrada <= $' + idx);
+            valores.push(fecha_fin);
+            idx++;
+        }
+        const where = filtros.length ? `WHERE ${filtros.join(' AND ')}` : '';
+        const offset = (parseInt(page) - 1) * parseInt(limit);
+
+        // Usuarios frecuentes
+        const query = `
+            SELECT COALESCE(u.nombre, v.dueno_nombre) AS usuario_nombre, COUNT(i.id) AS ingresos, MIN(i.hora_entrada) AS primer_ingreso, MAX(i.hora_entrada) AS ultimo_ingreso
+            FROM ingresos i
+            JOIN vehiculos v ON i.vehiculo_id = v.id
+            LEFT JOIN usuarios u ON v.usuario_id = u.id
+            ${where}
+            GROUP BY usuario_nombre
+            ORDER BY ingresos DESC
+            LIMIT $${idx} OFFSET $${idx + 1}
+        `;
+        const result = await pool.query(query, [...valores, limit, offset]);
+        return result.rows;
     }
 };

@@ -555,4 +555,16 @@ router.put('/:id/password', async (req, res) => {
     }
 });
 
+// Endpoint profesional para reporte de usuarios frecuentes
+router.get('/frecuentes/reporte', async (req, res) => {
+  try {
+    const { parqueadero_id, fecha_inicio, fecha_fin, page, limit } = req.query;
+    const result = await usuarioQueries.getReporteUsuariosFrecuentes({ parqueadero_id, fecha_inicio, fecha_fin, page, limit });
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Error al generar el reporte de usuarios frecuentes', error: error.message });
+  }
+});
+
 export const usuarioRoutes = router; 

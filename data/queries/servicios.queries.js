@@ -117,5 +117,38 @@ export const serviciosQueries = {
         const query = 'UPDATE servicios SET estado = $1 WHERE id = $2 RETURNING *';
         const result = await pool.query(query, ['inactivo', id]);
         return result.rows[0];
+    },
+
+    // Reporte profesional de servicios más contratados
+    async getReporteServiciosContratados({ parqueadero_id, fecha_inicio, fecha_fin, page = 1, limit = 20 }) {
+        let filtros = ['v.parqueadero_id = $1'];
+        let valores = [parqueadero_id];
+        let idx = 2;
+        if (fecha_inicio) {
+            filtros.push('i.hora_entrada >= $' + idx);
+            valores.push(fecha_inicio);
+            idx++;
+        }
+        if (fecha_fin) {
+            filtros.push('i.hora_entrada <= $' + idx);
+            valores.push(fecha_fin);
+            idx++;
+        }
+        const where = filtros.length ? `WHERE ${filtros.join(' AND ')}` : '';
+        const offset = (parseInt(page) - 1) * parseInt(limit);
+
+        // Servicios más contratados
+        const query = `
+            SELECT s.nombre AS servicio_nombre, COUNT(i.id) AS cantidad, COALESCE(SUM(i.valor_pagado),0) AS total
+            FROM ingresos i
+            JOIN vehiculos v ON i.vehiculo_id = v.id
+            JOIN servicios s ON v.servicio_id = s.id
+            ${where}
+            GROUP BY s.nombre
+            ORDER BY cantidad DESC, total DESC
+            LIMIT $${idx} OFFSET $${idx + 1}
+        `;
+        const result = await pool.query(query, [...valores, limit, offset]);
+        return result.rows;
     }
 }; 

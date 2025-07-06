@@ -1,4 +1,5 @@
 import { pool } from '../postgres.js';
+import { parqueaderoQueries } from './parqueadero.queries.js';
 
 // Registrar ingreso
 async function registrarIngreso(vehiculo_id, observaciones = null) {
@@ -85,6 +86,150 @@ async function eliminarIngreso(id) {
   return result.rows[0];
 }
 
+// Reporte profesional de ingresos con filtros avanzados
+async function getReporteIngresos({ parqueadero_id, fecha_inicio, fecha_fin, tipo_servicio, estado_pago, page = 1, limit = 50 }) {
+  let filtros = [];
+  let valores = [];
+  let idx = 1;
+
+  if (parqueadero_id) {
+    filtros.push(`v.parqueadero_id = $${idx++}`);
+    valores.push(parqueadero_id);
+  }
+  if (fecha_inicio) {
+    filtros.push(`i.hora_entrada >= $${idx++}`);
+    valores.push(fecha_inicio);
+  }
+  if (fecha_fin) {
+    filtros.push(`i.hora_entrada <= $${idx++}`);
+    valores.push(fecha_fin);
+  }
+  if (tipo_servicio) {
+    filtros.push(`LOWER(s.duracion) LIKE $${idx++}`);
+    valores.push(`%${tipo_servicio.toLowerCase()}%`);
+  }
+  if (estado_pago) {
+    filtros.push(`LOWER(f.estado) = $${idx++}`);
+    valores.push(estado_pago.toLowerCase());
+  }
+
+  const where = filtros.length ? `WHERE ${filtros.join(' AND ')}` : '';
+  const offset = (parseInt(page) - 1) * parseInt(limit);
+
+  // Detalles
+  const detallesQuery = `
+    SELECT i.id, i.hora_entrada, i.hora_salida, i.valor_pagado, v.placa, v.tipo, s.duracion AS tipo_servicio, f.estado AS estado_pago
+    FROM ingresos i
+    JOIN vehiculos v ON i.vehiculo_id = v.id
+    LEFT JOIN servicios s ON v.servicio_id = s.id
+    LEFT JOIN facturas f ON f.ingreso_id = i.id
+    ${where}
+    ORDER BY i.hora_entrada DESC
+    LIMIT $${idx} OFFSET $${idx + 1}
+  `;
+  const detalles = await pool.query(detallesQuery, [...valores, limit, offset]);
+
+  // Total general
+  const totalQuery = `
+    SELECT COALESCE(SUM(i.valor_pagado),0) AS total
+    FROM ingresos i
+    JOIN vehiculos v ON i.vehiculo_id = v.id
+    LEFT JOIN servicios s ON v.servicio_id = s.id
+    LEFT JOIN facturas f ON f.ingreso_id = i.id
+    ${where}
+  `;
+  const total = await pool.query(totalQuery, valores);
+
+  // Agrupado por día
+  const porDiaQuery = `
+    SELECT TO_CHAR(i.hora_entrada, 'YYYY-MM-DD') AS fecha, COALESCE(SUM(i.valor_pagado),0) AS total
+    FROM ingresos i
+    JOIN vehiculos v ON i.vehiculo_id = v.id
+    LEFT JOIN servicios s ON v.servicio_id = s.id
+    LEFT JOIN facturas f ON f.ingreso_id = i.id
+    ${where}
+    GROUP BY fecha
+    ORDER BY fecha DESC
+    LIMIT 31
+  `;
+  const porDia = await pool.query(porDiaQuery, valores);
+
+  // Agrupado por tipo de servicio
+  const porServicioQuery = `
+    SELECT COALESCE(s.duracion, 'Otro') AS tipo_servicio, COALESCE(SUM(i.valor_pagado),0) AS total
+    FROM ingresos i
+    JOIN vehiculos v ON i.vehiculo_id = v.id
+    LEFT JOIN servicios s ON v.servicio_id = s.id
+    LEFT JOIN facturas f ON f.ingreso_id = i.id
+    ${where}
+    GROUP BY tipo_servicio
+    ORDER BY total DESC
+  `;
+  const porServicio = await pool.query(porServicioQuery, valores);
+
+  return {
+    total: total.rows[0]?.total || 0,
+    por_dia: porDia.rows,
+    por_servicio: porServicio.rows,
+    detalles: detalles.rows
+  };
+}
+
+// Reporte profesional de ocupación
+async function getReporteOcupacion({ parqueadero_id, fecha_inicio, fecha_fin }) {
+  if (!parqueadero_id) throw new Error('parqueadero_id es requerido');
+  // Obtener capacidad
+  const parqueadero = await parqueaderoQueries.getParqueaderoById(parqueadero_id);
+  const capacidad = parqueadero?.capacidad || 0;
+  if (!capacidad) throw new Error('No se encontró la capacidad del parqueadero');
+
+  // Obtener ingresos (entradas y salidas) en el rango de fechas
+  let filtros = ['v.parqueadero_id = $1'];
+  let valores = [parqueadero_id];
+  let idx = 2;
+  if (fecha_inicio) {
+    filtros.push('i.hora_entrada >= $' + idx);
+    valores.push(fecha_inicio);
+    idx++;
+  }
+  if (fecha_fin) {
+    filtros.push('i.hora_entrada <= $' + idx);
+    valores.push(fecha_fin);
+    idx++;
+  }
+  const where = filtros.length ? `WHERE ${filtros.join(' AND ')}` : '';
+
+  // Obtener ocupación diaria: para cada día, contar cuántos vehículos estaban dentro
+  const query = `
+    SELECT d.fecha,
+      (
+        SELECT COUNT(*) FROM ingresos i2
+        JOIN vehiculos v2 ON i2.vehiculo_id = v2.id
+        WHERE v2.parqueadero_id = $1
+          AND i2.hora_entrada <= d.fecha::date + interval '1 day' - interval '1 second'
+          AND (i2.hora_salida IS NULL OR i2.hora_salida > d.fecha::date)
+      ) AS ocupados
+    FROM (
+      SELECT generate_series(
+        COALESCE($2::date, CURRENT_DATE - INTERVAL '6 days'),
+        COALESCE($3::date, CURRENT_DATE),
+        INTERVAL '1 day'
+      ) AS fecha
+    ) d
+    ORDER BY d.fecha
+  `;
+  const fechas = [parqueadero_id, fecha_inicio, fecha_fin];
+  const result = await pool.query(query, fechas);
+  // Calcular porcentaje de ocupación
+  const data = result.rows.map(r => ({
+    fecha: r.fecha.toISOString().slice(0, 10),
+    ocupados: Number(r.ocupados),
+    capacidad,
+    porcentaje: Math.round((Number(r.ocupados) / capacidad) * 100)
+  }));
+  return { capacidad, data };
+}
+
 export {
   registrarIngreso,
   registrarSalida,
@@ -94,4 +239,6 @@ export {
   listarIngresosActualesPorParqueadero,
   listarHistorialPorParqueadero,
   eliminarIngreso,
+  getReporteIngresos,
+  getReporteOcupacion,
 }; 
