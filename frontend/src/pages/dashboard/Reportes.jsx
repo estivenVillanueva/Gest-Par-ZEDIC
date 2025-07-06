@@ -15,6 +15,7 @@ import StarIcon from '@mui/icons-material/Star';
 import { useAuth } from '../../../logic/AuthContext';
 import { Button, TextField, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination } from '@mui/material';
 import { useMemo } from 'react';
+import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://gest-par-zedic.onrender.com';
 const COLORS = ['#2B6CA3', '#43a047', '#fbc02d', '#e53935', '#8e24aa'];
@@ -80,6 +81,9 @@ function Reportes() {
   });
   const [reporteServicios, setReporteServicios] = useState(null);
   const [loadingServicios, setLoadingServicios] = useState(false);
+  const [ingresosAcumulados, setIngresosAcumulados] = useState(0);
+  const [ingresosMes, setIngresosMes] = useState(0);
+  const [ingresosMesData, setIngresosMesData] = useState([]);
 
   useEffect(() => {
     // Determinar el parqueadero_id del usuario logueado
@@ -126,20 +130,50 @@ function Reportes() {
     fetchData();
   }, [parqueaderoId]);
 
+  useEffect(() => {
+    async function fetchPagos() {
+      if (!parqueaderoId) return;
+      setLoading(true);
+      try {
+        const res = await axios.get(`${API_URL}/api/pagos/historial/${parqueaderoId}`);
+        const pagos = Array.isArray(res.data) ? res.data : [];
+        // Ingresos acumulados: suma de todos los pagos
+        const ingresosAcumulados = pagos.reduce((acc, p) => acc + (parseInt(p.total, 10) || 0), 0);
+        setIngresosAcumulados(ingresosAcumulados);
+        // Ingresos por mes actual
+        const now = new Date();
+        const pagosMes = pagos.filter(p => {
+          if (!p.fecha_pago) return false;
+          const fecha = new Date(p.fecha_pago);
+          return fecha.getMonth() === now.getMonth() && fecha.getFullYear() === now.getFullYear();
+        });
+        const ingresosMes = pagosMes.reduce((acc, p) => acc + (parseInt(p.total, 10) || 0), 0);
+        setIngresosMes(ingresosMes);
+        // Para la gráfica de ingresos por mes
+        const pagosPorMes = {};
+        pagos.forEach(p => {
+          if (!p.fecha_pago) return;
+          const fecha = new Date(p.fecha_pago);
+          const key = `${fecha.getFullYear()}-${(fecha.getMonth() + 1).toString().padStart(2, '0')}`;
+          pagosPorMes[key] = (pagosPorMes[key] || 0) + (parseInt(p.total, 10) || 0);
+        });
+        const ingresosMesData = Object.entries(pagosPorMes).map(([mes, total]) => ({ mes, total }));
+        setIngresosMesData(ingresosMesData);
+      } catch (e) {
+        setIngresosAcumulados(0);
+        setIngresosMes(0);
+        setIngresosMesData([]);
+      }
+      setLoading(false);
+    }
+    fetchPagos();
+  }, [parqueaderoId]);
+
   // Filtrar servicios: solo los que están asociados a vehículos activos
   const serviciosConActividad = servicios.filter(s => vehiculos.some(v => v.servicio_id === s.id));
 
   // Filtrar facturas: solo las asociadas a vehículos activos
   const facturasConActividad = facturas.filter(f => vehiculos.some(v => v.id === f.vehiculo_id));
-
-  // Ingresos por mes
-  const ingresosPorMes = {};
-  ingresos.forEach(i => {
-    const fecha = new Date(i.hora_entrada || i.fecha_creacion);
-    const key = `${fecha.getFullYear()}-${(fecha.getMonth() + 1).toString().padStart(2, '0')}`;
-    ingresosPorMes[key] = (ingresosPorMes[key] || 0) + (i.valor_pagado || i.total || 0);
-  });
-  const ingresosMesData = Object.entries(ingresosPorMes).map(([mes, total]) => ({ mes, total }));
 
   // Pagos pendientes vs pagados (solo con actividad)
   const pagosPendientes = facturasConActividad.filter(f => f.estado?.toLowerCase() === 'pendiente').length;
@@ -188,8 +222,6 @@ function Reportes() {
   // KPIs rápidos
   const totalVehiculos = vehiculos.length;
   const totalServicios = serviciosConActividad.length;
-  const ingresosAcumulados = ingresos
-    .reduce((acc, i) => acc + (typeof i.valor_pagado === 'number' ? i.valor_pagado : (typeof i.total === 'number' ? i.total : 0)), 0);
   const ocupacionPromedio = ocupacion.total ? Math.round((ocupacion.ocupados / ocupacion.total) * 100) : 0;
 
   // Opciones para selects
@@ -911,33 +943,6 @@ function Reportes() {
                     <Tooltip />
                     <Bar dataKey="ingresos" fill="#43a047" radius={[8, 8, 0, 0]} />
                   </BarChart>
-                </ResponsiveContainer>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Paper sx={{ p: 2, bgcolor: '#e3f2fd', minWidth: 260, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                <Typography variant="subtitle2">Participación por servicio</Typography>
-                <ResponsiveContainer width="100%" height={260}>
-                  <PieChart>
-                    {(() => {
-                      const data = (reporteServicios || []).filter(s => Number(s.cantidad) > 0);
-                      if (data.length === 0) {
-                        // Si no hay datos válidos, muestra un slice vacío para evitar que desaparezca la gráfica
-                        return (
-                          <Pie data={[{ name: 'Sin datos', cantidad: 1 }]} dataKey="cantidad" nameKey="name" cx="50%" cy="50%" outerRadius={60} label>
-                            <Cell fill="#e0e0e0" />
-                          </Pie>
-                        );
-                      }
-                      return (
-                        <Pie data={data} dataKey="cantidad" nameKey="servicio_nombre" cx="50%" cy="50%" outerRadius={60} label>
-                          {data.map((entry, idx) => <Cell key={entry.servicio_nombre} fill={PIE_COLORS[idx % PIE_COLORS.length]} />)}
-                        </Pie>
-                      );
-                    })()}
-                    <Legend fontSize={12} />
-                    <Tooltip />
-                  </PieChart>
                 </ResponsiveContainer>
               </Paper>
             </Grid>
