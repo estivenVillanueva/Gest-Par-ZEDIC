@@ -640,7 +640,7 @@ function Reportes() {
                       <Bar dataKey="total" fill="#2B6CA3" radius={[8, 8, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
-      </Paper>
+                </Paper>
               </Grid>
               <Grid item xs={12} md={6}>
                 <Paper sx={{ p: 2, bgcolor: '#e8f5e9' }}>
@@ -916,13 +916,26 @@ function Reportes() {
               </Paper>
             </Grid>
             <Grid item xs={12} md={4}>
-              <Paper sx={{ p: 2, bgcolor: '#e3f2fd' }}>
-                <Typography variant="subtitle2">Distribución de ingresos</Typography>
-                <ResponsiveContainer width="100%" height={220}>
+              <Paper sx={{ p: 2, bgcolor: '#e3f2fd', minWidth: 260, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <Typography variant="subtitle2">Participación por servicio</Typography>
+                <ResponsiveContainer width="100%" height={260}>
                   <PieChart>
-                    <Pie data={reporteUsuarios} dataKey="ingresos" nameKey="usuario_nombre" cx="50%" cy="50%" outerRadius={70} label>
-                      {reporteUsuarios.map((entry, idx) => <Cell key={entry.usuario_nombre} fill={PIE_COLORS[idx % PIE_COLORS.length]} />)}
-                    </Pie>
+                    {(() => {
+                      const data = (reporteServicios || []).filter(s => Number(s.cantidad) > 0);
+                      if (data.length === 0) {
+                        // Si no hay datos válidos, muestra un slice vacío para evitar que desaparezca la gráfica
+                        return (
+                          <Pie data={[{ name: 'Sin datos', cantidad: 1 }]} dataKey="cantidad" nameKey="name" cx="50%" cy="50%" outerRadius={60} label>
+                            <Cell fill="#e0e0e0" />
+                          </Pie>
+                        );
+                      }
+                      return (
+                        <Pie data={data} dataKey="cantidad" nameKey="servicio_nombre" cx="50%" cy="50%" outerRadius={60} label>
+                          {data.map((entry, idx) => <Cell key={entry.servicio_nombre} fill={PIE_COLORS[idx % PIE_COLORS.length]} />)}
+                        </Pie>
+                      );
+                    })()}
                     <Legend fontSize={12} />
                     <Tooltip />
                   </PieChart>
@@ -1018,12 +1031,12 @@ function Reportes() {
                 </ResponsiveContainer>
               </Paper>
             </Grid>
-            <Grid item xs={12} md={4}>
-              <Paper sx={{ p: 2, bgcolor: '#e8f5e9' }}>
+            <Grid item xs={12} md={5}>
+              <Paper sx={{ p: 2, bgcolor: '#e8f5e9', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minWidth: 260 }}>
                 <Typography variant="subtitle2">Distribución por tipo</Typography>
-                <ResponsiveContainer width="100%" height={220}>
+                <ResponsiveContainer width="100%" height={260}>
                   <PieChart>
-                    <Pie data={Object.values((reporteVehiculos||[]).reduce((acc, v) => { acc[v.tipo] = acc[v.tipo] ? { ...acc[v.tipo], ingresos: acc[v.tipo].ingresos + Number(v.ingresos) } : { tipo: v.tipo, ingresos: Number(v.ingresos) }; return acc; }, {}))} dataKey="ingresos" nameKey="tipo" cx="50%" cy="50%" outerRadius={70} label>
+                    <Pie data={Object.values((reporteVehiculos||[]).reduce((acc, v) => { acc[v.tipo] = acc[v.tipo] ? { ...acc[v.tipo], ingresos: acc[v.tipo].ingresos + Number(v.ingresos) } : { tipo: v.tipo, ingresos: Number(v.ingresos) }; return acc; }, {}))} dataKey="ingresos" nameKey="tipo" cx="50%" cy="50%" outerRadius={80} label>
                       {Object.values((reporteVehiculos||[]).reduce((acc, v) => { acc[v.tipo] = acc[v.tipo] ? { ...acc[v.tipo], ingresos: acc[v.tipo].ingresos + Number(v.ingresos) } : { tipo: v.tipo, ingresos: Number(v.ingresos) }; return acc; }, {})).map((entry, idx) => <Cell key={entry.tipo} fill={PIE_COLORS[idx % PIE_COLORS.length]} />)}
                     </Pie>
                     <Legend fontSize={12} />
@@ -1113,20 +1126,6 @@ function Reportes() {
                     <Tooltip />
                     <Bar dataKey="cantidad" fill="#ff9800" radius={[8, 8, 0, 0]} />
                   </BarChart>
-                </ResponsiveContainer>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Paper sx={{ p: 2, bgcolor: '#e3f2fd' }}>
-                <Typography variant="subtitle2">Participación por servicio</Typography>
-                <ResponsiveContainer width="100%" height={220}>
-                  <PieChart>
-                    <Pie data={reporteServicios} dataKey="cantidad" nameKey="servicio_nombre" cx="50%" cy="50%" outerRadius={70} label>
-                      {reporteServicios.map((entry, idx) => <Cell key={entry.servicio_nombre} fill={PIE_COLORS[idx % PIE_COLORS.length]} />)}
-                    </Pie>
-                    <Legend fontSize={12} />
-                    <Tooltip />
-                  </PieChart>
                 </ResponsiveContainer>
               </Paper>
             </Grid>
