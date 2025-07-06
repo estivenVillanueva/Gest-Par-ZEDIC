@@ -189,8 +189,7 @@ function Reportes() {
   const totalVehiculos = vehiculos.length;
   const totalServicios = serviciosConActividad.length;
   const ingresosAcumulados = ingresos
-    .filter(i => typeof i.valor_pagado === 'number' && i.valor_pagado > 0)
-    .reduce((acc, i) => acc + i.valor_pagado, 0);
+    .reduce((acc, i) => acc + (typeof i.valor_pagado === 'number' ? i.valor_pagado : (typeof i.total === 'number' ? i.total : 0)), 0);
   const ocupacionPromedio = ocupacion.total ? Math.round((ocupacion.ocupados / ocupacion.total) * 100) : 0;
 
   // Opciones para selects
