@@ -101,6 +101,8 @@ const ParqueaderoProfile = () => {
   const [portadaTimestamp, setPortadaTimestamp] = useState(Date.now());
   const [openPassword, setOpenPassword] = useState(false);
   const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [confirmType, setConfirmType] = useState('');
 
   const CLOUDINARY_UPLOAD_PRESET = 'Gest-par-zedic';
   const CLOUDINARY_CLOUD_NAME = 'dnudkdqyr';
@@ -119,7 +121,11 @@ const ParqueaderoProfile = () => {
 
   const handleLogoChange = async (e) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file) {
+      setConfirmType('logo');
+      setOpenConfirmDialog(true);
+      return;
+    }
     try {
       const url = await uploadToBackend(file);
       handleSaveLogo(url);
@@ -130,7 +136,11 @@ const ParqueaderoProfile = () => {
 
   const handlePortadaChange = async (e) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file) {
+      setConfirmType('portada');
+      setOpenConfirmDialog(true);
+      return;
+    }
     try {
       const url = await uploadToBackend(file);
       handleSavePortada(url);
@@ -512,9 +522,8 @@ const ParqueaderoProfile = () => {
             onChange={async (e) => {
               const file = e.target.files[0];
               if (!file) {
-                if (window.confirm('¿Deseas quitar la portada y dejarla en blanco?')) {
-                  await handleSavePortada('');
-                }
+                setConfirmType('portada');
+                setOpenConfirmDialog(true);
                 return;
               }
               await handlePortadaChange(e);
@@ -554,9 +563,8 @@ const ParqueaderoProfile = () => {
             onChange={async (e) => {
               const file = e.target.files[0];
               if (!file) {
-                if (window.confirm('¿Deseas quitar el logo y dejarlo en blanco?')) {
-                  await handleSaveLogo('');
-                }
+                setConfirmType('logo');
+                setOpenConfirmDialog(true);
                 return;
               }
               await handleLogoChange(e);
@@ -1164,6 +1172,25 @@ const ParqueaderoProfile = () => {
         <DialogActions sx={{ justifyContent: 'center', pb: 2 }}>
           <Button onClick={() => setOpenPassword(false)} color="secondary" variant="outlined">Cancelar</Button>
           <Button onClick={handlePasswordChange} variant="contained" color="primary">Guardar</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openConfirmDialog} onClose={() => setOpenConfirmDialog(false)}>
+        <DialogTitle>¿Deseas quitar {confirmType === 'portada' ? 'la portada' : 'el logo'} y dejarla en blanco?</DialogTitle>
+        <DialogActions>
+          <Button onClick={() => setOpenConfirmDialog(false)} color="secondary" variant="outlined">Cancelar</Button>
+          <Button
+            onClick={async () => {
+              setOpenConfirmDialog(false);
+              if (confirmType === 'portada') await handleSavePortada('');
+              if (confirmType === 'logo') await handleSaveLogo('');
+            }}
+            color="primary"
+            variant="contained"
+            autoFocus
+          >
+            Aceptar
+          </Button>
         </DialogActions>
       </Dialog>
 
