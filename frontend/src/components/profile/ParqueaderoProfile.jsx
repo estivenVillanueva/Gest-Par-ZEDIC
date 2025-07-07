@@ -179,7 +179,7 @@ const ParqueaderoProfile = () => {
         }
 
         // 3. Actualizar el estado con los servicios
-        setParqueaderoInfo({ ...parqueadero, servicios });
+        setParqueaderoInfo({ ...parqueadero, servicios: Array.isArray(servicios) ? servicios : [] });
       } catch (error) {
         console.error('Error al cargar parqueadero:', error);
         setSnackbar({
@@ -368,7 +368,7 @@ const ParqueaderoProfile = () => {
           data = await response.json();
           setParqueaderoInfo(prev => ({
             ...prev,
-            servicios: [...prev.servicios, data.data]
+            servicios: Array.isArray(prev.servicios) ? [...prev.servicios, data.data] : [data.data]
           }));
           setSnackbar({ open: true, message: 'Servicio agregado', severity: 'success' });
         }
